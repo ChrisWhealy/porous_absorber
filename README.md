@@ -50,7 +50,7 @@ All inputs are made using the range sliders.  The sliders can be moved either by
 
 I decided to use sliders as the input UI element instead of simple input fields for two reasons:
 
-1. It prevents erroneous or out of range values from being entered, thus ensuring the the calculation engine always receives valid input
+1. It prevents erroneous or out of range values from being entered, thus ensuring that the calculation engine always receives valid input
 2. It creates an "animation" effect whereby you can see how the absorption curve changes dynamically as you move a slider
 
 
