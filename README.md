@@ -1,6 +1,10 @@
 # Porous Absorber Calculator
 
-Calculates the absorption curve of a porous absorber layer both with and without an air gap between it and some impermeable boundry.
+Calculates the absorption curve of a porous absorber layer both with and without an air gap between it and some impermeable boundry as shown in this diagram:
+
+![Structure](./img/structure.png)
+
+The absorber thickness (***t<sub>a</sub>***) can range from 5mm up to 500mm and the air gap (***d***) can range from zero to 500mm
 
 This app was written as part of an on-going exercise in learning Rust and cross-compiling it to Web Assembly using [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)
 
@@ -11,7 +15,7 @@ An online version of this tool is available [here](http://whealy.com/acoustics/P
 
 ## Architecture
 
-The WASM function receives 8 arguments and from these, it calculates the absorption curve of that particular absorbent system.  The absorption curve is then generated as an HTML `canvas` directly by Rust interacting with the browser DOM through [wasm-bindgen](https://rustwasm.github.io/wasm-bindgen/introduction.html)
+The WASM function receives the 8 arguments listed in the table below and from these, calculates the absorption curve of that particular absorbent system.  The absorption curve is then generated as an HTML `canvas` directly by Rust interacting with the browser DOM through [wasm-bindgen](https://rustwasm.github.io/wasm-bindgen/introduction.html)
 
 ## Local Installation
 
@@ -36,6 +40,7 @@ When the app starts, the absorption curve is always plotted using default values
 | Cavity air gap | 0 mm | 100 mm | 500 mm
 | Angle of indcidence | 0° | 0° | 89°
 | Graph start frequency | 20 Hz | 62.5 Hz | 200 Hz
+| Octave subdivisions | 1 | 1 | 1, 2, 3 or 6
 | Air temperature | -20°C | 20°C | 100°C
 | Air pressure | 0.800 Bar | 1.000 Bar | 1.100 Bar 
 
