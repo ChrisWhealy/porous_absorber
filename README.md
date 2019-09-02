@@ -8,6 +8,10 @@ The absorber thickness (***t<sub>a</sub>***) can range from 5mm up to 500mm and 
 
 This app was written as part of an on-going exercise in learning Rust and cross-compiling it to Web Assembly using [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)
 
+## Calculations
+
+All the calculations used by this app are derived from the book "*Acoustic Absorbers and Diffusers.  Theory, Design and Practice*" by Trevor Cox and Peter D'Antonio (First Edition)
+
 ## Online Version
 
 An online version of this tool is available [here](http://whealy.com/acoustics/PA_Calculator/index.html)
@@ -39,7 +43,7 @@ When the app starts, the absorption curve is always plotted using default values
 | Absorber flow resistivity | 100 rayls/m | 16,500 rayls/m | 100,000 rayls/m 
 | Cavity air gap | 0 mm | 100 mm | 500 mm
 | Angle of indcidence | 0° | 0° | 89°
-| Graph start frequency | 20 Hz | 62.5 Hz | 200 Hz
+| Graph start frequency | 20 Hz | 62.5 Hz | 100 Hz
 | Octave subdivisions | 1 | 1 | 1, 2, 3 or 6
 | Air temperature | -20°C | 20°C | 100°C
 | Air pressure | 0.800 Bar | 1.000 Bar | 1.100 Bar 
