@@ -9,6 +9,12 @@ use wasm_bindgen::{JsValue, JsCast};
 
 use std::f64::consts::PI;
 
+const LIB_NAME: &str = "render";
+const ENTER_FN: &str = "---->";
+const EXIT_FN : &str = "<----";
+
+const DEBUG: bool = false;
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Canvas constants
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -33,6 +39,26 @@ extern "C" {
   fn log(s: &str);
 }
 
+fn fn_boundary_trace(is_debug: bool, fn_name: &'static str) -> impl Fn(bool) -> () {
+  move | is_enter: bool |
+    if is_debug {
+      log(&format!("{} {}::{}()", if is_enter { ENTER_FN } else { EXIT_FN }, LIB_NAME, fn_name))
+    }
+    else {
+      ()
+    }
+}
+
+fn fn_trace(is_debug: bool, fn_name: &'static str) -> impl Fn(&str) -> () {
+  move | txt: &str |
+    if is_debug {
+      log(&format!("      {}::{}() {}", LIB_NAME, fn_name, txt))
+    }
+    else {
+      ()
+    }
+}
+
 // *********************************************************************************************************************
 // Public API
 // *********************************************************************************************************************
@@ -54,6 +80,12 @@ pub fn get_2d_context(canvas: &web_sys::HtmlCanvasElement) -> web_sys::CanvasRen
 // Draw graph axes
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 pub fn draw_axes(canvas: &web_sys::HtmlCanvasElement, frequencies: &Vec<u32>) {
+  let my_name = &"draw_axes";
+  let fn_boundary      = fn_boundary_trace(DEBUG, my_name);
+  let write_to_console = fn_trace(DEBUG, my_name);
+
+  fn_boundary(true);
+
   let (mid_height, mid_width, bottom_margin_pos, x_axis_length, y_axis_length) = canvas_dimensions(&canvas);
 
   let ctx = get_2d_context(&canvas);
@@ -86,6 +118,8 @@ pub fn draw_axes(canvas: &web_sys::HtmlCanvasElement, frequencies: &Vec<u32>) {
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // Start drawing
+  write_to_console("Clearing canvas");
+
   ctx.clear_rect(0.0, 0.0, canvas_width, canvas_height);
   ctx.begin_path();
 
@@ -98,6 +132,8 @@ pub fn draw_axes(canvas: &web_sys::HtmlCanvasElement, frequencies: &Vec<u32>) {
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // Add x axis scale
+  write_to_console("Plotting X axis");
+
   let tick_length     = 10.0;
   let x_tick_interval = x_axis_length / (frequencies.len() - 1) as f64;
 
@@ -131,6 +167,8 @@ pub fn draw_axes(canvas: &web_sys::HtmlCanvasElement, frequencies: &Vec<u32>) {
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // Add y axis scale
+  write_to_console("Plotting Y axis");
+
   let y_tick_interval = y_axis_length / 10.0;
 
   ctx.translate(LEFT_AXIS_INSET , canvas_height - BOTTOM_AXIS_INSET).unwrap();
@@ -169,6 +207,8 @@ pub fn draw_axes(canvas: &web_sys::HtmlCanvasElement, frequencies: &Vec<u32>) {
   ctx.fill_text(&title, mid_width - (title_width / 2.0), TOP_MARGIN_INSET).unwrap();
 
   ctx.stroke();
+
+  fn_boundary(false);
 }
 
 
@@ -179,6 +219,12 @@ pub fn draw_curve(
   canvas: &web_sys::HtmlCanvasElement
 , abs_info: &crate::AbsInfo
 ) {
+  let my_name = &"draw_curve";
+  let fn_boundary      = fn_boundary_trace(DEBUG, my_name);
+  let write_to_console = fn_trace(DEBUG, my_name);
+
+  fn_boundary(true);
+
   let canvas_height = canvas.height() as f64;
   let ctx           = get_2d_context(&canvas);
 
@@ -202,6 +248,8 @@ pub fn draw_curve(
   ctx.set_stroke_style(&rgb_pink);
 
   // Plot absorption curve for absorber with air gap
+  write_to_console("Plotting absorption curve with air gap");
+
   for abs in abs_info.air_gap.iter() {
     y_pos = y_start - (abs * y_axis_length);
     ctx.line_to(x_pos, y_pos);
@@ -221,6 +269,8 @@ pub fn draw_curve(
   ctx.set_stroke_style(&rgb_dark_blue);
 
   // Plot absorption curve for absorber without air gap
+  write_to_console("Plotting absorption curve without air gap");
+
   for abs in abs_info.no_air_gap.iter() {
     y_pos = y_start - (abs * y_axis_length);
     ctx.line_to(x_pos, y_pos);
@@ -230,6 +280,8 @@ pub fn draw_curve(
   }
 
   ctx.stroke();
+
+  fn_boundary(false);
 }
 
 // *********************************************************************************************************************
