@@ -1,10 +1,12 @@
 # Porous Absorber Calculator
 
-Calculates the absorption curve of a porous absorber layer both with and without an air gap between it and some impermeable boundry as shown in this diagram:
+Calculates the acoustic absorption curve of a porous absorber layer both with and without an air gap between it and some impermeable boundry as shown in this diagram:
 
 ![Structure](./img/structure.png)
 
-The absorber thickness (***t<sub>a</sub>***) can range from 5mm up to 500mm and the air gap (***d***) can range from zero to 500mm
+The absorber is typically made from some material such as Rockwool or glass fibre insulation and its thickness (***t<sub>a</sub>***) can range from 5mm up to 500mm
+
+If present, the underlying  air gap (***d***) can range in depth from zero to 500mm
 
 This app was written as part of an on-going exercise in learning Rust and cross-compiling it to Web Assembly using [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)
 
@@ -49,7 +51,7 @@ When the app starts, the absorption curve is always plotted using default values
 | Air pressure | 0.800 Bar | 1.000 Bar | 1.100 Bar 
 
 
-### Graph Start Frequency
+### Graph start frequency
 
 The graph always plots an 8 octave range starting at the specified start frequency.  Normally, this should be left set to 62.5 Hz in order to see the standard analysis range (i.e. up to 16 KHz).  However, should you wish to, you can set the start frequency to be as low as 20 Hz, in which case, you will still see an 8 octave range, but the upper limit will now be 5.1 KHz
 
@@ -59,7 +61,7 @@ All inputs are made using the range sliders.  The sliders can be moved either by
 
 I decided to use sliders as the input UI element instead of simple input fields for two reasons:
 
-1. It prevents erroneous or out of range values from being entered, thus ensuring that the calculation engine always receives valid input
+1. It prevents invalid or out of range values from being entered, thus ensuring that the calculation engine always receives valid input
 2. It creates an "animation" effect whereby you can see how the absorption curve changes dynamically as you move a slider
 
 
