@@ -7,21 +7,16 @@
  // Identity funtion
 const idiot = val => val
 
-// A useful version of the Array.push()
-const push = (el, arr) => (_ => arr)(arr.push(el))
-
-const onlyDirection = dir => (acc, field) => field.direction === dir ? push(field, acc) : acc
-
-// Partial functions for filtering in/outbound parameters from the metadata object
-const filterInbound  = onlyDirection("in")
-const filterOutbound = onlyDirection("out")
-
 // Fetch required input values from the DOM
 const fetchElementValue = parseFn => elementId => parseFn(document.getElementById(elementId).value)
 
 const fetchFloat = fetchElementValue(parseFloat)
 const fetchInt   = fetchElementValue(parseInt)
 const fetchText  = fetchElementValue(idiot)
+
+const fetchCheckboxVal =
+  elementId =>
+    document.getElementById(elementId).checked
 
 const fetchRadio =
   elementId => {

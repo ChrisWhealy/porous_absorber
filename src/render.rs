@@ -131,11 +131,11 @@ pub fn draw_axes(canvas: &web_sys::HtmlCanvasElement, frequencies: &Vec<u32>) {
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // Add y axis scale
-  let y_tick_interval = y_axis_length / 9.0;
+  let y_tick_interval = y_axis_length / 10.0;
 
   ctx.translate(LEFT_AXIS_INSET , canvas_height - BOTTOM_AXIS_INSET).unwrap();
 
-  for abs in [0.0, 0.1, 0.2, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].iter() {
+  for abs in [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].iter() {
     let tick_label  = &format!("{:?}",abs);
     let label_width = ctx.measure_text(tick_label).unwrap().width();
 
