@@ -4,7 +4,8 @@
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
 
- // Identity funtion
+ // Identity funtion (which, according to Dave Keenan, should more appropriately be called the idiot function.
+ // See http://dkeenan.com/Lambda/ for details)
 const idiot = val => val
 
 // Fetch required input values from the DOM
@@ -13,10 +14,6 @@ const fetchElementValue = parseFn => elementId => parseFn(document.getElementByI
 const fetchFloat = fetchElementValue(parseFloat)
 const fetchInt   = fetchElementValue(parseInt)
 const fetchText  = fetchElementValue(idiot)
-
-const fetchCheckboxVal =
-  elementId =>
-    document.getElementById(elementId).checked
 
 const fetchRadio =
   elementId => {
@@ -29,10 +26,8 @@ const fetchRadio =
     return 1
   }
 
-
 // Write string to element value
 const writeString = (elementId, val) => document.getElementById(elementId).value = val
-
 
 // Display range slider value and convert its metric value to imperial units
 const show_and_convert_units =
@@ -46,6 +41,7 @@ const show_and_convert_units =
     value_el ? show_units(value, value_el, field)   : undefined
     unit_el  ? convert_units(value, unit_el, field) : undefined
   }
+
 // Display range slider value
 const show_units =
   (val, el, field) =>
@@ -85,20 +81,14 @@ const to_imperial = (units, val) => {
 /***********************************************************************************************************************
  * The metadata object defines which HTML elements the WASM module should expect already to be present in the DOM.
  * 
- * The order of the fields with direction:"in" must match the argument order expected by the WASM function pa_calculator
- *
  * The value of the "id" property below must match the corresponding id of the input field in the DOM
  *
  * The value of "units" property is needed primarily for metric to imperial conversion but is maintained for all
  * values for consistency and potential future use
  *
- * The "direction" field indicates the direction of data flow with respect to the WASM module.  Fields having a
- * direction of "out" correspond to read only HTML elements
+ * The "fetch" property is set to the function name needed to read the input value from the corresponding HTML element
  *
- * The "fetch" and "update" properties are set to the function name needed to read or write the value to or from the
- * corresponding HTML element
- *
- * The WASM moduile returns either an array of error messages or the string "Ok"
+ * The WASM moduile returns either the success value "Ok" or an array of error messages
  **********************************************************************************************************************/
 const dom_metadata = [
   { id : "absorber_thickness_mm", type : "int",    units : "mm",      fetch : fetchInt   }
@@ -111,22 +101,14 @@ const dom_metadata = [
 , { id : "air_pressure",          type : "int",    units : "bar",     fetch : fetchFloat }
 ]
 
-
-/***********************************************************************************************************************
- * Invoke the appropriate WASM function
- */
-const calculate_pa = () => {
-  let current_field_values = dom_metadata.map(field => field.fetch(field.id))
-  let wasm_response        = pa_calculator.apply(null, current_field_values)
-
-  // console.log(wasm_response)
-}
-
 /***********************************************************************************************************************
  * This function must be called everytime an input value changes
  */
 const update_screen = () => {
   dom_metadata.map(show_and_convert_units)
-  calculate_pa()
-}
 
+  let current_field_values = dom_metadata.map(field => field.fetch(field.id))
+  let wasm_response        = pa_calculator.apply(null, current_field_values)
+
+  // console.log(wasm_response)
+}
