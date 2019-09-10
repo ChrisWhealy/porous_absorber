@@ -20,10 +20,6 @@ pub fn sound_velocity(temp: f64) -> f64 {
   ((GAMMA * ONE_ATM) / AIR_DENSITY_0).sqrt() * (1.0 + (temp / KELVIN_OFFSET)).sqrt()
 }
 
-pub fn air_impedance(pressure: f64, temp: f64) -> f64 {
-  sound_velocity(temp) * air_density(pressure, temp)
-}
-
 /***********************************************************************************************************************
  * Air pressure and temperature range check values
  */
@@ -82,12 +78,6 @@ pub struct AirConfig {
 }
 
 impl AirConfig {
-  pub fn temperature_as_string(&self) -> String { format!("{:.1}°C",        self.temperature)  }
-  pub fn pressure_as_string(&self)    -> String { format!("{:.3} Bar",      self.pressure) }
-  pub fn density_as_string(&self)     -> String { format!("{:.3} kg/m^3",   self.density) }
-  pub fn velocity_as_string(&self)    -> String { format!("{:.2} m/s",      self.velocity) }
-  pub fn impedance_as_string(&self)   -> String { format!("{:.2} kg/m^2.s", self.impedance) }
-
   pub fn default() -> AirConfig {
     AirConfig::new(DEFAULT_TEMP, DEFAULT_PRESSURE).unwrap()
   }

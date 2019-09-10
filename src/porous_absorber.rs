@@ -1,6 +1,5 @@
 extern crate num_format;
 
-use num_format::{Locale, WriteFormatted};
 use std::error::Error;
 use std::fmt;
 
@@ -56,17 +55,6 @@ pub struct PorousAbsorberConfig {
 }
 
 impl PorousAbsorberConfig {
-  pub fn thickness_mm_as_string(&self) -> String {
-    format!("{} {}", self.thickness_mm, UNITS_THICKNESS)
-  }
-
-  pub fn sigma_as_string(&self) -> String {
-    let mut fmt_str = String::new();
-    fmt_str.write_formatted(&self.sigma, &Locale::en_GB).unwrap();
-
-    format!("{} {}", fmt_str, UNITS_FLOW_RESISTIVITY)
-  }
-
   pub fn default() -> PorousAbsorberConfig {
     PorousAbsorberConfig::new(DEFAULT_THICKNESS, DEFAULT_FLOW_RESISTIVITY).unwrap()
   }

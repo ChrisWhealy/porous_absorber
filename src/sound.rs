@@ -46,8 +46,6 @@ pub struct SoundConfig {
 }
 
 impl SoundConfig {
-  pub fn angle_as_string(&self) -> String { format!("{}˚", self.angle) }
-
   pub fn default() -> SoundConfig {
     SoundConfig::new(DEFAULT_ANGLE).unwrap()
   }

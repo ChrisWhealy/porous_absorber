@@ -47,8 +47,6 @@ pub struct CavityConfig {
 }
 
 impl CavityConfig {
-  pub fn air_gap_mm_as_string(&self) -> String { format!("{} mm", self.air_gap_mm) }
-
   pub fn default() -> CavityConfig {
     CavityConfig::new(DEFAULT_THICKNESS).unwrap()
   }

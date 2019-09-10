@@ -63,7 +63,7 @@ impl Error for DisplayError {
 }
 
 /***********************************************************************************************************************
- * Generate the required frequencies from the number of disoplay octaves and the subdivisions
+ * Generate the required frequencies from the number of display octaves and the subdivisions
  * The range upper bound must be included in order not to omit the 16KHz value
  */
 fn gen_frequencies(graph_start_freq : &f64, subdivisions : &u32) -> Vec<f64> {
@@ -99,19 +99,6 @@ pub struct DisplayConfig {
 
 
 impl DisplayConfig {
-  pub fn graph_start_freq_as_string(&self) -> String { format!("{} Hz", self.graph_start_freq) }
-
-  pub fn subdivisions_as_string(&self) -> String {
-    String::from(
-      match self.subdivisions {
-        1 => "Whole octave"
-      , 2 => "1/2 Octave"
-      , 3 => "1/3 Octave"
-      , 6 => "1/6 Octave"
-      , _ => "Unknown"
-      })
-  }
-
   pub fn default() -> DisplayConfig {
     DisplayConfig::new(DEFAULT_FREQ, DEFAULT_SUBDIVISION).unwrap()
   }

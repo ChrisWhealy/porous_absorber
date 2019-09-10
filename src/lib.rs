@@ -8,22 +8,25 @@ extern crate wasm_bindgen;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Submodules
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-pub mod air;
-pub mod porous_absorber;
-pub mod cavity;
-pub mod sound;
-pub mod display;
-pub mod render;
+mod air;
+mod porous_absorber;
+mod cavity;
+mod sound;
+mod display;
+mod render;
+
+mod struct_lib;
+
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Usage
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-use serde::ser::{Serialize, Serializer, SerializeStruct};
+use struct_lib::{AbsInfo, Point};
 
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsValue;
 
-use libm::*;
+use libm::{sin, cos, sqrt, pow};
 use num::complex::Complex;
 
 use std::error::Error;
@@ -52,31 +55,6 @@ extern "C" {
   fn log(s: &str);
 }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Data structure for communication with JavaScript
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#[wasm_bindgen]
-pub struct AbsInfo {
-  frequencies : Vec<u32>
-, air_gap     : Vec<f64>
-, no_air_gap  : Vec<f64>
-}
-
-impl Serialize for AbsInfo {
-  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-  where
-    S: Serializer
-  {
-    // 3 is the number of fields in the AbsInfo struct
-    let mut state = serializer.serialize_struct("AbsInfo", 3)?;
-
-    state.serialize_field("frequencies", &self.frequencies)?;
-    state.serialize_field("airGap",      &self.air_gap)?;
-    state.serialize_field("noAirGap",    &self.no_air_gap)?;
-
-    state.end()
-  }
-}
 
 
 // *********************************************************************************************************************
@@ -140,24 +118,21 @@ pub fn porous_absorber(
     PorousAbsorberConfig::default()
   });
 
-  // Have we accumlated any error messages?
-  if error_msgs.len() == 0 {
-    // Nope, so calculate the absorption values
+  // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
+  // value "Ok", else return the array of error messages
+  return if error_msgs.len() == 0 {
     let absorber_info = overall_absorption(&air_cfg, &cavity_cfg, &display_cfg, &sound_cfg, &porous_cfg);
     
     // Plot the graph
-    let canvas = render::get_canvas();
-    
-    render::draw_axes(&canvas, &absorber_info.frequencies);
-    render::draw_curve(&canvas, &absorber_info);
+    render::plot(&absorber_info);
 
-    return JsValue::from("Ok");
+    JsValue::from("Ok")
   }
   else {
     log(&format!("{} error{} detected in input values", error_msgs.len(), if error_msgs.len() == 1 { "" } else { "s" }));
 
     // Serialize the error message(s) and pass back to JavaScript
-    return JsValue::from_serde(&error_msgs).unwrap();
+    JsValue::from_serde(&error_msgs).unwrap()
   }
 }
 
@@ -178,15 +153,14 @@ fn overall_absorption(
     .frequencies
     .iter()
     .fold(
-      AbsInfo { frequencies: vec!(), air_gap: vec!(), no_air_gap : vec!() }
+      AbsInfo { air_gap: vec!(), no_air_gap : vec!() }
     , | mut acc, frequency | {
         let (abs_no_air_gap, abs_air_gap) =
           do_porous_abs_calc(*frequency, &air, &cavity, &sound, &porous);
 
-        // Convert the floating point frequency to an unsigned integer before sending to JavaScript
-        acc.frequencies.push(frequency.round() as u32);
-        acc.no_air_gap.push(abs_no_air_gap);
-        acc.air_gap.push(abs_air_gap);
+        // Build the vectors of plot points for each absorber type
+        acc.no_air_gap.push(Point { x: *frequency, y: abs_no_air_gap});
+        acc.air_gap.push(Point { x: *frequency, y: abs_air_gap});
 
         return acc;
       }
@@ -196,10 +170,10 @@ fn overall_absorption(
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Reducer function to calculate the absorption of a porous absorber with or without and air gap at a specific frequency
 fn do_porous_abs_calc(
-  frequency         : f64
-, air_cfg        : &AirConfig
-, cavity_cfg     : &CavityConfig
-, sound_cfg      : &SoundConfig
+  frequency  : f64
+, air_cfg    : &AirConfig
+, cavity_cfg : &CavityConfig
+, sound_cfg  : &SoundConfig
 , porous_cfg : &PorousAbsorberConfig
 ) -> (f64, f64) {
   // Frequently used intermediate values
