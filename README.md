@@ -14,6 +14,8 @@ This app was written as part of an on-going exercise in learning Rust and cross-
 
 All the calculations used by this app are derived from the book "*Acoustic Absorbers and Diffusers.  Theory, Design and Practice*" by Trevor Cox and Peter D'Antonio (First Edition)
 
+The graph is plotted using Beziér curves between each plot point.  This has been done for its aesthetic appeal and does not imply that the actual absorption between the plot points follows the exact line drawn on the screen
+
 ## Online Version
 
 An online version of this tool is available [here](http://whealy.com/acoustics/PA_Calculator/index.html)
@@ -66,9 +68,6 @@ I decided to use sliders as the input UI element instead of simple input fields 
 
 
 ## ToDo
-
-* Implement curve smoothing
-
 
 
 ## Known Issues
