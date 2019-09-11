@@ -4,13 +4,12 @@
 extern crate wasm_bindgen;
 extern crate web_sys;
 
-use crate::struct_lib::{AbsInfo, Point};
+use crate::struct_lib::{PlotPoint, Axis, AxisOrientation, SeriesMetadata};
+use crate::display::DisplayConfig;
 
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::{JsValue, JsCast};
-
 use std::f64::consts::PI;
-
 use libm::{sqrt, pow};
 
 const LIB_NAME: &str = "render";
@@ -37,12 +36,11 @@ const RGB_PINK         : &str = &"rgb(234, 51, 247)";
 const RGB_DARK_BLUE    : &str = &"rgb(6, 1, 123)";
 const BASE_FONT        : &str = &"Arial";
 
-const TITLE_FONT_HEIGHT      : f64 = 36.0;
-const LABEL_FONT_HEIGHT      : f64 = 20.0;
-const HALF_LABEL_FONT_HEIGHT : f64 = LABEL_FONT_HEIGHT / 2.0;
+const TITLE_FONT_HEIGHT : f64 = 36.0;
+const LABEL_FONT_HEIGHT : f64 = 20.0;
 
 const TICK_LENGTH    : f64 = 10.0;
-const LABEL_TICK_GAP : f64 = 5.0;
+const TICK_LABEL_GAP : f64 = 5.0;
 const POINT_RADIUS   : f64 = 5.0;
 const TENSION        : f64 = 0.45;
 
@@ -80,19 +78,28 @@ fn fn_trace(is_debug: bool, fn_name: &'static str) -> impl Fn(&str) -> () {
 // Public API
 //
 // *********************************************************************************************************************
-pub fn plot(absorber_info: &crate::AbsInfo) {
+pub fn plot(absorber_info: &crate::PorousAbsInfo, display_cfg: &DisplayConfig) {
   let document  = web_sys::window().unwrap().document().unwrap();
   let canvas_el = document.get_element_by_id("graph_canvas").unwrap();
   let canvas    = canvas_el.dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
 
-  let rgb_pink      = JsValue::from(RGB_PINK);
-  let rgb_dark_blue = JsValue::from(RGB_DARK_BLUE);
+  let air_gap_series = SeriesMetadata {
+    name  : &"Air Gap"
+  , point_colour : JsValue::from(RGB_PINK)
+  };
+
+  let no_air_gap_series = SeriesMetadata {
+    name  : &"No Air Gap"
+  , point_colour : JsValue::from(RGB_DARK_BLUE)
+  };
 
   clear(&canvas);
-  draw_axes(&canvas, &absorber_info);
-  draw_splines(&canvas, &absorber_info.air_gap,    &"With air gap",    &rgb_pink);
-  draw_splines(&canvas, &absorber_info.no_air_gap, &"Without air gap", &rgb_dark_blue);
+  draw_title_and_key(&canvas, &"Overall absorption at the specified angle", vec!(&air_gap_series, &no_air_gap_series));
+  draw_axes(&canvas, &display_cfg);
+  draw_splines(&canvas, &absorber_info.air_gap,    &air_gap_series.point_colour);
+  draw_splines(&canvas, &absorber_info.no_air_gap, &no_air_gap_series.point_colour);
 }
+
 
 
 // *********************************************************************************************************************
@@ -105,136 +112,212 @@ fn get_2d_context(canvas: &web_sys::HtmlCanvasElement) -> web_sys::CanvasRenderi
   canvas.get_context("2d").unwrap().unwrap().dyn_into::<web_sys::CanvasRenderingContext2d>().unwrap()
 }
 
+
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Draw chart title and key
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+fn draw_title_and_key(canvas: &web_sys::HtmlCanvasElement, title: &str, series_list: Vec<&SeriesMetadata>) {
+  let my_name     = &"draw_title_key";
+  let fn_boundary = fn_boundary_trace(DEBUG, my_name);
+
+  fn_boundary(true);
+
+  let ctx = get_2d_context(&canvas);
+  ctx.save();
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // Set font and stroke colour, then measure title width
+  ctx.set_font(&format!("{}px {}", TITLE_FONT_HEIGHT, BASE_FONT));
+  ctx.set_stroke_style(&JsValue::from(RGB_BLACK));
+
+  let title_width = ctx.measure_text(title).unwrap().width();
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // Add chart title
+  ctx.fill_text(&title, LEFT_MARGIN_INSET, TOP_MARGIN_INSET).unwrap();
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // Add series key
+  ctx.set_font(&format!("{}px {}", LABEL_FONT_HEIGHT, BASE_FONT));
+
+  let mut x = LEFT_MARGIN_INSET + title_width + 50.0;
+  let     y = TOP_MARGIN_INSET - (TITLE_FONT_HEIGHT / 2.0);
+
+  for series in series_list {
+    ctx.begin_path();
+    ctx.move_to(x, y);
+    ctx.line_to(x + 30.0, y);
+    ctx.stroke();
+
+    draw_point(&ctx, &PlotPoint { x : x + 15.0, y : y }, &series.point_colour);
+
+    ctx.fill_text(series.name, x + 40.0, y + (LABEL_FONT_HEIGHT / 2.0) - 3.0).unwrap();
+
+//    log(&format!("'{}' is {} pixels wide", series.name, ctx.measure_text(series.name).unwrap().width()));
+
+    x += ctx.measure_text(series.name).unwrap().width() * 2.0;
+  }
+
+  ctx.restore();
+
+  fn_boundary(false);
+}
+
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Draw graph axes
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-fn draw_axes(canvas: &web_sys::HtmlCanvasElement, abs_info: &AbsInfo) {
-  let my_name = &"draw_axes";
+fn draw_axes(canvas: &web_sys::HtmlCanvasElement, display_cfg: &DisplayConfig) {
+  let my_name     = &"draw_axes";
+  let fn_boundary = fn_boundary_trace(DEBUG, my_name);
+
+  fn_boundary(true);
+
+  let chart_origin = &PlotPoint { x : LEFT_AXIS_INSET, y : canvas.height() as f64 - BOTTOM_AXIS_INSET };
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // Draw Y axis
+  let abs_strs = vec!(
+    String::from("0.0")
+  , String::from("0.1")
+  , String::from("0.2")
+  , String::from("0.3")
+  , String::from("0.4")
+  , String::from("0.5")
+  , String::from("0.6")
+  , String::from("0.7")
+  , String::from("0.8")
+  , String::from("0.9")
+  , String::from("1.0")
+  );
+
+  draw_axis(&canvas, &Axis {
+    title          : &"Absorption"
+  , start_point    : chart_origin.clone()
+  , end_point      : PlotPoint { x : LEFT_AXIS_INSET, y : BOTTOM_AXIS_INSET }
+  , values         : abs_strs
+  , orientation    : AxisOrientation::Vertical
+  , tick_length    : TICK_LENGTH
+  , tick_label_gap : TICK_LABEL_GAP
+  });
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // Draw X axis
+  let mut freq_strs : Vec<String> = vec!();
+  display_cfg
+    .frequencies
+    .iter()
+    .fold(
+      ()
+    , | _, f | freq_strs.push(String::from(format!("{}",f)))
+    );
+
+  draw_axis(&canvas, &Axis {
+    title          : &"Frequency (Hz)"
+  , start_point    : chart_origin.clone()
+  , end_point      : PlotPoint { x : canvas.width() as f64 - LEFT_AXIS_INSET, y : canvas.height() as f64 - BOTTOM_AXIS_INSET }
+  , values         : freq_strs
+  , orientation    : AxisOrientation::Horizontal
+  , tick_length    : TICK_LENGTH
+  , tick_label_gap : TICK_LABEL_GAP
+  });
+
+  fn_boundary(false);
+}
+
+
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Draw an axis
+fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: &Axis) {
+  let my_name = &"draw_axis";
 
   let fn_boundary      = fn_boundary_trace(DEBUG, my_name);
   let write_to_console = fn_trace(DEBUG, my_name);
 
   fn_boundary(true);
 
-  let (mid_height, mid_width, bottom_margin_pos, x_axis_length, y_axis_length) = canvas_dimensions(&canvas);
+  write_to_console("Plotting axis");
+
+  // Define context values
+  let (mid_height, mid_width, bottom_margin_pos, _, _) = canvas_dimensions(&canvas);
+  let tick_interval : f64 = axis_info.tick_interval();
 
   let ctx = get_2d_context(&canvas);
 
-  let canvas_height = canvas.height() as f64;
-  let canvas_width  = canvas.width() as f64;
-
-  let rgb_black = JsValue::from(RGB_BLACK);
-
-
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  // Set font and stroke colour, then measure title width
-  let title_typeface = String::from(format!("{}px {}", TITLE_FONT_HEIGHT, BASE_FONT));
-
-  ctx.set_font(&title_typeface);
-  ctx.set_stroke_style(&rgb_black);
-
-  let title       = String::from("Overall absorption at the specified angle");
-  let title_width = ctx.measure_text(&title).unwrap().width();
-
-  // Set font, then measure axis label widths
-  let label_typeface = String::from(format!("{}px {}", LABEL_FONT_HEIGHT, BASE_FONT));
-  ctx.set_font(&label_typeface);
+  ctx.set_font(&format!("{}px {}", LABEL_FONT_HEIGHT, BASE_FONT));
+  ctx.set_stroke_style(&JsValue::from(RGB_BLACK));
   
-  let x_axis_label       = String::from("Frequency (Hz)");
-  let x_axis_label_width = ctx.measure_text(&x_axis_label).unwrap().width();
+  let axis_label_width = ctx.measure_text(axis_info.title).unwrap().width();
 
-  let y_axis_label       = String::from("Absorption");
-  let y_axis_label_width = ctx.measure_text(&y_axis_label).unwrap().width();
-
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  // Start drawing
+  // Save context state
+  ctx.save();
   ctx.begin_path();
 
-  // Draw Y axis (Absorption)
-  ctx.move_to(LEFT_AXIS_INSET, BOTTOM_AXIS_INSET);
-  ctx.line_to(LEFT_AXIS_INSET, canvas_height - BOTTOM_AXIS_INSET);
+  // Draw the axis line
+  ctx.move_to(axis_info.start_point.x, axis_info.start_point.y);
+  ctx.line_to(axis_info.end_point.x, axis_info.end_point.y);
 
-  // Draw x axis (Frequency)
-  ctx.line_to(canvas_width - LEFT_AXIS_INSET, canvas_height - BOTTOM_AXIS_INSET);
+  // Relocate origin to axis start point
+  ctx.translate(axis_info.start_point.x, axis_info.start_point.y).unwrap();
 
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  // Add x axis scale
-  write_to_console("Plotting X axis");
-
-  let x_tick_interval = x_axis_length / (abs_info.air_gap.len() - 1) as f64;
-
-  ctx.translate(LEFT_AXIS_INSET , canvas_height - BOTTOM_AXIS_INSET).unwrap();
-  ctx.rotate(-PI_OVER_TWO).unwrap();
-
-  for f in abs_info.air_gap.iter() {
-    let tick_label  = &format!("{:?}", f.x.round() as u32);
-    let label_width = ctx.measure_text(tick_label).unwrap().width();
-
-    // Position the label away from the tick by the tick length plus a gap
-    let label_offset = label_width + TICK_LENGTH + LABEL_TICK_GAP;
-
-    // Add tick
-    ctx.move_to(0.0, 0.0);
-    ctx.line_to(-TICK_LENGTH, 0.0);
-
-    // Add tick label
-    ctx.fill_text(tick_label, -label_offset, HALF_LABEL_FONT_HEIGHT).unwrap();
-
-    // Due to the 90˚ rotation currently active, we need to swap the order of arguments passed to translate
-    ctx.translate(0.0, x_tick_interval).unwrap();
+  // For a horizontal axis, the tick labels must be rotated
+  match axis_info.orientation {
+    AxisOrientation::Horizontal => ctx.rotate(-PI_OVER_TWO).unwrap()
+  , AxisOrientation::Vertical   => ()
   }
 
-  // Reset rotation and translation
-  ctx.rotate(PI_OVER_TWO).unwrap();
-  ctx.set_transform(1.0, 0.0, 0.0, 1.0, 0.0, 0.0).unwrap();
-
-  // Add x axis label
-  ctx.fill_text(&x_axis_label, mid_width - (x_axis_label_width / 2.0), bottom_margin_pos).unwrap();
-
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  // Add y axis scale
-  write_to_console("Plotting Y axis");
-
-  let y_tick_interval = y_axis_length / 10.0;
-
-  ctx.translate(LEFT_AXIS_INSET , canvas_height - BOTTOM_AXIS_INSET).unwrap();
-
-  for abs in [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].iter() {
-    let tick_label  = &format!("{:?}",abs);
+  for val in axis_info.values.iter() {
+    let tick_label  = &format!("{}", val);
     let label_width = ctx.measure_text(tick_label).unwrap().width();
 
     // Position the label away from the tick by the tick length plus a gap
-    let label_offset = label_width + TICK_LENGTH + LABEL_TICK_GAP;
+    let label_offset = label_width + axis_info.tick_length + axis_info.tick_label_gap;
 
     // Add tick
     ctx.move_to(-TICK_LENGTH, 0.0);
     ctx.line_to(0.0, 0.0);
 
-    // Add tick label
-    ctx.fill_text(tick_label, -label_offset, LABEL_TICK_GAP).unwrap();
+    // Draw tick then move origin to next tick location
+    match axis_info.orientation {
+      AxisOrientation::Vertical   => {
+        ctx.fill_text(tick_label, -label_offset, axis_info.tick_label_gap).unwrap();
+        ctx.translate(0.0, -tick_interval).unwrap();
+      }
+    , AxisOrientation::Horizontal => {
+        ctx.fill_text(tick_label, -label_offset, LABEL_FONT_HEIGHT / 2.0).unwrap();
+        ctx.translate(0.0, tick_interval).unwrap();
+      }
+    }
+  }
 
-    // Move origin to next tick location
-    ctx.translate(0.0, -y_tick_interval).unwrap();
+  // Reset horizontal axis rotation
+  match axis_info.orientation {
+    AxisOrientation::Horizontal => ctx.rotate(PI_OVER_TWO).unwrap()
+  , AxisOrientation::Vertical   => ()
   }
 
   ctx.set_transform(1.0, 0.0, 0.0, 1.0, 0.0, 0.0).unwrap();
 
-  // Add y axis label
-  ctx.translate(LEFT_MARGIN_INSET, mid_height + (y_axis_label_width / 2.0)).unwrap();
-  ctx.rotate(-PI_OVER_TWO).unwrap();
-  ctx.fill_text(&y_axis_label, 0.0, 0.0).unwrap();
+  // Reposition origin before writing axis title
+  match &axis_info.orientation {
+    // Y axis
+    AxisOrientation::Vertical => {
+      ctx.translate(LEFT_MARGIN_INSET, mid_height + (axis_label_width / 2.0)).unwrap();
+      ctx.rotate(-PI_OVER_TWO).unwrap();
+    }
 
-  ctx.rotate(PI_OVER_TWO).unwrap();
-  ctx.set_transform(1.0, 0.0, 0.0, 1.0, 0.0, 0.0).unwrap();
+    // X axis
+  , AxisOrientation::Horizontal =>
+      ctx.translate(mid_width - (axis_label_width / 2.0), bottom_margin_pos).unwrap()
+  }
 
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  // Add chart title
-  ctx.set_font(&title_typeface);
-  ctx.fill_text(&title, mid_width - (title_width / 2.0), TOP_MARGIN_INSET).unwrap();
+  // Write axis title
+  ctx.fill_text(axis_info.title, 0.0, 0.0).unwrap();
 
   ctx.stroke();
-
-  fn_boundary(false);
+  ctx.restore();
 }
 
 
@@ -270,7 +353,7 @@ fn clear(canvas: &web_sys::HtmlCanvasElement) {
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Return the distance between two points
-fn distance(pt1: &Point, pt2: &Point) -> f64 {
+fn distance(pt1: &PlotPoint, pt2: &PlotPoint) -> f64 {
   sqrt(pow(pt1.x - pt2.x, 2.0) + pow(pt1.y - pt2.y, 2.0))
 }
 
@@ -278,7 +361,7 @@ fn distance(pt1: &Point, pt2: &Point) -> f64 {
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Generate the two control points that lie between the three supplied plot points
-fn gen_control_points(pt1: &Point, pt2: &Point, pt3: &Point) -> Vec<Point> {
+fn gen_control_points(pt1: &PlotPoint, pt2: &PlotPoint, pt3: &PlotPoint) -> Vec<PlotPoint> {
   // Vector from start point to finish point
   // This is used to determine the gradient of the lines through the control points
   let x_vec = pt3.x - pt1.x;
@@ -290,8 +373,8 @@ fn gen_control_points(pt1: &Point, pt2: &Point, pt3: &Point) -> Vec<Point> {
 
   // Return the coordinates of the two control points between the three current points
   return vec![
-    Point { x : pt2.x - x_vec * TENSION * d01 / d012, y : pt2.y - y_vec * TENSION * d01 / d012 }
-  , Point { x : pt2.x + x_vec * TENSION * d12 / d012, y : pt2.y + y_vec * TENSION * d12 / d012 }
+    PlotPoint { x : pt2.x - x_vec * TENSION * d01 / d012, y : pt2.y - y_vec * TENSION * d01 / d012 }
+  , PlotPoint { x : pt2.x + x_vec * TENSION * d12 / d012, y : pt2.y + y_vec * TENSION * d12 / d012 }
   ]
 }
 
@@ -299,7 +382,7 @@ fn gen_control_points(pt1: &Point, pt2: &Point, pt3: &Point) -> Vec<Point> {
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Draw a plot point
-fn draw_point(ctx: &web_sys::CanvasRenderingContext2d, pt: &Point, fill_style: &JsValue) {
+fn draw_point(ctx: &web_sys::CanvasRenderingContext2d, pt: &PlotPoint, fill_style: &JsValue) {
   ctx.begin_path();
   ctx.save();
   ctx.set_fill_style(fill_style);
@@ -314,8 +397,7 @@ fn draw_point(ctx: &web_sys::CanvasRenderingContext2d, pt: &Point, fill_style: &
 // Draw curve splines
 fn draw_splines(
   canvas        : &web_sys::HtmlCanvasElement
-, abs_points    : &Vec<Point>
-, plot_name     : &str
+, abs_points    : &Vec<PlotPoint>
 , stroke_colour : &JsValue
 ) {
   let my_name          = &"draw_splines";
@@ -323,7 +405,6 @@ fn draw_splines(
   let write_to_console = fn_trace(DEBUG, my_name);
 
   fn_boundary(true);
-  write_to_console(&format!("Plotting {}", plot_name));
 
   let (_, _, _, x_axis_length, y_axis_length) = canvas_dimensions(&canvas);
 
@@ -333,17 +414,17 @@ fn draw_splines(
   let y_pos           = scaled_y_pos(canvas.height() as f64 - BOTTOM_AXIS_INSET, y_axis_length);
 
   // The frequency and absorption values need to be translated into canvas coordinates
-  let mut points : Vec<Point> = vec!();
+  let mut points : Vec<PlotPoint> = vec!();
 
   for idx in 0..abs_points.len() {
-    points.push(Point {
+    points.push(PlotPoint {
       x : LEFT_AXIS_INSET + x_tick_interval * idx as f64
     , y : y_pos(abs_points[idx].y)
     })
   }
 
   // Between each triplet of plot points, there will be two invisible control points
-  let mut cps: Vec<Point> = vec!();
+  let mut cps: Vec<PlotPoint> = vec!();
   
   for idx in 0..points.len() - 2 {
     cps.append(&mut gen_control_points(&points[idx], &points[idx + 1], &points[idx + 2]));
@@ -363,7 +444,7 @@ fn draw_splines(
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Draw a smooth curve between the plot points
-fn draw_curved_path(ctx: &web_sys::CanvasRenderingContext2d, cps: &Vec<Point>, points: &Vec<Point>) {
+fn draw_curved_path(ctx: &web_sys::CanvasRenderingContext2d, cps: &Vec<PlotPoint>, points: &Vec<PlotPoint>) {
   // As long as we have at least two points...
   if points.len() >= 2 {
     // First point

@@ -21,7 +21,7 @@ mod struct_lib;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Usage
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-use struct_lib::{AbsInfo, Point};
+use struct_lib::{PorousAbsInfo, PlotPoint};
 
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsValue;
@@ -69,7 +69,7 @@ pub fn main() -> Result<(), JsValue> {
 // Main entry point 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #[wasm_bindgen]
-pub fn porous_absorber(
+pub fn porous_absorber_calculator(
   absorber_thickness_mm : u32
 , flow_resistivity      : u32
 , air_gap_mm            : u32
@@ -79,16 +79,6 @@ pub fn porous_absorber(
 , air_temp              : f64
 , air_pressure          : f64
 ) -> JsValue{
-  // log("Unvalidated Input Values");
-  // log(&format!("absorber_thickness_mm = {}", absorber_thickness_mm));
-  // log(&format!("flow_resistivity      = {}", flow_resistivity));
-  // log(&format!("air_gap_mm            = {}", air_gap_mm));
-  // log(&format!("angle                 = {}", angle));
-  // log(&format!("graph_start_freq      = {}", graph_start_freq));
-  // log(&format!("subdivisions          = {}", subdivisions));
-  // log(&format!("air_temp              = {}", air_temp));
-  // log(&format!("air_pressure          = {}", air_pressure));
-
   // Empty return data structure
   let mut error_msgs: Vec<String> = vec!();
 
@@ -124,7 +114,7 @@ pub fn porous_absorber(
     let absorber_info = overall_absorption(&air_cfg, &cavity_cfg, &display_cfg, &sound_cfg, &porous_cfg);
     
     // Plot the graph
-    render::plot(&absorber_info);
+    render::plot(&absorber_info, &display_cfg);
 
     JsValue::from("Ok")
   }
@@ -148,19 +138,19 @@ fn overall_absorption(
 , display: &DisplayConfig
 , sound  : &SoundConfig
 , porous : &PorousAbsorberConfig
-) -> AbsInfo {
+) -> PorousAbsInfo {
   display
     .frequencies
     .iter()
     .fold(
-      AbsInfo { air_gap: vec!(), no_air_gap : vec!() }
+      PorousAbsInfo { air_gap: vec!(), no_air_gap : vec!() }
     , | mut acc, frequency | {
         let (abs_no_air_gap, abs_air_gap) =
           do_porous_abs_calc(*frequency, &air, &cavity, &sound, &porous);
 
         // Build the vectors of plot points for each absorber type
-        acc.no_air_gap.push(Point { x: *frequency, y: abs_no_air_gap});
-        acc.air_gap.push(Point { x: *frequency, y: abs_air_gap});
+        acc.no_air_gap.push(PlotPoint { x: *frequency, y: abs_no_air_gap});
+        acc.air_gap.push(PlotPoint { x: *frequency, y: abs_air_gap});
 
         return acc;
       }
