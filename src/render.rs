@@ -210,7 +210,13 @@ fn draw_axes(canvas: &web_sys::HtmlCanvasElement, display_cfg: &DisplayConfig) {
     .iter()
     .fold(
       ()
-    , | _, f | freq_strs.push(String::from(format!("{}",f)))
+    , | _, f |
+        if f == &62.5 {
+          freq_strs.push(String::from("62.5"))
+        }
+        else {
+          freq_strs.push(String::from(format!("{}",f.round() as u32)))
+        }
     );
 
   draw_axis(&canvas, &Axis {
