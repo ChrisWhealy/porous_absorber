@@ -114,7 +114,7 @@ pub fn porous_absorber_calculator(
     let absorber_info = overall_absorption(&air_cfg, &cavity_cfg, &display_cfg, &sound_cfg, &porous_cfg);
     
     // Plot the graph
-    render::plot(&absorber_info, &display_cfg);
+    render::plot(&absorber_info, &display_cfg, &sound_cfg);
 
     JsValue::from("Ok")
   }
@@ -145,8 +145,7 @@ fn overall_absorption(
     .fold(
       PorousAbsInfo { air_gap: vec!(), no_air_gap : vec!() }
     , | mut acc, frequency | {
-        let (abs_no_air_gap, abs_air_gap) =
-          do_porous_abs_calc(*frequency, &air, &cavity, &sound, &porous);
+        let (abs_no_air_gap, abs_air_gap) = do_porous_abs_calc(*frequency, &air, &cavity, &sound, &porous);
 
         // Build the vectors of plot points for each absorber type
         acc.no_air_gap.push(PlotPoint { x: *frequency, y: abs_no_air_gap});
@@ -242,9 +241,9 @@ fn abs(cplx: Complex<f64>) -> f64 {
 fn reflectivity_as_alpha(refl: Complex<f64>) -> f64 {
    let alpha = 1.0 - pow(abs((refl - 1.0) / (refl + 1.0)), 2.0);
 
-  // Ignore alpha values less than zero, else round to 2pd
-  return if alpha < 0.0 { 0.0 }
-         else           { (alpha * 100.0).round() / 100.0 }
+  // Ignore alpha values less than zero, else round to 2dp
+  if alpha < 0.0 { 0.0 }
+  else           { (alpha * 100.0).round() / 100.0 }
 }
 
 

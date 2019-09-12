@@ -20,6 +20,22 @@ pub struct SeriesMetadata<'a> {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Font metadata
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#[derive(Debug)]
+pub struct FontMetadata<'a> {
+  pub typeface     : &'a str
+, pub font_size    : f64
+, pub stroke_style : &'a JsValue
+}
+
+impl<'a> FontMetadata<'a> {
+  pub fn font(&self) -> String {
+    format!("{}px {}", self.font_size, self.typeface)
+  }
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Axis dimensions
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #[derive(Debug)]
@@ -35,6 +51,7 @@ pub struct Axis<'a> {
 , pub end_point      : PlotPoint
 , pub values         : Vec<String>
 , pub orientation    : AxisOrientation
+, pub label_font     : &'a FontMetadata<'a>
 , pub tick_length    : f64
 , pub tick_label_gap : f64
 }
