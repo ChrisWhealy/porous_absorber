@@ -117,5 +117,7 @@ const update_screen = () => {
   let current_field_values = dom_metadata.map(field => field.fetch(field.id))
   let wasm_response        = pa_calculator.apply(null, current_field_values)
 
-  // console.log(wasm_response)
+  if (wasm_response !== "Ok") {
+    console.log(JSON.stringify(wasm_response))
+  }
 }
