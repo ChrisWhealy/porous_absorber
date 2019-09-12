@@ -43,7 +43,6 @@ const LABEL_FONT_SIZE : f64  = 20.0;
 const TICK_LENGTH    : f64 = 10.0;
 const TICK_LABEL_GAP : f64 = 5.0;
 const POINT_RADIUS   : f64 = 5.0;
-const TENSION        : f64 = 0.45;
 
 // *********************************************************************************************************************
 // Interface to browser functionality
@@ -102,8 +101,8 @@ pub fn plot(
   );
 
   draw_axes(&canvas, &display_cfg);
-  draw_splines(&canvas, &absorber_info.air_gap,       &air_gap_series.point_colour);
-  draw_splines(&canvas, &absorber_info.no_air_gap, &no_air_gap_series.point_colour);
+  draw_splines(&canvas, &absorber_info.air_gap,       &air_gap_series.point_colour, &display_cfg.smooth_curve);
+  draw_splines(&canvas, &absorber_info.no_air_gap, &no_air_gap_series.point_colour, &display_cfg.smooth_curve);
 }
 
 
@@ -446,7 +445,7 @@ fn distance(pt1: &PlotPoint, pt2: &PlotPoint) -> f64 {
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Generate the two control points that lie between the three supplied plot points
-fn gen_control_points(pt1: &PlotPoint, pt2: &PlotPoint, pt3: &PlotPoint) -> Vec<PlotPoint> {
+fn gen_control_points(pt1: &PlotPoint, pt2: &PlotPoint, pt3: &PlotPoint, tension : f64) -> Vec<PlotPoint> {
   // Vector from start point to finish point
   // This is used to determine the gradient of the lines through the control points
   let x_vec = pt3.x - pt1.x;
@@ -458,8 +457,8 @@ fn gen_control_points(pt1: &PlotPoint, pt2: &PlotPoint, pt3: &PlotPoint) -> Vec<
 
   // Return the coordinates of the two control points between the three current points
   return vec![
-    PlotPoint { x : pt2.x - x_vec * TENSION * d01 / d012, y : pt2.y - y_vec * TENSION * d01 / d012 }
-  , PlotPoint { x : pt2.x + x_vec * TENSION * d12 / d012, y : pt2.y + y_vec * TENSION * d12 / d012 }
+    PlotPoint { x : pt2.x - x_vec * tension * d01 / d012, y : pt2.y - y_vec * tension * d01 / d012 }
+  , PlotPoint { x : pt2.x + x_vec * tension * d12 / d012, y : pt2.y + y_vec * tension * d12 / d012 }
   ]
 }
 
@@ -484,10 +483,10 @@ fn draw_splines(
   canvas        : &web_sys::HtmlCanvasElement
 , abs_points    : &Vec<PlotPoint>
 , stroke_colour : &JsValue
+, smooth_curve  : &bool
 ) {
-  let my_name          = &"draw_splines";
-  let fn_boundary      = fn_boundary_trace(DEBUG, my_name);
-  let write_to_console = fn_trace(DEBUG, my_name);
+  let my_name     = &"draw_splines";
+  let fn_boundary = fn_boundary_trace(DEBUG, my_name);
 
   fn_boundary(true);
 
@@ -510,9 +509,10 @@ fn draw_splines(
 
   // Between each triplet of plot points, there will be two invisible control points
   let mut cps: Vec<PlotPoint> = vec!();
+  let tension : f64 = if *smooth_curve { 0.45 } else { 0.0 };
   
   for idx in 0..points.len() - 2 {
-    cps.append(&mut gen_control_points(&points[idx], &points[idx + 1], &points[idx + 2]));
+    cps.append(&mut gen_control_points(&points[idx], &points[idx + 1], &points[idx + 2], tension));
   }
 
   // Draw all the plot points

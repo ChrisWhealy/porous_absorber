@@ -93,6 +93,7 @@ fn gen_frequencies(graph_start_freq : &f64, subdivisions : &u32) -> Vec<f64> {
  */
 pub struct DisplayConfig {
   pub graph_start_freq : f64
+, pub smooth_curve     : bool
 , pub subdivisions     : u32
 , pub frequencies      : Vec<f64>
 }
@@ -100,10 +101,10 @@ pub struct DisplayConfig {
 
 impl DisplayConfig {
   pub fn default() -> DisplayConfig {
-    DisplayConfig::new(DEFAULT_FREQ, DEFAULT_SUBDIVISION).unwrap()
+    DisplayConfig::new(DEFAULT_FREQ, false, DEFAULT_SUBDIVISION).unwrap()
   }
 
-  pub fn new(start_freq_arg: f64, subdivisions_arg: u32) -> Result<DisplayConfig, DisplayError> {
+  pub fn new(start_freq_arg: f64, smooth_curve: bool, subdivisions_arg: u32) -> Result<DisplayConfig, DisplayError> {
     if start_freq_arg < START_FREQ ||
        start_freq_arg > END_FREQ {
       return Err(DisplayError::new(ErrType::Graph, start_freq_arg))
@@ -117,6 +118,7 @@ impl DisplayConfig {
       Ok(DisplayConfig {
           graph_start_freq : start_freq_arg
         , subdivisions     : subdivisions_arg
+        , smooth_curve     : smooth_curve
         , frequencies      : gen_frequencies(&start_freq_arg, &subdivisions_arg)
         })
   }

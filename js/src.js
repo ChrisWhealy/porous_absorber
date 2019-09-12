@@ -9,11 +9,17 @@
 const idiot = val => val
 
 // Fetch required input values from the DOM
-const fetchElementValue = parseFn => elementId => parseFn(document.getElementById(elementId).value)
+function $(elementId) {
+  return document.getElementById(elementId)
+}
 
-const fetchFloat = fetchElementValue(parseFloat)
-const fetchInt   = fetchElementValue(parseInt)
-const fetchText  = fetchElementValue(idiot)
+const fetchParsedElementValue = parseFn => elementId => parseFn($(elementId).value)
+
+const fetchFloat = fetchParsedElementValue(parseFloat)
+const fetchInt   = fetchParsedElementValue(parseInt)
+const fetchText  = fetchParsedElementValue(idiot)
+
+const fetchCheckbox = elementId => $(elementId).checked
 
 const fetchRadio =
   elementId => {
@@ -27,16 +33,16 @@ const fetchRadio =
   }
 
 // Write string to element value
-const writeString = (elementId, val) => document.getElementById(elementId).value = val
+const writeString = (elementId, val) => $(elementId).value = val
 
-// Display range slider value and convert its metric value to imperial units
+// Display input values and convert to alternative units if necessary
 const show_and_convert_units =
   field => {
     // console.log(`${JSON.stringify(field)}`)
 
     let value    = field.fetch(field.id)
-    let value_el = document.getElementById(`${field.id}_value`)
-    let unit_el  = document.getElementById(`${field.id}_units`)
+    let value_el = $(`${field.id}_value`)
+    let unit_el  = $(`${field.id}_units`)
 
     value_el ? show_units(value, value_el, field)   : undefined
     unit_el  ? convert_units(value, unit_el, field) : undefined
@@ -91,14 +97,15 @@ const to_imperial = (units, val) => {
  * The WASM moduile returns either the success value "Ok" or an array of error messages
  **********************************************************************************************************************/
 const dom_metadata = [
-  { id : "absorber_thickness_mm", type : "int",    units : "mm",      fetch : fetchInt   }
-, { id : "flow_resistivity",      type : "int",    units : "rayls/m", fetch : fetchInt   }
-, { id : "air_gap_mm",            type : "int",    units : "mm",      fetch : fetchInt   }
-, { id : "angle",                 type : "int",    units : "°",       fetch : fetchInt   }
-, { id : "start_graph_freq",      type : "float",  units : "Hz",      fetch : fetchFloat }
-, { id : "subdivision",           type : "int",    units : "each",    fetch : fetchRadio }
-, { id : "air_temp",              type : "int",    units : "°C",      fetch : fetchInt   }
-, { id : "air_pressure",          type : "int",    units : "bar",     fetch : fetchFloat }
+  { id : "absorber_thickness_mm", units : "mm",      fetch : fetchInt      }
+, { id : "flow_resistivity",      units : "rayls/m", fetch : fetchInt      }
+, { id : "air_gap_mm",            units : "mm",      fetch : fetchInt      }
+, { id : "angle",                 units : "°",       fetch : fetchInt      }
+, { id : "start_graph_freq",      units : "Hz",      fetch : fetchFloat    }
+, { id : "smooth_curve",          units : "each",    fetch : fetchCheckbox }
+, { id : "subdivision",           units : "each",    fetch : fetchRadio    }
+, { id : "air_temp",              units : "°C",      fetch : fetchInt      }
+, { id : "air_pressure",          units : "bar",     fetch : fetchFloat    }
 ]
 
 /***********************************************************************************************************************

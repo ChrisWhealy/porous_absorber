@@ -75,6 +75,7 @@ pub fn porous_absorber_calculator(
 , air_gap_mm            : u32
 , angle                 : u32
 , graph_start_freq      : f64
+, smooth_curve          : bool
 , subdivisions          : u32
 , air_temp              : f64
 , air_pressure          : f64
@@ -93,7 +94,7 @@ pub fn porous_absorber_calculator(
     CavityConfig::default()
   });
 
-  let display_cfg = DisplayConfig::new(graph_start_freq, subdivisions).unwrap_or_else(|err: DisplayError| {
+  let display_cfg = DisplayConfig::new(graph_start_freq, smooth_curve, subdivisions).unwrap_or_else(|err: DisplayError| {
     error_msgs.push(String::from(err.description()));
     DisplayConfig::default()
   });
