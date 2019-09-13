@@ -62,7 +62,7 @@ pub fn calculate_porous_absorption(
 // *********************************************************************************************************************
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Reducer function to calculate the absorption of a porous absorber with or without and air gap at a specific frequency
+// Reducer function to calculate the absorption of a porous absorber with or without an air gap at a specific frequency
 fn do_porous_abs_calc(
   frequency  : f64
 , air_cfg    : &AirConfig
@@ -75,10 +75,6 @@ fn do_porous_abs_calc(
   let sin_phi: f64 = sin(sound_cfg.angle as f64 * PI_OVER_180);
   let cos_phi: f64 = cos(sound_cfg.angle as f64 * PI_OVER_180);
 
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  // Calculation sequence for absorption coefficient of a porous absorber both with and without an air gap
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  
   // Wave number in air
   let k_air = air_cfg.two_pi_over_c * frequency;
 
@@ -126,7 +122,7 @@ fn do_porous_abs_calc(
   let intermediate3 = minus_i * z_abs * cot_porous_wave_no;
   let abs_air_z     = ((air_gap_z * intermediate3) + (z_abs * z_abs)) / (air_gap_z + intermediate3);
 
-  // Overall absorption coefficient
+  // Absorption coefficient for porous absorber with air gap
   let abs_air_alpha = reflectivity_as_alpha((abs_air_z / air_cfg.impedance) * cos_phi);
 
   return (abs_alpha, abs_air_alpha);

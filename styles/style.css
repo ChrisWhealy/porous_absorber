@@ -1,111 +1,160 @@
 @charset "ISO-8859-1";
 
 * {
-  margin: 0;
-  padding: 0;
+  margin  : 0;
+  padding : 0;
 }
 
 body {
-  font: 16px Consolas, Helvetica, Arial, sans-serif;
-  color: #4d4d4d;
-  margin: 1em;
+  font   : 16px Consolas, Helvetica, Arial, sans-serif;
+  color  : #4d4d4d;
+  margin : 1em;
 
-  -webkit-font-smoothing: antialiased;
-     -moz-font-smoothing: antialiased;
-      -ms-font-smoothing: antialiased;
-       -o-font-smoothing: antialiased;
+  -webkit-font-smoothing : antialiased;
+     -moz-font-smoothing : antialiased;
+      -ms-font-smoothing : antialiased;
+       -o-font-smoothing : antialiased;
 }
 
 h1 {
-  font-size: 2.75em;
-  text-decoration: underline;
-  margin-bottom: 0.25em;
+  font-size       : 2.75em;
+  text-decoration : underline;
+  margin-bottom   : 0.25em;
 }
 
 label {
-  display: inline;
+  display : inline;
 }
 
 input[type=number] {
-  text-align: right;
-  width: 4em;
-  font-size: 1.1em;
+  text-align : right;
+  width      : 4em;
+  font-size  : 1.1em;
 }
 
 .term {
-  font-weight: 800;
-  font-size: 1.2em;
-  text-align: right;
-  padding: 0.33em;
+  font-weight : 800;
+  font-size   : 1.2em;
+  text-align  : right;
+  padding     : 0.33em;
 }
 
 .definition {
-  padding-top: .25em;
-  padding-bottom: .25em;
-  padding-right: .25em;
-  padding-left: 2em;
+  padding-top    : .25em;
+  padding-bottom : .25em;
+  padding-right  : .25em;
+  padding-left   : 2em;
 }
 
 .definition tt {
-  font-size: 1.25em;
+  font-size : 1.25em;
 }
 
 .unit {
-  text-align: right;
+  text-align : right;
 }
 
 .alt_unit {
-  text-align: left;
+  text-align : left;
 }
 
 .desc {
-  text-align: right;
-  font-size: 1.15em;
+  text-align : right;
+  font-size  : 1.15em;
 }
 
-/**********************************************************************************************************************/
+/**********************************************************************************************************************
+* Tabs
+**********************************************************************************************************************/
+.tab {
+  overflow         : hidden;
+  border           : 1px solid #ccc;
+  background-color : #f1f1f1;
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab button {
+  background-color : inherit;
+  float            : left;
+  border           : none;
+  outline          : none;
+  cursor           : pointer;
+  padding          : 14px 16px;
+  transition       : 0.3s;
+  font-weight      : 100;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color : #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color : #ccc;
+  font-weight      : 800; 
+}
+
+/* Style the tab content */
+.tabcontent {
+  display    : none;
+  padding    : 6px 12px;
+  border     : 1px solid #ccc;
+  border-top : none;
+  animation  : fadeEffect 1s; /* Fading effect takes 1 second */
+}
+
+/* Go from zero to full opacity */
+@keyframes fadeEffect {
+  from { opacity : 0; }
+  to   { opacity : 1; }
+}
+
+/**********************************************************************************************************************
+ * Parameter table
+ **********************************************************************************************************************/
 
 .param_table {
-  border-spacing: 0.5em;
-  display: table;
+  border-spacing : 0.5em;
+  display        : table;
 
-  -webkit-min-width: 46em;
-     -moz-min-width: 46em;
-      -ms-min-width: 46em;
-       -o-min-width: 46em;
-          min-width: 46em;
+  -webkit-min-width : 46em;
+     -moz-min-width : 46em;
+      -ms-min-width : 46em;
+       -o-min-width : 46em;
+          min-width : 46em;
 }
 
 .param_row {
-  display: table-row;
+  display : table-row;
 }
 
 .param_cell_hdr {
-  font-weight: 800;
-  font-size: 1.4em;
-  text-align: right;
-  background-color: #ccccff;
-  border-radius: 0.33em;
-  border-right: solid black 3px;
-  border-bottom: solid black 3px;
-  padding: 0.33em;
+  font-weight      : 800;
+  font-size        : 1.4em;
+  text-align       : right;
+  background-color : #ccccff;
+  border-radius    : 0.33em;
+  border-right     : solid black 3px;
+  border-bottom    : solid black 3px;
+  padding          : 0.33em;
 }
 
 .param_cell {
-  display: table-cell;
+  display : table-cell;
 }  
 
 .param_cell_triple {
-  display: table-cell;
+  display : table-cell;
 
-  -webkit-column-count: 3;
-     -moz-column-count: 3;
-          column-count: 3;
+  -webkit-column-count : 3;
+     -moz-column-count : 3;
+          column-count : 3;
 }  
 
 /**********************************************************************************************************************/
 
 #graph_canvas {
-  border: 1px solid #444444;
-  background-color: #FFFFEE;
+  border           : 1px solid #444444;
+  background-color : #FFFFEE;
 }

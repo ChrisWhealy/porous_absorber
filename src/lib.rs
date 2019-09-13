@@ -60,7 +60,7 @@ pub fn main() -> Result<(), JsValue> {
 // Main entry points
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #[wasm_bindgen]
-pub fn porous_absorber_calculator(
+pub fn rb_porous_absorber(
   absorber_thickness_mm : u32
 , flow_resistivity      : u32
 , air_gap_mm            : u32

@@ -1,6 +1,8 @@
 # Porous Absorber Calculator
 
-Calculates the acoustic absorption curve of a porous absorber layer both with and without an air gap between it and some impermeable boundry as shown in this diagram:
+Calculates the acoustic absorption curve of a variety of porous absorber systems mounted against a rigid backing.
+
+At the moment, the only system implemented is for a simple porous layer mounted above an air gap as shown in this diagram:
 
 ![Structure](./img/structure.png)
 
@@ -8,13 +10,14 @@ The absorber is typically made from some material such as Rockwool or glass fibr
 
 If present, the underlying  air gap (***d***) can range in depth from zero to 500mm
 
-This app was written as part of an on-going exercise in learning Rust and cross-compiling it to Web Assembly using [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)
+## Background
+
+This app is the reimplementation of an [Excel spreadsheet](http://whealy.com/acoustics/Porous.html) I wrote in 2004 and is part of an on-going exercise in learning Rust and cross-compiling it to Web Assembly using [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)
 
 ## Calculations
 
 All the calculations used by this app are derived from the book "*Acoustic Absorbers and Diffusers.  Theory, Design and Practice*" by Trevor Cox and Peter D'Antonio (First Edition)
 
-The graph is plotted using Beziér curves between each plot point.  This has been done for its aesthetic appeal and does not imply that the actual absorption between the plot points follows the exact line drawn on the screen
 
 ## Online Version
 
@@ -53,6 +56,11 @@ When the app starts, the absorption curve is always plotted using default values
 | Air pressure | 0.800 Bar | 1.000 Bar | 1.100 Bar 
 
 
+## Graph
+
+The graph can be plotted using Beziér curves between each plot point by switching on the "Smooth curve" checkbox.  This feature was added for its aesthetic appeal and does not imply that the actual absorption between the plot points follows the exact line drawn on the screen
+
+
 ### Graph start frequency
 
 The graph always plots an 8 octave range starting at the specified start frequency.  Normally, this should be left set to 62.5 Hz in order to see the standard analysis range (i.e. up to 16 KHz).  However, should you wish to, you can set the start frequency to be as low as 20 Hz, in which case, you will still see an 8 octave range, but the upper limit will now be 5.1 KHz
@@ -67,8 +75,20 @@ I decided to use sliders as the input UI element instead of simple input fields 
 2. It creates an "animation" effect whereby you can see how the absorption curve changes dynamically as you move a slider
 
 
-## ToDo
+## To Do
 
+Implement calculations for the following systems:
+
+* A slotted panel above an air gap and a porous layer
+* A perforated panel above an air gap and a porous layer
+* A micro-perforated panel above an air gap.  No porous absorber material is needed in this system
+
+It is assumed that these systems are mounted against some impermeable rigid backing whose acoustic impedance can be treated as infinite.
+
+For the slotted and perforated panel absorbers, absorption curves will be shown for both construction possibilities:
+
+* Panel -> Air Gap -> Porous Material -> Rigid Backing
+* Panel -> Porous Material -> Air Gap -> Rigid Backing
 
 ## Known Issues
 
