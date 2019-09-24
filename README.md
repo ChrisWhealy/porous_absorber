@@ -1,14 +1,27 @@
 # Porous Absorber Calculator
 
-Calculates the acoustic absorption curve of a variety of porous absorber systems mounted against a rigid backing.
+Calculates the acoustic absorption curve of a variety of porous absorber systems mounted against a rigid backing such as a brick wall.
 
-At the moment, the only system implemented is for a simple porous layer mounted above an air gap as shown in this diagram:
+The porous absorber is typically made from some material such as Rockwool or glass fibre insulation.  You need to know the flow resistivity of this material in order to get the best results form these calculations.
 
-![Structure](./img/structure.png)
 
-The absorber is typically made from some material such as Rockwool or glass fibre insulation and its thickness (***t<sub>a</sub>***) can range from 5mm up to 500mm
+## Absorber System Types
 
-If present, the underlying  air gap (***d***) can range in depth from zero to 500mm
+At the moment, only two systems have been implemented
+
+1. A simple porous absorber layer of thickness ***t<sub>a</sub>*** above an air gap of depth ***d***. Two absorption curves are calculated:
+    * The porous absorber is mounted above an air gap
+    ![Structure](./img/rb_porous_absorber.png)
+    * The air gap is ignored.  In other words, the porous absorber layer is mounted directly to the rigid backing
+    
+1. A perforated panel of thickness ***t<sub>p</sub>*** with circular holes of radius ***a*** at a spacing ***D***.  Behind this panel is a cavity of total depth ***d*** within which is a porous absorber layer of thickness ***t<sub>a</sub>*** and some air gap.  
+    Three absorption curves are calculated:  
+    * The air gap is ignored and the entire cavity is assumed to be filled with porous absorber
+    * Perforated Panel -> Porous Absorber -> Air Gap -> Backing 
+        ![Structure](./img/perforated_panel1.png) 
+    * Perforated Panel -> Air Gap -> Porous Absorber -> Backing
+        ![Structure](./img/perforated_panel2.png) 
+
 
 ## Background
 
@@ -40,9 +53,15 @@ These instructions assume you have already installed Rust and `wasm-pack`, and t
 
 ## Usage
 
+When the app starts, the "Rigid Backed Porous Absorber" tab will be selected by default.
+
 ![Screen shot](./img/Screenshot.png)
 
-When the app starts, the absorption curve is always plotted using default values.
+If this is the first time you have run this calculator, then all calculations will be performed using default values.  If you have used this calculator before, then each of the curves will be plotted using your previous values.
+
+## Default Values
+
+### Rigid Backed Porous Absorber
 
 | Property | Min | Default value | Max |
 |---|---|---|---|
@@ -52,13 +71,40 @@ When the app starts, the absorption curve is always plotted using default values
 | Angle of indcidence | 0° | 0° | 89°
 | Graph start frequency | 20 Hz | 62.5 Hz | 100 Hz
 | Octave subdivisions | 1 | 1 | 1, 2, 3 or 6
+
+### Slotted Panel
+
+Not implemented yet
+
+### Perforated Panel
+
+| Property | Min | Default value | Max |
+|---|---|---|---|
+| Panel thickness | 1.0 mm | 10 mm | 50.0 mm
+| Hole centred every | 2.0 mm | 25.4 mm | 300 mm
+| Hole radius | 1.0 mm | 5.0 mm | Half hole centre distance
+| Absorber flow resistivity | 100 rayls/m | 16,500 rayls/m | 100,000 rayls/m 
+| Absorber thickness | 5 mm | 30 mm | 500 mm
+| Air gap | 0 mm | 100 mm | 500 mm
+| Graph start frequency | 20 Hz | 62.5 Hz | 100 Hz
+| Octave subdivisions | 1 | 1 | 1, 2, 3 or 6
+
+### Microperforated Panel
+
+Not implemented yet
+
+
+### Configuration
+
+| Property | Min | Default value | Max |
+|---|---|---|---|
 | Air temperature | -20°C | 20°C | 100°C
 | Air pressure | 0.800 Bar | 1.000 Bar | 1.100 Bar 
 
 
 ## Graph
 
-The graph can be plotted using Beziér curves between each plot point by switching on the "Smooth curve" checkbox.  This feature was added for its aesthetic appeal and does not imply that the actual absorption between the plot points follows the exact line drawn on the screen
+If desired, the "Smooth curve" checkbox can be switched on.  This will connect each plot point using Bézier curves; however, it should be noted that this feature was added for its aesthetic appeal and does ***not*** imply that the actual absorption between the plot points follows the line drawn on the screen
 
 
 ### Graph start frequency
@@ -80,15 +126,9 @@ I decided to use sliders as the input UI element instead of simple input fields 
 Implement calculations for the following systems:
 
 * A slotted panel above an air gap and a porous layer
-* A perforated panel above an air gap and a porous layer
 * A micro-perforated panel above an air gap.  No porous absorber material is needed in this system
 
-It is assumed that these systems are mounted against some impermeable rigid backing whose acoustic impedance can be treated as infinite.
-
-For the slotted and perforated panel absorbers, absorption curves will be shown for both construction possibilities:
-
-* Panel -> Air Gap -> Porous Material -> Rigid Backing
-* Panel -> Porous Material -> Air Gap -> Rigid Backing
+Display the value of each plot point when the mouse pointer hovers it
 
 ## Known Issues
 
