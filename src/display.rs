@@ -7,7 +7,7 @@ use libm::*;
  */
 const START_FREQ   : f64  = 20.0;
 const DEFAULT_FREQ : f64  = 62.5;
-const END_FREQ     : f64  = 200.0;
+const END_FREQ     : f64  = 100.0;
 
 const UNITS_FREQ : &str = "Hz";
 
