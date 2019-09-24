@@ -52,7 +52,7 @@ impl CavityConfig {
   }
 
   pub fn new(air_gap_arg: u32) -> Result<CavityConfig, CavityError> {
-    if air_gap_arg > 500 {
+    if air_gap_arg > END_THICKNESS {
       return Err(CavityError::new("Air gap", UNITS_THICKNESS, START_THICKNESS, END_THICKNESS, air_gap_arg));
     }
 

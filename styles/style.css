@@ -63,6 +63,13 @@ input[type=number] {
   font-size  : 1.15em;
 }
 
+.instruction {
+  text-align     : leftt;
+  padding-top    : 1.25em;
+  padding-bottom : 1.25em;
+  font-size      : 1.25em;
+}
+
 /**********************************************************************************************************************
 * Tabs
 **********************************************************************************************************************/
@@ -96,7 +103,7 @@ input[type=number] {
 }
 
 /* Style the tab content */
-.tabcontent {
+.tabContent {
   display    : none;
   padding    : 6px 12px;
   border     : 1px solid #ccc;
@@ -114,43 +121,23 @@ input[type=number] {
  * Parameter table
  **********************************************************************************************************************/
 
+.param_table_group {
+  height : 12em;
+}
+
 .param_table {
-  border-spacing : 0.5em;
-  display        : table;
-
-  -webkit-min-width : 46em;
-     -moz-min-width : 46em;
-      -ms-min-width : 46em;
-       -o-min-width : 46em;
-          min-width : 46em;
+  border-spacing   : 0.5em;
+  background-color : rgb(236, 250, 252);
+  border           : solid rgb(40, 40, 40) 1px;
+  height : 100%;
 }
 
-.param_row {
-  display : table-row;
+.param_hdr {
+  font-weight : 800;
+  font-size   : 1.4em;
+  text-align  : center;
+  padding     : 0.33em;
 }
-
-.param_cell_hdr {
-  font-weight      : 800;
-  font-size        : 1.4em;
-  text-align       : right;
-  background-color : #ccccff;
-  border-radius    : 0.33em;
-  border-right     : solid black 3px;
-  border-bottom    : solid black 3px;
-  padding          : 0.33em;
-}
-
-.param_cell {
-  display : table-cell;
-}  
-
-.param_cell_triple {
-  display : table-cell;
-
-  -webkit-column-count : 3;
-     -moz-column-count : 3;
-          column-count : 3;
-}  
 
 /**********************************************************************************************************************/
 

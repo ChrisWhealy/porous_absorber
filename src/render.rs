@@ -4,7 +4,14 @@
 extern crate wasm_bindgen;
 extern crate web_sys;
 
-use crate::struct_lib::{PlotPoint, Axis, AxisOrientation, SeriesMetadata, FontMetadata};
+use crate::struct_lib::{
+  PlotPoint
+, Axis
+, AxisOrientation
+, SeriesMetadata
+, FontMetadata
+};
+
 use crate::display::DisplayConfig;
 use crate::sound::SoundConfig;
 
@@ -35,6 +42,7 @@ const PLOT_AREA_COLOUR : &str = &"rgba(255, 255, 238)";
 const RGB_BLACK        : &str = &"rgba(0, 0, 0)";
 const RGB_PINK         : &str = &"rgb(234, 51, 247)";
 const RGB_DARK_BLUE    : &str = &"rgb(6, 1, 123)";
+const RGB_GREEN        : &str = &"rgb(20, 255, 20)";
 
 const BASE_TYPEFACE   : &str = &"Arial";
 const TITLE_FONT_SIZE : f64  = 36.0;
@@ -74,11 +82,12 @@ fn fn_trace(is_debug: bool, fn_name: &'static str) -> impl Fn(&str) -> () {
 }
 
 // *********************************************************************************************************************
-//
 // Public API
-//
 // *********************************************************************************************************************
-pub fn plot(
+
+// *********************************************************************************************************************
+// Porous Absorber
+pub fn plot_porous_absorber(
   absorber_info : &crate::PorousAbsInfo
 , display_cfg   : &DisplayConfig
 , sound_cfg     : &SoundConfig
@@ -87,8 +96,8 @@ pub fn plot(
   let canvas_el = document.get_element_by_id("graph_canvas").unwrap();
   let canvas    = canvas_el.dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
 
-  let air_gap_series    = SeriesMetadata { name : &"Air Gap",    point_colour : JsValue::from(RGB_PINK) };
-  let no_air_gap_series = SeriesMetadata { name : &"No Air Gap", point_colour : JsValue::from(RGB_DARK_BLUE) };
+  let air_gap_series    = SeriesMetadata { name : &"Air Gap",    plot_colour : JsValue::from(RGB_PINK) };
+  let no_air_gap_series = SeriesMetadata { name : &"No Air Gap", plot_colour : JsValue::from(RGB_DARK_BLUE) };
 
   clear(&canvas);
 
@@ -101,8 +110,38 @@ pub fn plot(
   );
 
   draw_axes(&canvas, &display_cfg);
-  draw_splines(&canvas, &absorber_info.air_gap,       &air_gap_series.point_colour, &display_cfg.smooth_curve);
-  draw_splines(&canvas, &absorber_info.no_air_gap, &no_air_gap_series.point_colour, &display_cfg.smooth_curve);
+  draw_splines(&canvas, &absorber_info.air_gap,       &air_gap_series.plot_colour, &display_cfg.smooth_curve);
+  draw_splines(&canvas, &absorber_info.no_air_gap, &no_air_gap_series.plot_colour, &display_cfg.smooth_curve);
+}
+
+// *********************************************************************************************************************
+// Perforated Panel Absorber
+pub fn plot_perforated_panel(
+  absorber_info : &crate::PerforatedPanelInfo
+, display_cfg   : &DisplayConfig
+) {
+  let document  = web_sys::window().unwrap().document().unwrap();
+  let canvas_el = document.get_element_by_id("graph_canvas").unwrap();
+  let canvas    = canvas_el.dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
+
+  let no_air_gap_series          = SeriesMetadata { name : &"No Air Gap",               plot_colour : JsValue::from(RGB_GREEN) }; 
+  let abs_against_panel_series   = SeriesMetadata { name : &"Absorber Against Panel",   plot_colour : JsValue::from(RGB_DARK_BLUE) };
+  let abs_against_backing_series = SeriesMetadata { name : &"Absorber Against Backing", plot_colour : JsValue::from(RGB_PINK) };
+
+  clear(&canvas);
+
+  draw_title_and_key(
+    &canvas
+  , &"Normal Incidence Absorption"
+  , &FontMetadata { typeface : &BASE_TYPEFACE, font_size : TITLE_FONT_SIZE, stroke_style : &JsValue::from(RGB_BLACK) }
+  , &FontMetadata { typeface : &BASE_TYPEFACE, font_size : LABEL_FONT_SIZE, stroke_style : &JsValue::from(RGB_BLACK) }
+  , vec!(&abs_against_panel_series, &abs_against_backing_series, &no_air_gap_series)
+  );
+
+  draw_axes(&canvas, &display_cfg);
+  draw_splines(&canvas, &absorber_info.no_air_gap,          &no_air_gap_series.plot_colour,          &display_cfg.smooth_curve);
+  draw_splines(&canvas, &absorber_info.abs_against_panel,   &abs_against_panel_series.plot_colour,   &display_cfg.smooth_curve);
+  draw_splines(&canvas, &absorber_info.abs_against_backing, &abs_against_backing_series.plot_colour, &display_cfg.smooth_curve);
 }
 
 
@@ -209,16 +248,19 @@ fn draw_title_and_key(
         write_to_console(&format!("row_idx = {}, col_idx = {}, series_idx = {}", row_idx, col_idx, series_idx));
 
         // Draw key symbol line
+        ctx.save();
+        ctx.set_stroke_style(&series_list[series_idx].plot_colour);
         ctx.begin_path();
         ctx.move_to(x, y);
         ctx.line_to(x + KEY_SYMBOL_LENGTH, y);
         ctx.stroke();
+        ctx.restore();
 
         // Draw key symbol point
         draw_point(
           &ctx
         , &PlotPoint { x : x + (KEY_SYMBOL_LENGTH / 2.0), y : y }
-        , &series_list[series_idx].point_colour
+        , &series_list[series_idx].plot_colour
         );
 
         write_to_console(&format!("Drawing key point at {},{}", x + (KEY_SYMBOL_LENGTH / 2.0), y));
@@ -508,6 +550,7 @@ fn draw_splines(
   }
 
   // Between each triplet of plot points, there will be two invisible control points
+  // The smooth curve between plot points can be removed simply by setting the tension to zero
   let mut cps: Vec<PlotPoint> = vec!();
   let tension : f64 = if *smooth_curve { 0.45 } else { 0.0 };
   
@@ -520,7 +563,7 @@ fn draw_splines(
     draw_point(&ctx, &points[idx], &stroke_colour)
   }
 
-  draw_curved_path(&ctx, &cps, &points);
+  draw_curved_path(&ctx, &cps, &points, &stroke_colour);
 
   fn_boundary(false);
 }
@@ -529,9 +572,12 @@ fn draw_splines(
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Draw a smooth curve between the plot points
-fn draw_curved_path(ctx: &web_sys::CanvasRenderingContext2d, cps: &Vec<PlotPoint>, points: &Vec<PlotPoint>) {
+fn draw_curved_path(ctx: &web_sys::CanvasRenderingContext2d, cps: &Vec<PlotPoint>, points: &Vec<PlotPoint>, stroke_style: &JsValue) {
   // As long as we have at least two points...
   if points.len() >= 2 {
+    ctx.save();
+    ctx.set_stroke_style(&stroke_style);
+
     // First point
     ctx.begin_path();
     ctx.move_to(points[0].x, points[0].y);
@@ -543,7 +589,7 @@ fn draw_curved_path(ctx: &web_sys::CanvasRenderingContext2d, cps: &Vec<PlotPoint
     }
     else {
       // For 3 or more points...
-      // Plot points 0 and 1 are connected with a quadratic Bezier
+      // Plot points 0 and 1 are connected with a quadratic Bezier that requires a single control point
       ctx.quadratic_curve_to(cps[0].x, cps[0].y, points[1].x, points[1].y);
 
       // All middle plot points are connected with a cubic Bezier that requires a pair of control points
@@ -554,12 +600,13 @@ fn draw_curved_path(ctx: &web_sys::CanvasRenderingContext2d, cps: &Vec<PlotPoint
         ctx.bezier_curve_to(cps[cp_idx1].x, cps[cp_idx1].y, cps[cp_idx2].x, cps[cp_idx2].y, points[i].x, points[i].y);
       }
 
-      // Last two plot points are connected with a quadratic Bezier
+      // Last two plot points are connected with a quadratic Bezier that requires a single control point
       ctx.quadratic_curve_to(cps[cps.len() - 1].x, cps[cps.len() - 1].y, points[points.len() - 1].x, points[points.len() - 1].y);
     }
 
     // Draw the curve
     ctx.stroke();
+    ctx.restore();
   }
 }
 

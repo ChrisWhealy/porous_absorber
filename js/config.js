@@ -4,51 +4,54 @@
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
 
- /***********************************************************************************************************************
-  * The tabConfig object contains one property per tabName
-  * Each tabName property is an object that holds firstly a metadata array of the HTML elements passed to the WASM
-  * module, and secondly, the name of the WASM function that calculates that particular absorption curve
+ /**********************************************************************************************************************
+  * The tabConfig object contains one property per absorber type
   * 
-  * The value of the "id" property below must match the corresponding id of the input field in the DOM
+  * The WASM function name exposed in lib.rs via the #[wasm_bindgen] directive determines the name of both the tabConfig
+  * property listed below, and the HTML page fragment name
+  * 
+  * Each tabName property is an object that holds an array of the HTML elements that exist on that particular page
+  * 
+  * The "id" property must match the corresponding id of the input field in the DOM
   *
-  * The value of "units" property is needed primarily for metric to imperial conversion but is maintained for all
-  * values for consistency and potential future use
+  * The "units" property is for metric to imperial conversion but must be maintained for all fields.
+  * Use the value "each" if "units" has no particular meaning for this property
   *
-  * The "fetch" property is set to the function name needed to read the input value from the corresponding HTML element
-  *
-  * The WASM moduile returns either the success value "Ok" or an array of error messages
-  **********************************************************************************************************************/
+  * The "getter" and "setter" properties are the function names in utils.js that get/set that particular dataype
+  * 
+  * The configuration tab is always present in the DOM even if the user has not explicitly selected that tab.  This
+  * means that these values are always available even if those fields are not currently visible.
+  *********************************************************************************************************************/
  const tabConfig = {
      "rb_porous_absorber" : [
-       { id : "absorber_thickness_mm", units : "mm",      fetch : fetchInt      }
-     , { id : "flow_resistivity",      units : "rayls/m", fetch : fetchInt      }
-     , { id : "air_gap_mm",            units : "mm",      fetch : fetchInt      }
-     , { id : "angle",                 units : "°",       fetch : fetchInt      }
-     , { id : "start_graph_freq",      units : "Hz",      fetch : fetchFloat    }
-     , { id : "smooth_curve",          units : "each",    fetch : fetchCheckbox }
-     , { id : "subdivision",           units : "each",    fetch : fetchRadio    }
-     , { id : "air_temp",              units : "°C",      fetch : fetchInt      }
-     , { id : "air_pressure",          units : "bar",     fetch : fetchFloat    }
-     ]
+       { id : "absorber_thickness_mm", units : "mm",      isWasmArg : true, getter : getInt,      setter : setInt      }
+     , { id : "flow_resistivity",      units : "rayls/m", isWasmArg : true, getter : getInt,      setter : setInt      }
+     , { id : "air_gap_mm",            units : "mm",      isWasmArg : true, getter : getInt,      setter : setInt      }
+     , { id : "angle",                 units : "°",       isWasmArg : true, getter : getInt,      setter : setInt      }
+     , { id : "graph_start_freq",      units : "Hz",      isWasmArg : true, getter : getFloat,    setter : setFloat    }
+     , { id : "smooth_curve",          units : "each",    isWasmArg : true, getter : getCheckbox, setter : setCheckbox }
+     , { id : "subdivision",           units : "each",    isWasmArg : true, getter : getRadio,    setter : setRadio    }
+      ]
    , "slotted_panel" : [
    ]
    , "perforated_panel" : [
-    //    { id : "panel_thickness_mm",    units : "mm",      fetch : fetchFloat }
-    //  , { id : "repeat_distance_mm",    units : "mm",      fetch : fetchFloat }
-    //  , { id : "hole_radius_mm",        units : "mm",      fetch : fetchFloat }
-    //  , { id : "open_area",             units : "%",       fetch : fetchFloat }
-    //  , { id : "cavity_depth_mm",       units : "mm",      fetch : fetchInt   }
-    //  , { id : "absorber_thickness_mm", units : "mm",      fetch : fetchInt   }
-    //  , { id : "air_gap_mm",            units : "mm",      fetch : fetchInt   }
-    //  , { id : "flow_resistivity",      units : "rayls/m", fetch : fetchInt   }
-    //  , { id : "air_temp",              units : "°C",      fetch : fetchInt   }
-    //  , { id : "air_pressure",          units : "bar",     fetch : fetchFloat }
-    //  , { id : "start_graph_freq",      units : "Hz",      fetch : fetchFloat }
-    //  , { id : "subdivision",           units : "each",    fetch : fetchRadio }
-   ]
+       { id : "panel_thickness_mm",    units : "mm",      isWasmArg : true,  getter : getFloat,     setter : setFloat    }
+     , { id : "repeat_distance_mm",    units : "mm",      isWasmArg : true,  getter : getFloat,     setter : setFloat    }
+     , { id : "hole_radius_mm",        units : "mm",      isWasmArg : true,  getter : getFloat,     setter : setFloat    }
+     , { id : "porosity",              units : "each",    isWasmArg : true,  getter : getInnerHTML, setter : setFloat    }
+     , { id : "absorber_thickness_mm", units : "mm",      isWasmArg : true,  getter : getInt,       setter : setInt      }
+     , { id : "flow_resistivity",      units : "rayls/m", isWasmArg : true,  getter : getInt,       setter : setInt      }
+     , { id : "air_gap_mm",            units : "mm",      isWasmArg : true,  getter : getInt,       setter : setInt      }
+     , { id : "cavity_depth_mm",       units : "mm",      isWasmArg : false, getter : getInt,       setter : setInt      }
+     , { id : "graph_start_freq",      units : "Hz",      isWasmArg : true,  getter : getFloat,     setter : setFloat    }
+     , { id : "smooth_curve",          units : "each",    isWasmArg : true,  getter : getCheckbox,  setter : setCheckbox }
+     , { id : "subdivision",           units : "each",    isWasmArg : true,  getter : getRadio,     setter : setRadio    }
+    ]
    , "microperforated_panel" : [
    ]
    , "configuration" : [
-   ]
+      { id : "air_temp",               units : "°C",      isWasmArg : true,  getter : getInt,      setter : setInt      }
+    , { id : "air_pressure",           units : "bar",     isWasmArg : true,  getter : getFloat,    setter : setFloat    }
+  ]
  }
  

@@ -1,2 +1,27 @@
-<h2>Configuration</h2>
-<p>Not implemented yet</p>
+<div>
+  <table class="param_table_group">
+    <tr>
+      <td>
+        <table class="param_table">
+          <tr>
+            <th class="param_hdr" colspan="3">Air</th>
+          </tr>
+  
+          <tr>
+            <td class="param_cell desc">Temperature</td>
+            <td class="param_cell"><input   id="air_temp" type="range" min="-20" max="100" step="1" value="20" oninput="update_screen('configuration')"></td>
+            <td class="param_cell unit"     id="air_temp_value"></td>
+            <td class="param_cell alt_unit" id="air_temp_alt_units"></td>
+          </tr>
+  
+          <tr>
+            <td class="param_cell desc">Pressure</td>
+            <td class="param_cell"><input   id="air_pressure" type="range" min="0.800" max="1.100" step="0.001" value="1.000" oninput="update_screen('configuration')"></td>
+            <td class="param_cell unit"     id="air_pressure_value"></td>
+            <td class="param_cell alt_unit" id="air_pressure_alt_units"></td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</div>

@@ -15,8 +15,8 @@ pub struct PlotPoint {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #[derive(Debug)]
 pub struct SeriesMetadata<'a> {
-  pub name         : &'a str
-, pub point_colour : JsValue
+  pub name        : &'a str
+, pub plot_colour : JsValue
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -70,7 +70,7 @@ impl<'a> Axis<'a> {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Porous Absorber
+// Absorption data for a Rigib Backed Porous Absorber
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #[derive(Debug)]
 pub struct PorousAbsInfo {
@@ -79,7 +79,7 @@ pub struct PorousAbsInfo {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Perforated Panel Absorber
+// Absorption data for a Perforated Panel Absorber
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #[derive(Debug)]
 pub struct PerforatedPanelInfo {
