@@ -1,8 +1,8 @@
 # Porous Absorber Calculator
 
-Calculates the acoustic absorption curve of a variety of porous absorber systems mounted against a rigid backing such as a brick wall.
+Calculates the acoustic absorption curve of a variety of porous absorber devices mounted against a rigid backing such as a brick wall.
 
-The porous absorber is typically made from some material such as Rockwool or glass fibre insulation.  You need to know the flow resistivity of this material in order to get the best results form these calculations.
+The porous absorber is typically made from some material such as Rockwool or glass fibre insulation.  You need to know the flow resistivity of this material in order to get the best results from these calculations.
 
 
 ## Absorber Device Types
@@ -62,7 +62,7 @@ An online version of this tool is available [here](http://whealy.com/acoustics/P
 
 ## Architecture
 
-The WASM function receives the 8 arguments listed in the table below and from these, calculates the absorption curve of that particular absorbent system.  The absorption curve is then generated as an HTML `canvas` directly by Rust interacting with the browser DOM through [wasm-bindgen](https://rustwasm.github.io/wasm-bindgen/introduction.html)
+The WASM function receives the 8 arguments listed in the table below and from these, calculates the absorption curve of that particular absorbent device.  The absorption curve is then generated as an HTML `canvas` directly by Rust interacting with the browser DOM through [wasm-bindgen](https://rustwasm.github.io/wasm-bindgen/introduction.html)
 
 ## Local Installation
 
@@ -156,7 +156,7 @@ I decided to use sliders as the input UI element instead of simple input fields 
 
 ## To Do
 
-Implement the calculations for a micro-perforated panel above an air gap.  No porous absorber material is needed in this system
+Implement the calculations for a micro-perforated panel above an air gap.  No porous absorber material is needed in this type of device.
 
 Display the value of each plot point when the mouse pointer hovers it
 
