@@ -8,11 +8,9 @@ extern crate wasm_bindgen;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Usage
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-use libm::{sin, cos, sqrt, pow};
+use libm::{sin, cos, sqrt, pow, log};
 use num::complex::Complex;
 use std::f64::consts::PI;
-
-use wasm_bindgen::prelude::*;
 
 use crate::trace::Trace;
 
@@ -22,10 +20,12 @@ use crate::display::DisplayConfig;
 use crate::sound::SoundConfig;
 use crate::porous_absorber::PorousAbsorberConfig;
 use crate::perforated_panel::PerforatedPanelConfig;
+use crate::slotted_panel::SlottedPanelConfig;
 
 use crate::struct_lib::{
   PorousAbsInfo
-, PerforatedPanelInfo
+, PerforatedAbsInfo
+, SlottedAbsInfo
 , PlotPoint
 };
 
@@ -35,16 +35,6 @@ use crate::struct_lib::{
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const LIB_NAME     : &str  = &"calc_engine";
 const TRACE_ACTIVE : &bool = &false;
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Interface to browser functionality
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#[wasm_bindgen]
-extern "C" {
-  #[wasm_bindgen(js_namespace = console)]
-  fn log(s: &str);
-}
-
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -103,7 +93,7 @@ pub fn calculate_perforated_panel(
 , display: &DisplayConfig
 , panel  : &PerforatedPanelConfig
 , porous : &PorousAbsorberConfig
-) -> PerforatedPanelInfo {
+) -> PerforatedAbsInfo {
   const FN_NAME : &str = &"calculate_perforated_panel";
 
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
@@ -112,7 +102,7 @@ pub fn calculate_perforated_panel(
   trace_boundary(&Some(true));
 
   // Calculate apparent panel thickness
-  let end_correction_delta = 0.8 * (1.0 - 1.47 * sqrt(panel.porosity) + 0.47 * sqrt(pow(panel.porosity, 3.0)));
+  let end_correction_delta          = 0.8 * (1.0 - 1.47 * sqrt(panel.porosity) + 0.47 * sqrt(pow(panel.porosity, 3.0)));
   let end_corrected_panel_thickness = panel.thickness + (2.0 * panel.hole_radius * end_correction_delta);
 
   trace(&format!("End correction delta          = {}", &end_correction_delta));
@@ -122,7 +112,7 @@ pub fn calculate_perforated_panel(
     .frequencies
     .iter()
     .fold(
-      PerforatedPanelInfo { abs_against_panel: vec!(), abs_against_backing : vec!(), no_air_gap: vec!() }
+      PerforatedAbsInfo { abs_against_panel: vec!(), abs_against_backing : vec!(), no_air_gap: vec!() }
     , | mut acc, frequency | {
         let (
           abs_no_air_gap
@@ -146,11 +136,78 @@ pub fn calculate_perforated_panel(
 
 
 // *********************************************************************************************************************
+// Slotted Panel
+pub fn calculate_slotted_panel(
+  air    : &AirConfig
+, cavity : &CavityConfig
+, display: &DisplayConfig
+, panel  : &SlottedPanelConfig
+, porous : &PorousAbsorberConfig
+) -> SlottedAbsInfo {
+  const FN_NAME : &str = &"calculate_slotted_panel";
+
+  let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
+  let trace          = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
+
+  trace_boundary(&Some(true));
+
+  // Calculate apparent panel thickness
+  let end_correction_delta          = -log(sin(PI * panel.porosity / 2.0)) / PI;
+  let end_corrected_panel_thickness = panel.thickness + (2.0 * panel.slot_width * end_correction_delta);
+
+  trace(&format!("End correction delta          = {}", &end_correction_delta));
+  trace(&format!("End corrected panel thickness = {}", &end_corrected_panel_thickness));
+
+  // Calculate resistance terms
+  let resistance_at_backing = porous.sigma as f64 * porous.thickness;
+  let resistance_at_panel   = resistance_at_backing * panel.porosity;
+  let mass_term_for_air     = end_corrected_panel_thickness * air.density / panel.porosity;
+
+  trace(&format!("End correction delta          = {}", &end_correction_delta));
+  trace(&format!("End corrected panel thickness = {}", &end_corrected_panel_thickness));
+
+  let abs_info = display
+    .frequencies
+    .iter()
+    .fold(
+      SlottedAbsInfo { abs_against_panel: vec!(), abs_against_backing : vec!(), no_air_gap: vec!() }
+    , | mut acc, frequency | {
+        let (
+          abs_no_air_gap
+        , abs_against_panel
+        , abs_against_backing
+        ) = do_slotted_panel_calc(
+              *frequency
+            , &air
+            , &cavity
+            , &porous
+            , end_corrected_panel_thickness
+            , resistance_at_panel
+            , resistance_at_backing
+            , mass_term_for_air
+            );
+
+        // Build the vectors of plot points for each absorber type
+        acc.abs_against_backing.push(PlotPoint { x: *frequency, y: abs_against_backing});
+          acc.abs_against_panel.push(PlotPoint { x: *frequency, y: abs_against_panel});
+                 acc.no_air_gap.push(PlotPoint { x: *frequency, y: abs_no_air_gap});
+
+        return acc;
+      }
+    );
+
+  trace_boundary(&Some(false));
+  return abs_info;
+}
+
+
+
+// *********************************************************************************************************************
 // Private API
 // *********************************************************************************************************************
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Reducer function to calculate the absorption of a porous absorber with or without an air gap at a specific frequency
+// Reducer function to calculate the absorption of a porous absorber at a specific frequency
 fn do_porous_abs_calc(
   frequency  : f64
 , air_cfg    : &AirConfig
@@ -220,7 +277,7 @@ fn do_porous_abs_calc(
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Reducer function to calculate the absorption of a porous absorber with or without an air gap at a specific frequency
+// Reducer function to calculate the absorption of a perforated panel absorber
 fn do_perforated_panel_calc(
   frequency          : f64
 , air_cfg            : &AirConfig
@@ -337,6 +394,125 @@ fn do_perforated_panel_calc(
   trace(&format!("No air gap reflection = {}", no_air_gap_refl));
   trace(&format!("No air gap absorption = {}", no_air_gap_alpha));
 
+
+  trace_boundary(&Some(false));
+  return (no_air_gap_alpha, abs_against_panel_alpha, abs_against_backing_alpha);
+}
+
+
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Reducer function to calculate the absorption of a slotted panel absorber
+fn do_slotted_panel_calc(
+  frequency             : f64
+, air_cfg               : &AirConfig
+, cavity_cfg            : &CavityConfig
+, porous_cfg            : &PorousAbsorberConfig
+, ec_panel_thickness    : f64
+, resistance_at_panel   : f64
+, resistance_at_backing : f64
+, mass_term_for_air     : f64
+) -> (f64, f64, f64) {
+  const FN_NAME : &str = &"do_slotted_panel_calc";
+
+  let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
+  let trace          = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
+
+  trace_boundary(&Some(true));
+
+  // Frequently used intermediate values
+  let i      : Complex<f64> = Complex::new(0.0, 1.0);
+  let minus_i: Complex<f64> = Complex::new(0.0, -1.0);
+
+  // Angular frequency and wave number in air
+  let omega = 2.0 * PI * frequency;
+  let k_air = air_cfg.two_pi_over_c * frequency;
+
+  trace(&format!("Angular frequency = {}", omega));
+  trace(&format!("Wave number = {}", k_air));
+
+  // Delaney and Bazley's term X
+  let d_and_b_term_x = (air_cfg.density * frequency) / porous_cfg.sigma as f64;
+  trace(&format!("Delaney and Bazley's term X = {}", d_and_b_term_x));
+
+  // Characteristic absorber impedance
+  let z_abs = air_cfg.impedance * Complex::new(1.0 + 0.0571 * pow(d_and_b_term_x, -0.754), -0.087 * pow(d_and_b_term_x, -0.732));
+  trace(&format!("Characteristic impedance = {}", z_abs));
+
+  // Complex wave number within the porous absorber layer
+  let wave_no_abs = k_air * Complex::new(1.0 + 0.0978 * pow(d_and_b_term_x, -0.7), -0.189 * pow(d_and_b_term_x, -0.595));
+
+  trace(&format!("Complex wave number = {}", wave_no_abs));
+
+  // Intermediate terms
+  let inter1     = k_air * ec_panel_thickness;
+  let cot_inter1 = inter1.cos() / inter1.sin();
+  trace(&format!("cot(k air * t panel) = {}", cot_inter1));
+
+  let inter2     = k_air * cavity_cfg.air_gap;
+  let cot_inter2 = inter2.cos() / inter2.sin();
+  trace(&format!("cot(k abs * t air) = {}", cot_inter2));
+
+  let inter3     = wave_no_abs * porous_cfg.thickness;
+  let cot_inter3 = inter3.cos() / inter3.sin();
+  trace(&format!("cot(complex_wave_no * t abs) = {}", cot_inter3));
+
+  let inter4     = wave_no_abs * (cavity_cfg.air_gap + porous_cfg.thickness);
+  let cot_inter4 = inter4.cos() / inter4.sin();
+  trace(&format!("cot(complex_wave_no * total depth) = {}", cot_inter4));
+
+  let mass_term_for_slotted_panel = i * ((omega * mass_term_for_air) - (air_cfg.impedance * cot_inter1));
+  trace(&format!("Mass term for air in slotted panel = {}", mass_term_for_slotted_panel));
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // Absorber against panel
+  let abs_against_panel_z1 = minus_i * air_cfg.impedance * cot_inter2;
+  let abs_against_panel_z2 = ((minus_i * abs_against_panel_z1 * z_abs * cot_inter3) + (z_abs * z_abs)) / 
+                             (abs_against_panel_z1 - (i * z_abs * cot_inter3));
+  let abs_against_panel_z3 = resistance_at_panel + mass_term_for_slotted_panel + abs_against_panel_z2;
+  
+  let abs_against_panel_refl  = difference_over_sum(abs_against_panel_z3, air_cfg.impedance);
+  let abs_against_panel_alpha = reflectivity_as_alpha(abs_against_panel_refl);
+
+  trace(&format!("Absorber against panel z1 = {}", abs_against_panel_z1));
+  trace(&format!("Absorber against panel z2 = {}", abs_against_panel_z2));
+  trace(&format!("Overall impedence         = {}", abs_against_panel_z3));
+  
+  trace(&format!("Absorber against panel reflection = {}", abs_against_panel_refl));
+  trace(&format!("Absorber against panel absorption = {}", abs_against_panel_alpha));
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // Absorber against backing
+  let abs_against_backing_z1 = minus_i * z_abs * cot_inter3;
+  let abs_against_backing_z2 = ((minus_i * abs_against_backing_z1 * air_cfg.impedance * cot_inter2) +
+                                (air_cfg.impedance * air_cfg.impedance)) /
+                               (abs_against_backing_z1 - (i * air_cfg.impedance * cot_inter2));
+  let abs_against_backing_z3 = resistance_at_backing + mass_term_for_slotted_panel + abs_against_backing_z2;
+
+  let abs_against_backing_refl  = difference_over_sum(abs_against_backing_z3, air_cfg.impedance);
+  let abs_against_backing_alpha = reflectivity_as_alpha(abs_against_backing_refl);
+
+  trace(&format!("Absorber against backing z1 = {}", abs_against_backing_z1));
+  trace(&format!("Absorber against backing z2 = {}", abs_against_backing_z2));
+  trace(&format!("Absorber against backing z3 = {}", abs_against_backing_z3));
+
+  trace(&format!("Absorber against backing reflection = {}", abs_against_backing_refl));
+  trace(&format!("Absorber against backing absorption = {}", abs_against_backing_alpha));
+
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // Absorber with no air gap
+  let no_air_gap_z1 = minus_i * z_abs * cot_inter4;
+  let no_air_gap_z2 = resistance_at_panel + mass_term_for_slotted_panel + no_air_gap_z1;
+
+  let no_air_gap_refl  = difference_over_sum(no_air_gap_z2, air_cfg.impedance);
+  let no_air_gap_alpha = reflectivity_as_alpha(no_air_gap_refl);
+
+  trace(&format!("No air gap z1 = {}", no_air_gap_z1));
+  trace(&format!("No air gap z2 = {}", no_air_gap_z2));
+
+  trace(&format!("No air gap reflection = {}", no_air_gap_refl));
+  trace(&format!("No air gap absorption = {}", no_air_gap_alpha));
 
   trace_boundary(&Some(false));
   return (no_air_gap_alpha, abs_against_panel_alpha, abs_against_backing_alpha);

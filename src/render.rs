@@ -10,21 +10,20 @@ use crate::struct_lib::{
 , AxisOrientation
 , SeriesMetadata
 , FontMetadata
+, PorousAbsInfo
+, PerforatedAbsInfo
+, SlottedAbsInfo
 };
 
 use crate::display::DisplayConfig;
 use crate::sound::SoundConfig;
 
+use crate::trace::Trace;
+
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::{JsValue, JsCast};
 use std::f64::consts::PI;
 use libm::{sqrt, pow};
-
-const LIB_NAME: &str = "render";
-const ENTER_FN: &str = "---->";
-const EXIT_FN : &str = "<----";
-
-const DEBUG: bool = false;
 
 const PI_OVER_TWO : f64 = PI / 2.0;
 const TWO_PI      : f64 = 2.0 * PI;
@@ -52,6 +51,12 @@ const TICK_LENGTH    : f64 = 10.0;
 const TICK_LABEL_GAP : f64 = 5.0;
 const POINT_RADIUS   : f64 = 5.0;
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Trace functionality
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const LIB_NAME     : &str  = &"render";
+const TRACE_ACTIVE : &bool = &false;
+
 // *********************************************************************************************************************
 // Interface to browser functionality
 // *********************************************************************************************************************
@@ -61,26 +66,6 @@ extern "C" {
   fn log(s: &str);
 }
 
-fn fn_boundary_trace(is_debug: bool, fn_name: &'static str) -> impl Fn(bool) -> () {
-  move | is_enter: bool |
-    if is_debug {
-      log(&format!("{} {}::{}()", if is_enter { ENTER_FN } else { EXIT_FN }, LIB_NAME, fn_name))
-    }
-    else {
-      ()
-    }
-}
-
-fn fn_trace(is_debug: bool, fn_name: &'static str) -> impl Fn(&str) -> () {
-  move | txt: &str |
-    if is_debug {
-      log(&format!("      {}::{}() {}", LIB_NAME, fn_name, txt))
-    }
-    else {
-      ()
-    }
-}
-
 // *********************************************************************************************************************
 // Public API
 // *********************************************************************************************************************
@@ -88,7 +73,7 @@ fn fn_trace(is_debug: bool, fn_name: &'static str) -> impl Fn(&str) -> () {
 // *********************************************************************************************************************
 // Porous Absorber
 pub fn plot_porous_absorber(
-  absorber_info : &crate::PorousAbsInfo
+  absorber_info : &PorousAbsInfo
 , display_cfg   : &DisplayConfig
 , sound_cfg     : &SoundConfig
 ) {
@@ -117,7 +102,38 @@ pub fn plot_porous_absorber(
 // *********************************************************************************************************************
 // Perforated Panel Absorber
 pub fn plot_perforated_panel(
-  absorber_info : &crate::PerforatedPanelInfo
+  absorber_info : &PerforatedAbsInfo
+, display_cfg   : &DisplayConfig
+) {
+  let document  = web_sys::window().unwrap().document().unwrap();
+  let canvas_el = document.get_element_by_id("graph_canvas").unwrap();
+  let canvas    = canvas_el.dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
+
+  let no_air_gap_series          = SeriesMetadata { name : &"No Air Gap",               plot_colour : JsValue::from(RGB_GREEN) }; 
+  let abs_against_panel_series   = SeriesMetadata { name : &"Absorber Against Panel",   plot_colour : JsValue::from(RGB_DARK_BLUE) };
+  let abs_against_backing_series = SeriesMetadata { name : &"Absorber Against Backing", plot_colour : JsValue::from(RGB_PINK) };
+
+  clear(&canvas);
+
+  draw_title_and_key(
+    &canvas
+  , &"Normal Incidence Absorption"
+  , &FontMetadata { typeface : &BASE_TYPEFACE, font_size : TITLE_FONT_SIZE, stroke_style : &JsValue::from(RGB_BLACK) }
+  , &FontMetadata { typeface : &BASE_TYPEFACE, font_size : LABEL_FONT_SIZE, stroke_style : &JsValue::from(RGB_BLACK) }
+  , vec!(&abs_against_panel_series, &abs_against_backing_series, &no_air_gap_series)
+  );
+
+  draw_axes(&canvas, &display_cfg);
+  draw_splines(&canvas, &absorber_info.no_air_gap,          &no_air_gap_series.plot_colour,          &display_cfg.smooth_curve);
+  draw_splines(&canvas, &absorber_info.abs_against_panel,   &abs_against_panel_series.plot_colour,   &display_cfg.smooth_curve);
+  draw_splines(&canvas, &absorber_info.abs_against_backing, &abs_against_backing_series.plot_colour, &display_cfg.smooth_curve);
+}
+
+
+// *********************************************************************************************************************
+// Slotted Panel Absorber
+pub fn plot_slotted_panel(
+  absorber_info : &SlottedAbsInfo
 , display_cfg   : &DisplayConfig
 ) {
   let document  = web_sys::window().unwrap().document().unwrap();
@@ -168,11 +184,12 @@ fn draw_title_and_key(
 , key_font    : &FontMetadata
 , series_list : Vec<&SeriesMetadata>
 ) {
-  let my_name          = &"draw_title_key";
-  let fn_boundary      = fn_boundary_trace(DEBUG, my_name);
-  let write_to_console = fn_trace(DEBUG, my_name);
+  const FN_NAME : &str = &"draw_title_and_key";
 
-  fn_boundary(true);
+  let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
+  let trace          = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
+
+  trace_boundary(&Some(true));
 
   const TITLE_KEY_GAP     : f64 = 50.0;
   const KEY_SYMBOL_LENGTH : f64 = 30.0;
@@ -223,9 +240,9 @@ fn draw_title_and_key(
 
   let mut required_key_width = key_entry_width * key_columns as f64;
 
-  write_to_console(&format!("key_entry_width     = {}", key_entry_width));
-  write_to_console(&format!("available_key_width = {}", available_key_width));
-  write_to_console(&format!("required_key_width  = {}", required_key_width));
+  trace(&format!("key_entry_width     = {}", key_entry_width));
+  trace(&format!("available_key_width = {}", available_key_width));
+  trace(&format!("required_key_width  = {}", required_key_width));
 
   if required_key_width > available_key_width {
     key_columns        -= 1;
@@ -233,7 +250,7 @@ fn draw_title_and_key(
     required_key_width  = key_entry_width * key_columns as f64;
   }
 
-  write_to_console(&format!("Key table contains {} columns and {} rows", key_columns, key_rows));
+  trace(&format!("Key table contains {} columns and {} rows", key_columns, key_rows));
 
   let start_x = canvas.width() as f64 - HORIZ_MARGIN_INSET - required_key_width;
 
@@ -245,7 +262,7 @@ fn draw_title_and_key(
       let series_idx = row_idx * key_columns + col_idx;
 
       if series_idx < series_list.len() {
-        write_to_console(&format!("row_idx = {}, col_idx = {}, series_idx = {}", row_idx, col_idx, series_idx));
+        trace(&format!("row_idx = {}, col_idx = {}, series_idx = {}", row_idx, col_idx, series_idx));
 
         // Draw key symbol line
         ctx.save();
@@ -263,7 +280,7 @@ fn draw_title_and_key(
         , &series_list[series_idx].plot_colour
         );
 
-        write_to_console(&format!("Drawing key point at {},{}", x + (KEY_SYMBOL_LENGTH / 2.0), y));
+        trace(&format!("Drawing key point at {},{}", x + (KEY_SYMBOL_LENGTH / 2.0), y));
 
         // Draw key text
         ctx.fill_text(series_list[series_idx].name, x + 40.0, y + (key_font.font_size / 2.0) - 3.0).unwrap();
@@ -279,7 +296,7 @@ fn draw_title_and_key(
 
   ctx.restore();
 
-  fn_boundary(false);
+  trace_boundary(&Some(false));
 }
 
 
@@ -287,10 +304,12 @@ fn draw_title_and_key(
 // Draw graph axes
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 fn draw_axes(canvas: &web_sys::HtmlCanvasElement, display_cfg: &DisplayConfig) {
-  let my_name     = &"draw_axes";
-  let fn_boundary = fn_boundary_trace(DEBUG, my_name);
+  const FN_NAME : &str = &"draw_axes";
 
-  fn_boundary(true);
+  let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
+  let trace          = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
+
+  trace_boundary(&Some(true));
 
   let chart_origin = &PlotPoint { x : LEFT_AXIS_INSET, y : canvas.height() as f64 - BOTTOM_AXIS_INSET };
 
@@ -302,6 +321,8 @@ fn draw_axes(canvas: &web_sys::HtmlCanvasElement, display_cfg: &DisplayConfig) {
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // Draw Y axis
+  trace(&"Drawing Y axis");
+
   let abs_strs = vec!(
     String::from("0.0")
   , String::from("0.1")
@@ -329,6 +350,8 @@ fn draw_axes(canvas: &web_sys::HtmlCanvasElement, display_cfg: &DisplayConfig) {
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // Draw X axis
+  trace(&"Drawing X axis");
+
   let mut freq_strs : Vec<String> = vec!();
   display_cfg
     .frequencies
@@ -355,7 +378,7 @@ fn draw_axes(canvas: &web_sys::HtmlCanvasElement, display_cfg: &DisplayConfig) {
   , tick_label_gap : TICK_LABEL_GAP
   });
 
-  fn_boundary(false);
+  trace_boundary(&Some(false));
 }
 
 
@@ -363,14 +386,13 @@ fn draw_axes(canvas: &web_sys::HtmlCanvasElement, display_cfg: &DisplayConfig) {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Draw an axis
 fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: &Axis) {
-  let my_name = &"draw_axis";
+  const FN_NAME : &str = &"draw_axis";
 
-  let fn_boundary      = fn_boundary_trace(DEBUG, my_name);
-  let write_to_console = fn_trace(DEBUG, my_name);
+  let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
+  let trace          = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
 
-  fn_boundary(true);
-
-  write_to_console("Plotting axis");
+  trace_boundary(&Some(true));
+  trace(&"Plotting axis");
 
   let ctx = get_2d_context(&canvas);
 
@@ -444,6 +466,7 @@ fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: &Axis) {
   // Write axis title and restore context state
   ctx.fill_text(axis_info.title, 0.0, 0.0).unwrap();
   ctx.restore();
+  trace_boundary(&Some(false));
 }
 
 
@@ -527,10 +550,11 @@ fn draw_splines(
 , stroke_colour : &JsValue
 , smooth_curve  : &bool
 ) {
-  let my_name     = &"draw_splines";
-  let fn_boundary = fn_boundary_trace(DEBUG, my_name);
+  const FN_NAME : &str = &"draw_splines";
 
-  fn_boundary(true);
+  let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
+
+  trace_boundary(&Some(true));
 
   let (_, _, _, x_axis_length, y_axis_length) = canvas_dimensions(&canvas);
 
@@ -565,7 +589,7 @@ fn draw_splines(
 
   draw_curved_path(&ctx, &cps, &points, &stroke_colour);
 
-  fn_boundary(false);
+  trace_boundary(&Some(false));
 }
 
 
@@ -614,6 +638,7 @@ fn draw_curved_path(ctx: &web_sys::CanvasRenderingContext2d, cps: &Vec<PlotPoint
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Scale the Y axis (absorption value) to a canvas pixel location
-fn scaled_y_pos(start: f64, axis_length: f64) -> impl Fn(f64) -> f64 {
-  move | this_y: f64 | start - (this_y * axis_length)
-}
+fn scaled_y_pos(start: f64, axis_length: f64) ->
+  impl Fn(f64) -> f64 {
+    move | this_y: f64 | start - (this_y * axis_length)
+  }

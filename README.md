@@ -5,22 +5,45 @@ Calculates the acoustic absorption curve of a variety of porous absorber systems
 The porous absorber is typically made from some material such as Rockwool or glass fibre insulation.  You need to know the flow resistivity of this material in order to get the best results form these calculations.
 
 
-## Absorber System Types
+## Absorber Device Types
 
-At the moment, only two systems have been implemented
+At the moment, three absorber devices have been implemented
 
-1. A simple porous absorber layer of thickness ***t<sub>a</sub>*** above an air gap of depth ***d***. Two absorption curves are calculated:
-    * The porous absorber is mounted above an air gap
+### Simple Porous Absorber
+
+A simple porous absorber layer of thickness ***t<sub>a</sub>*** is mounted over a rigid backing.
+
+Two absorption curves are calculated:
+
+* The porous absorber layer is mounted directly to the rigid backing, or
+* The porous absorber is mounted above an air gap of depth ***d***
     ![Structure](./img/rb_porous_absorber.png)
-    * The air gap is ignored.  In other words, the porous absorber layer is mounted directly to the rigid backing
-    
-1. A perforated panel of thickness ***t<sub>p</sub>*** with circular holes of radius ***a*** at a spacing ***D***.  Behind this panel is a cavity of total depth ***d*** within which is a porous absorber layer of thickness ***t<sub>a</sub>*** and some air gap.  
-    Three absorption curves are calculated:  
-    * The air gap is ignored and the entire cavity is assumed to be filled with porous absorber
-    * Perforated Panel -> Porous Absorber -> Air Gap -> Backing 
-        ![Structure](./img/perforated_panel1.png) 
-    * Perforated Panel -> Air Gap -> Porous Absorber -> Backing
-        ![Structure](./img/perforated_panel2.png) 
+
+### Perforated Panel
+
+A perforated panel of thickness ***t<sub>p</sub>*** with circular holes of radius ***a*** at a spacing ***D*** is mounted above a cavity whose total depth is ***d*** and containing a porous absorber layer of thickness ***t<sub>a</sub>***.
+
+Three absorption curves are calculated:  
+
+* The perforated panel is mounted directly to the porous absorber layer, which in turn is mounted directly to the rigid backing.  I.E. The air gap is zero.
+* Perforated Panel -> Porous Absorber -> Air Gap -> Backing 
+    ![Perforated Panel 1](./img/perforated_panel1.png) 
+* Perforated Panel -> Air Gap -> Porous Absorber -> Backing
+    ![Perforated Panel 2](./img/perforated_panel2.png) 
+
+
+### Slotted Panel
+
+A slotted panel of thickness ***t<sub>p</sub>*** with slots of width ***w*** at a spacing ***D*** is mounted above a cavity whose total depth is ***d*** and containing a porous absorber layer of thickness ***t<sub>a</sub>***.
+
+Three absorption curves are calculated:  
+
+* The slotted panel is mounted directly to the porous absorber layer, which in turn is mounted directly to the rigid backing.  I.E. The air gap is zero.
+* Slotted Panel -> Porous Absorber -> Air Gap -> Backing 
+    ![Slotted Panel 1](./img/slotted_panel1.png) 
+* Slotted Panel -> Air Gap -> Porous Absorber -> Backing
+    ![Slotted Panel 2](./img/slotted_panel2.png) 
+
 
 
 ## Background
@@ -74,7 +97,17 @@ If this is the first time you have run this calculator, then all calculations wi
 
 ### Slotted Panel
 
-Not implemented yet
+| Property | Min | Default value | Max |
+|---|---|---|---|
+| Panel thickness | 1.0 mm | 10 mm | 50.0 mm
+| Slot distance | 2.0 mm | 25.4 mm | 300 mm
+| Slot width | 1.0 mm | 5.0 mm | 50.0 mm
+| Absorber flow resistivity | 100 rayls/m | 16,500 rayls/m | 100,000 rayls/m 
+| Absorber thickness | 5 mm | 30 mm | 500 mm
+| Air gap | 0 mm | 100 mm | 500 mm
+| Graph start frequency | 20 Hz | 62.5 Hz | 100 Hz
+| Octave subdivisions | 1 | 1 | 1, 2, 3 or 6
+
 
 ### Perforated Panel
 
@@ -123,10 +156,7 @@ I decided to use sliders as the input UI element instead of simple input fields 
 
 ## To Do
 
-Implement calculations for the following systems:
-
-* A slotted panel above an air gap and a porous layer
-* A micro-perforated panel above an air gap.  No porous absorber material is needed in this system
+Implement the calculations for a micro-perforated panel above an air gap.  No porous absorber material is needed in this system
 
 Display the value of each plot point when the mouse pointer hovers it
 

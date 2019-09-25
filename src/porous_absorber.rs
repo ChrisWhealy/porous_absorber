@@ -4,7 +4,7 @@ use std::error::Error;
 use std::fmt;
 
 /***********************************************************************************************************************
- * Air pressure and temperature range check values
+ * Range check values
  */
 const START_THICKNESS   : u32 = 5;
 const DEFAULT_THICKNESS : u32 = 30;

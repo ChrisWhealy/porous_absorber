@@ -82,7 +82,17 @@ pub struct PorousAbsInfo {
 // Absorption data for a Perforated Panel Absorber
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #[derive(Debug)]
-pub struct PerforatedPanelInfo {
+pub struct PerforatedAbsInfo {
+  pub abs_against_panel   : Vec<PlotPoint>
+, pub abs_against_backing : Vec<PlotPoint>
+, pub no_air_gap          : Vec<PlotPoint>
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Absorption data for a Slotted Panel Absorber
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#[derive(Debug)]
+pub struct SlottedAbsInfo {
   pub abs_against_panel   : Vec<PlotPoint>
 , pub abs_against_backing : Vec<PlotPoint>
 , pub no_air_gap          : Vec<PlotPoint>

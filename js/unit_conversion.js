@@ -40,13 +40,19 @@ const show_and_convert_units =
     let displayValue = null
 
     switch(field_config.id) {
-      case "porosity":
+      case "perforated_porosity":
         displayValue = (
             Math.PI
           * (($("hole_radius_mm").value / 1000) ** 2)
           / (($("repeat_distance_mm").value / 1000) ** 2)
           ).toFixed(6)
-        $("porosity").innerHTML = displayValue
+        $(field_config.id).innerHTML = displayValue
+        break
+
+      case "slotted_porosity":
+        let sw = $("slot_width_mm").value / 1000
+        displayValue = (sw / (sw + ($("slot_distance_mm").value / 1000))).toFixed(6)
+        $(field_config.id).innerHTML = displayValue
         break
 
       case "cavity_depth_mm":

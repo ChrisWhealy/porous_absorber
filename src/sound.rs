@@ -2,7 +2,7 @@ use std::error::Error;
 use std::fmt;
 
 /***********************************************************************************************************************
- * Air pressure and temperature range check values
+ * Range check values
  */
 const START_ANGLE   : u32 = 0;
 const DEFAULT_ANGLE : u32 = START_ANGLE;

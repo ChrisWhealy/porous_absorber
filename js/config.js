@@ -33,12 +33,23 @@
      , { id : "subdivision",           units : "each",    isWasmArg : true, getter : getRadio,    setter : setRadio    }
       ]
    , "slotted_panel" : [
-   ]
+      { id : "panel_thickness_mm",    units : "mm",      isWasmArg : true,  getter : getFloat,     setter : setFloat    }
+    , { id : "slot_distance_mm",      units : "mm",      isWasmArg : true,  getter : getFloat,     setter : setFloat    }
+    , { id : "slot_width_mm",         units : "mm",      isWasmArg : true,  getter : getFloat,     setter : setFloat    }
+    , { id : "slotted_porosity",      units : "each",    isWasmArg : true,  getter : getInnerHTML, setter : setFloat    }
+    , { id : "absorber_thickness_mm", units : "mm",      isWasmArg : true,  getter : getInt,       setter : setInt      }
+    , { id : "flow_resistivity",      units : "rayls/m", isWasmArg : true,  getter : getInt,       setter : setInt      }
+    , { id : "air_gap_mm",            units : "mm",      isWasmArg : true,  getter : getInt,       setter : setInt      }
+    , { id : "cavity_depth_mm",       units : "mm",      isWasmArg : false, getter : getInt,       setter : setInt      }
+    , { id : "graph_start_freq",      units : "Hz",      isWasmArg : true,  getter : getFloat,     setter : setFloat    }
+    , { id : "smooth_curve",          units : "each",    isWasmArg : true,  getter : getCheckbox,  setter : setCheckbox }
+    , { id : "subdivision",           units : "each",    isWasmArg : true,  getter : getRadio,     setter : setRadio    }
+  ]
    , "perforated_panel" : [
        { id : "panel_thickness_mm",    units : "mm",      isWasmArg : true,  getter : getFloat,     setter : setFloat    }
      , { id : "repeat_distance_mm",    units : "mm",      isWasmArg : true,  getter : getFloat,     setter : setFloat    }
      , { id : "hole_radius_mm",        units : "mm",      isWasmArg : true,  getter : getFloat,     setter : setFloat    }
-     , { id : "porosity",              units : "each",    isWasmArg : true,  getter : getInnerHTML, setter : setFloat    }
+     , { id : "perforated_porosity",   units : "each",    isWasmArg : true,  getter : getInnerHTML, setter : setFloat    }
      , { id : "absorber_thickness_mm", units : "mm",      isWasmArg : true,  getter : getInt,       setter : setInt      }
      , { id : "flow_resistivity",      units : "rayls/m", isWasmArg : true,  getter : getInt,       setter : setInt      }
      , { id : "air_gap_mm",            units : "mm",      isWasmArg : true,  getter : getInt,       setter : setInt      }
