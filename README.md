@@ -110,7 +110,7 @@ Display the value of each plot point when the mouse pointer hovers it
 <a name="caveat"></a>
 ## Caveat
 
-The author has taken every reasonable to ensure that the calculations are accurate to the equations and methodology documented in the book "*Acoustic Absorbers and Diffusers.  Theory, Design and Practice*" by Trevor Cox and Peter D'Antonio (First Edition).  The author recognises that this book is now in its third edition and therefore, certain calculations may have been modified or revised.
+The author has taken every reasonable step to ensure that the calculations are accurate to the equations and methodology documented in the book "*Acoustic Absorbers and Diffusers.  Theory, Design and Practice*" by Trevor Cox and Peter D'Antonio (First Edition).  The author also recognises that this book is now in its third edition and therefore, certain calculations may have been modified or revised; consequently, the graphs plotted by this tool may vary from those plotted by a tool based on the most recent version of this book.
 
 
 
