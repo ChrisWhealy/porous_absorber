@@ -6,10 +6,14 @@
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
 
+import { no_op }     from "./utils.js"
+import { trace }     from "./trace.js"
+import { tabConfig } from "./config.js"
+
 // *********************************************************************************************************************
 // Check if local storage is available
-// This function cannot be run before the HTML page has fully initialised
-const storageAvailable =
+// Warning: This function cannot be run before the HTML page has fully initialised!
+const storage_available =
   type => {
     let storage
 
@@ -84,3 +88,12 @@ const clear_local_storage =
     trace("<--- clear_local_storage()")
   }
 
+// *********************************************************************************************************************
+// Public API
+// *********************************************************************************************************************
+export {
+  storage_available
+, restore_from_local_storage
+, write_to_local_storage
+, clear_local_storage
+}

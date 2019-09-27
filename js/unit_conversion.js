@@ -6,6 +6,39 @@
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
 
+import { trace } from "./trace.js"
+import { $ }     from "./dom_access.js"
+
+// *********************************************************************************************************************
+// Convert metric units to imperial
+const to_imperial = (units, val) => {
+  let result = null
+
+  switch(units) {
+    // Metres to feet and inches
+    case "m":
+      let m_as_inches = val * 39.3701
+      result = `(${Math.floor(m_as_inches / 12)} ft ${Number.parseFloat(m_as_inches % 12).toFixed(2)} in)`
+      break
+
+    // Milliemetres to inches
+    case "mm":
+      let mm_as_inches = val / 25.4
+      result = `(${Number.parseFloat(mm_as_inches).toFixed(3)} in)`
+      break
+
+    // Degrees Centigrade to degrees Fahrenheit
+    case "°C":
+      let c_as_f = (val * 9.0 / 5.0) + 32.0
+      result = `(${Number.parseFloat(c_as_f).toFixed(1)}°F)`
+      break
+
+    default:
+  }
+
+  return result
+}
+
 // *********************************************************************************************************************
 // Partial function to display a value in a DOM element after being formatted by the supplied function
 const show_value =
@@ -69,32 +102,11 @@ const show_and_convert_units =
     trace(`<--- show_and_convert_units(${field_config.id})`)
   }
 
+
 // *********************************************************************************************************************
-// Convert metric units to imperial
-const to_imperial = (units, val) => {
-  let result = null
-
-  switch(units) {
-    // Metres to feet and inches
-    case "m":
-      let m_as_inches = val * 39.3701
-      result = `(${Math.floor(m_as_inches / 12)} ft ${Number.parseFloat(m_as_inches % 12).toFixed(2)} in)`
-      break
-
-    // Milliemetres to inches
-    case "mm":
-      let mm_as_inches = val / 25.4
-      result = `(${Number.parseFloat(mm_as_inches).toFixed(3)} in)`
-      break
-
-    // Degrees Centigrade to degrees Fahrenheit
-    case "°C":
-      let c_as_f = (val * 9.0 / 5.0) + 32.0
-      result = `(${Number.parseFloat(c_as_f).toFixed(1)}°F)`
-      break
-
-    default:
-  }
-
-  return result
+// Public API
+// *********************************************************************************************************************
+export {
+  show_and_convert_units
 }
+

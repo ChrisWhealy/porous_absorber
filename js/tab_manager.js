@@ -6,6 +6,13 @@
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
 
+import { push }                   from "./utils.js"
+import { trace }                  from "./trace.js"
+import { $, $class }              from "./dom_access.js"
+import { tabConfig }              from "./config.js"
+import { show_and_convert_units } from "./unit_conversion.js"
+import { storage_available }      from "./local_storage.js"
+
 // *********************************************************************************************************************
 // UI slider range limitation
 // *********************************************************************************************************************
@@ -25,7 +32,7 @@ const limit_max =
 // *********************************************************************************************************************
 // Tab management
 // *********************************************************************************************************************
-const openTab = (evt, tabName) => {
+const open_tab = (evt, tabName) => {
   trace("---> openTab()")
 
   // Cache values from current tab and deactive that tab button
@@ -67,7 +74,7 @@ const cache_values_and_deactivate =
     for (var tablink of $class("tabButton")) {
       if (tablink.className.indexOf("active") > -1) {
         tablink.className = tablink.className.replace(" active", "")
-        store_tab_values(tablink.id.replace("tab_button_", ""))
+        window.store_tab_values(tablink.id.replace("tab_button_", ""))
       }
     }
 
@@ -89,7 +96,7 @@ const fetch_tab =
       $(tabName).insertAdjacentHTML('afterbegin', req.response)
 
       // If local storage contains any values for the current tab's fields, then restore these
-      restore_tab_values(tabName)
+      window.restore_tab_values(tabName)
 
       update_screen(tabName)
     }
@@ -132,7 +139,7 @@ const update_screen =
 
     // For non-configuration tabs, add the configuration values since these are common to all calculations
     if (tabName !== "configuration") {
-      current_field_values = current_field_values.concat(get_config())
+      current_field_values = current_field_values.concat(window.get_config())
     }
 
     // What are we sending to WASM?
@@ -150,3 +157,18 @@ const update_screen =
     trace(`<--- update_screen(${tabName})`)
 }
 
+
+// *********************************************************************************************************************
+// Public API
+// *********************************************************************************************************************
+export {
+  limit_max
+, half
+, double
+, open_tab
+, update_screen
+, fetch_tab
+, fetch_config_from_dom
+, fetch_config_from_ls
+, fetch_config_values
+}
