@@ -6,12 +6,20 @@
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
 
-import { push }                   from "./utils.js"
-import { trace }                  from "./trace.js"
+import { push, setProperty }      from "./utils.js"
 import { $, $class }              from "./dom_access.js"
 import { tabConfig }              from "./config.js"
 import { show_and_convert_units } from "./unit_conversion.js"
-import { storage_available }      from "./local_storage.js"
+
+// *********************************************************************************************************************
+// Define trace functions
+import { do_trace_boundary, do_trace_info} from "./trace.js"
+
+const MOD_NAME     = "tab_manager"
+const DEBUG_ACTIVE = false
+
+const trace_boundary = do_trace_boundary(DEBUG_ACTIVE)(MOD_NAME)
+const trace          = do_trace_info(DEBUG_ACTIVE)(MOD_NAME)
 
 // *********************************************************************************************************************
 // UI slider range limitation
@@ -33,7 +41,8 @@ const limit_max =
 // Tab management
 // *********************************************************************************************************************
 const open_tab = (evt, tabName) => {
-  trace("---> openTab()")
+  const trace_bnd = trace_boundary("openTab")
+  trace_bnd(true)
 
   // Cache values from current tab and deactive that tab button
   cache_values_and_deactivate()
@@ -45,14 +54,15 @@ const open_tab = (evt, tabName) => {
   
   fetch_tab(tabName)
 
-  trace("<--- openTab()")
+  trace_bnd(false)
 }
 
 // *********************************************************************************************************************
 // Hide tabs and remove their content except for the configuration tab
 const hide_and_empty_all_tabs =
   () => {
-    trace("---> hide_all_tabs()")
+    const trace_bnd = trace_boundary("hide_all_tabs")
+    trace_bnd(true)
 
     for (var tab of $class("tabContent")) {
       tab.style.display = "none"
@@ -62,14 +72,15 @@ const hide_and_empty_all_tabs =
       }
     }
 
-    trace("<--- hide_all_tabs()")
+    trace_bnd(false)
   }
 
 // *********************************************************************************************************************
 // Cache values from the current tab in local storage, then deactivate the tab button
 const cache_values_and_deactivate =
   () => {
-    trace("---> cache_values_and_deactivate()")
+    const trace_bnd = trace_boundary("cache_values_and_deactivate")
+    trace_bnd(true)
 
     for (var tablink of $class("tabButton")) {
       if (tablink.className.indexOf("active") > -1) {
@@ -78,20 +89,22 @@ const cache_values_and_deactivate =
       }
     }
 
-    trace("<--- cache_values_and_deactivate()")
+    trace_bnd(false)
   }
 
 // *********************************************************************************************************************
 // Fetch tab content from server
 const fetch_tab =
   tabName => {
-    trace(`---> fetch_tab(${tabName})`)
+    const trace_bnd = trace_boundary("fetch_tab", tabName)
+    trace_bnd(true)
+
     let req = new XMLHttpRequest()
     
     req.open('GET',`./tabs/${tabName}.html`)
     
     req.onload = () => {
-      trace(`     Inserting HTML for ${tabName}`)
+      trace(`Inserting HTML for ${tabName}`)
       $(tabName).innerHTML = ""
       $(tabName).insertAdjacentHTML('afterbegin', req.response)
 
@@ -102,7 +115,7 @@ const fetch_tab =
     }
     
     req.send()
-    trace(`<--- fetch_tab(${tabName})`)
+    trace_bnd(false)
   }
 
 // *********************************************************************************************************************
@@ -128,7 +141,8 @@ const fetch_config_values =
 // This function must be called every time an input value is changed
 const update_screen =
   tabName => {
-    trace(`---> update_screen(${tabName})`)
+    const trace_bnd = trace_boundary("update_screen", tabName)
+    trace_bnd(true)
     
     // Perform any unit conversions that might be needed then extract the input values relevant for the WASM module
     let current_field_values = tabConfig[tabName]
@@ -154,7 +168,7 @@ const update_screen =
       console.log(JSON.stringify(wasm_response, null, 2))
     }
     
-    trace(`<--- update_screen(${tabName})`)
+    trace_bnd(false)
 }
 
 

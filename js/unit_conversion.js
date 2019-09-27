@@ -6,8 +6,17 @@
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
 
-import { trace } from "./trace.js"
-import { $ }     from "./dom_access.js"
+import { $ } from "./dom_access.js"
+
+// *********************************************************************************************************************
+// Define trace functions
+import { do_trace_boundary, do_trace_info} from "./trace.js"
+
+const MOD_NAME     = "unit_conversion"
+const DEBUG_ACTIVE = false
+
+const trace_boundary = do_trace_boundary(DEBUG_ACTIVE)(MOD_NAME)
+const trace          = do_trace_info(DEBUG_ACTIVE)(MOD_NAME)
 
 // *********************************************************************************************************************
 // Convert metric units to imperial
@@ -54,7 +63,7 @@ const show_value =
                          : `${val.toLocaleString('en')} ${field_config.units}`
       }
       else {
-        trace(`     ${field_config.id}${field_suffix} element not found`)
+        trace(`${field_config.id}${field_suffix} element not found`)
       }
     }
 
@@ -67,7 +76,10 @@ const convert_units = show_value("_alt_units", "imperial")
 // Display range slider value unit conversion if necessary
 const show_and_convert_units =
   field_config => {
-    trace(`---> show_and_convert_units(${field_config.id})`)
+    const trace_bnd = trace_boundary("show_and_convert_units", field_config.id)
+    //const trace     = trace_info("show_and_convert_units", field_config.id)
+    trace_bnd(true)
+
     // trace(`${JSON.stringify(field_config)}`)
 
     let displayValue = null
@@ -99,7 +111,7 @@ const show_and_convert_units =
       show_units(displayValue, field_config)
       convert_units(displayValue, field_config)
 
-    trace(`<--- show_and_convert_units(${field_config.id})`)
+    trace_bnd(false)
   }
 
 

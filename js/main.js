@@ -7,9 +7,8 @@
 import * as LS from "./local_storage.js"
 import * as TM from "./tab_manager.js"
 
-import { no_op }     from "./utils.js"
-import { trace }     from "./trace.js"
-import { $class }    from "./dom_access.js"
+import { no_op }  from "./utils.js"
+import { $class } from "./dom_access.js"
 
 import init
 , { rb_porous_absorber
@@ -17,6 +16,15 @@ import init
   , perforated_panel
 }
 from '../pkg/porous_absorber_calculator.js'
+
+// *********************************************************************************************************************
+// Define trace functions
+import { do_trace_boundary, do_trace_info} from "./trace.js"
+
+const MOD_NAME     = "main"
+const DEBUG_ACTIVE = false
+
+const trace_boundary = do_trace_boundary(DEBUG_ACTIVE)(MOD_NAME)
 
 // *********************************************************************************************************************
 // Make the tab's various onclick and oninput functions available at the window level
@@ -30,13 +38,16 @@ window.double        = TM.double
 // *********************************************************************************************************************
 // Activate configuration tab and select default tab
 async function start_tabs() {
-  trace("---> start()")
+  const trace_bnd = trace_boundary("start")
+  trace_bnd(true)
+
   let can_i_haz_local_storage = LS.storage_available("localStorage")
 
   // Define which function is called based on the availability of local storage
-  window.restore_tab_values = can_i_haz_local_storage ? LS.restore_from_local_storage : no_op
-    window.store_tab_values = can_i_haz_local_storage ?     LS.write_to_local_storage : no_op
-          window.get_config = can_i_haz_local_storage ?        TM.fetch_config_values : TM.fetch_config_from_dom
+  window.restore_tab_values  = can_i_haz_local_storage ? LS.restore_from_local_storage : no_op
+  window.store_tab_values    = can_i_haz_local_storage ? LS.write_to_local_storage     : no_op
+  window.clear_local_storage = can_i_haz_local_storage ? LS.clear_local_storage        : no_op
+  window.get_config          = can_i_haz_local_storage ? TM.fetch_config_values        : TM.fetch_config_from_dom
 
   // Ensure the configuration tab is always loaded
   await TM.fetch_tab("configuration")
@@ -46,7 +57,7 @@ async function start_tabs() {
     if (tablink.getAttribute("default") === "true") tablink.click()
   }
 
-  trace("<--- start()")
+  trace_bnd(false)
 }
 
 

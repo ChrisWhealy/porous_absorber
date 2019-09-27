@@ -6,9 +6,17 @@
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
 
-import { no_op }     from "./utils.js"
-import { trace }     from "./trace.js"
 import { tabConfig } from "./config.js"
+
+// *********************************************************************************************************************
+// Define trace functions
+import { do_trace_boundary, do_trace_info} from "./trace.js"
+
+const MOD_NAME     = "local_storage"
+const DEBUG_ACTIVE = false
+
+const trace_boundary = do_trace_boundary(DEBUG_ACTIVE)(MOD_NAME)
+const trace          = do_trace_info(DEBUG_ACTIVE)(MOD_NAME)
 
 // *********************************************************************************************************************
 // Check if local storage is available
@@ -44,7 +52,9 @@ const storage_available =
 // *********************************************************************************************************************
 const restore_from_local_storage =
   tabName => {
-    trace(`---> restore_from_local_storage(${tabName})`)
+    const trace_bnd = trace_boundary("restore_from_local_storage", tabName)
+    trace_bnd(true)
+
     let tabValueStr = window.localStorage.getItem(tabName)
 
     if (!!tabValueStr) {
@@ -59,13 +69,15 @@ const restore_from_local_storage =
       trace(`No values for ${tabName} found in local storage`)
     }
 
-    trace(`<--- restore_from_local_storage(${tabName})`)
+    trace_bnd(false)
   }
 
 // *********************************************************************************************************************
 const write_to_local_storage =
   tabName => {
-    trace(`---> write_to_local_storage(${tabName})`)
+    const trace_bnd = trace_boundary("write_to_local_storage", tabName)
+    trace_bnd(true)
+
     let cacheVals = tabConfig[tabName].map(
       field => ({
         "id"    : field.id
@@ -75,17 +87,20 @@ const write_to_local_storage =
     trace(`Writing ${JSON.stringify(cacheVals)} to local storage`)
     window.localStorage.setItem(tabName, JSON.stringify(cacheVals))
 
-    trace(`<--- write_to_local_storage(${tabName})`)
+    trace_bnd(false)
   }
 
 // *********************************************************************************************************************
 const clear_local_storage =
   () => {
-    trace("---> clear_local_storage()")
+    const trace_bnd = trace_boundary("clear_local_storage")
+    trace_bnd(true)
+
     let key_count = Object.keys(tabConfig).length
     Object.keys(tabConfig).map(tab => window.localStorage.removeItem(tab))
     alert(`All cached data for ${key_count} tabs has been removed from local storage`)
-    trace("<--- clear_local_storage()")
+
+    trace_bnd(false)
   }
 
 // *********************************************************************************************************************
