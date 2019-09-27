@@ -7,13 +7,17 @@
  **********************************************************************************************************************/
 
 // *********************************************************************************************************************
-// Fetch DOM element by id or class name
+// Fetch DOM elements by id, class name or name
 function $(elementId) {
   return document.getElementById(elementId)
 }
 
 function $class(elementId) {
   return document.getElementsByClassName(elementId)
+}
+
+function $name(elementId) {
+  return document.getElementsByName(elementId)
 }
 
 // *********************************************************************************************************************
@@ -36,7 +40,7 @@ const getCheckbox  = elementId => $(elementId).checked
 
 const getRadio =
   elementId => {
-    for (var rButton of document.getElementsByName(elementId)) {
+    for (var rButton of $name(elementId)) {
       if (rButton.checked) {
         return rButton.value
       }
@@ -46,24 +50,21 @@ const getRadio =
   }
 
 // *********************************************************************************************************************
-// Coerce a value to string then write to DOM element
-const setString = (elementId, val) => $(elementId).value = val + ""
+// Write values to DOM elements
+const setDomElementProperty =
+  (elementId, propName, val) => 
+    (el => el ? el[propName] = val : console.log(`DOM element '${elementId}' not found`))
+    ($(elementId))
 
-// Write integer value to DOM element
-const setInt = (elementId, val) => $(elementId).value = parseInt(val)
-
-// Write float value to DOM element
-const setFloat = (elementId, val) => $(elementId).value = parseFloat(val)
-
-// Set checkbox value
-const setCheckbox = (elementId, val) => $(elementId).checked = !!val
+const setString   = (elementId, val) => setDomElementProperty(elementId, "value", val)
+const setInt      = (elementId, val) => setDomElementProperty(elementId, "value", parseInt(val))
+const setFloat    = (elementId, val) => setDomElementProperty(elementId, "value", parseFloat(val))
+const setCheckbox = (elementId, val) => setDomElementProperty(elementId, "checked", !!val)
 
 // Set radio button
 const setRadio = (elementId, val) => {
-  for (var rButton of document.getElementsByName(elementId)) {
-    if (rButton.value === val) {
-      rButton.checked = true
-    }
+  for (var rButton of $name(elementId)) {
+    rButton.checked = (rButton.value === val)
   }
 }
 

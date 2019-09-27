@@ -1,3 +1,4 @@
+<a name="top"></a>
 # Porous Absorber Calculator
 
 Calculates the acoustic absorption curve of a variety of porous absorber devices mounted against a rigid backing such as a brick wall.
@@ -5,136 +6,42 @@ Calculates the acoustic absorption curve of a variety of porous absorber devices
 The porous absorber is typically made from some material such as Rockwool or glass fibre insulation.  You need to know the flow resistivity of this material in order to get the best results from these calculations.
 
 
+
+<!--------------------------------------------------------------------------------------------------------------------->
+<a name="usage"></a>
+## Usage
+
+When the app starts, the "Rigid Backed Porous Absorber" tab will be selected by default.
+
+![Screen shot](./img/rb_porous_absorber_screen.png)
+
+If this is the first time you have run this calculator, then all calculations will be performed using default values.  If you have used this calculator before, then each of the curves will be plotted using your previous values.
+
+
+
+<!--------------------------------------------------------------------------------------------------------------------->
+<a name="device-types"></a>
 ## Absorber Device Types
 
-At the moment, three absorber devices have been implemented
+At the moment, three absorber devices have been implemented:
 
-### Simple Porous Absorber
+* [Rigid Backed Porous Absorber](./docs/rb_porous_absorber.md)
+* [Slotted Panel](./docs/slotted_panel.md)
+* [Perforated Panel](./docs/perforated_panel.md)
 
-A simple porous absorber layer of thickness ***t<sub>a</sub>*** is mounted over a rigid backing.
-
-Two absorption curves are calculated:
-
-* The porous absorber layer is mounted directly to the rigid backing, or
-* The porous absorber is mounted above an air gap of depth ***d***
-    ![Structure](./img/rb_porous_absorber.png)
-
-### Perforated Panel
-
-A perforated panel of thickness ***t<sub>p</sub>*** with circular holes of radius ***a*** at a spacing ***D*** is mounted above a cavity whose total depth is ***d*** and containing a porous absorber layer of thickness ***t<sub>a</sub>***.
-
-Three absorption curves are calculated:  
-
-* The perforated panel is mounted directly to the porous absorber layer, which in turn is mounted directly to the rigid backing.  I.E. The air gap is zero.
-* Perforated Panel -> Porous Absorber -> Air Gap -> Backing 
-    ![Perforated Panel 1](./img/perforated_panel1.png) 
-* Perforated Panel -> Air Gap -> Porous Absorber -> Backing
-    ![Perforated Panel 2](./img/perforated_panel2.png) 
+There is also a [configuration](./docs/configuration.md) screen on which you can change less frequently altered values such as air temperature and pressure.
 
 
-### Slotted Panel
-
-A slotted panel of thickness ***t<sub>p</sub>*** with slots of width ***w*** at a spacing ***D*** is mounted above a cavity whose total depth is ***d*** and containing a porous absorber layer of thickness ***t<sub>a</sub>***.
-
-Three absorption curves are calculated:  
-
-* The slotted panel is mounted directly to the porous absorber layer, which in turn is mounted directly to the rigid backing.  I.E. The air gap is zero.
-* Slotted Panel -> Porous Absorber -> Air Gap -> Backing 
-    ![Slotted Panel 1](./img/slotted_panel1.png) 
-* Slotted Panel -> Air Gap -> Porous Absorber -> Backing
-    ![Slotted Panel 2](./img/slotted_panel2.png) 
-
-
-
-## Background
-
-This app is the reimplementation of an [Excel spreadsheet](http://whealy.com/acoustics/Porous.html) I wrote in 2004 and is part of an on-going exercise in learning Rust and cross-compiling it to Web Assembly using [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)
-
-## Calculations
-
-All the calculations used by this app are derived from the book "*Acoustic Absorbers and Diffusers.  Theory, Design and Practice*" by Trevor Cox and Peter D'Antonio (First Edition)
-
-
+<!--------------------------------------------------------------------------------------------------------------------->
+<a name="online-version"></a>
 ## Online Version
 
 An online version of this tool is available [here](http://whealy.com/acoustics/PA_Calculator/index.html)
 
 
-## Architecture
 
-The WASM function receives the 8 arguments listed in the table below and from these, calculates the absorption curve of that particular absorbent device.  The absorption curve is then generated as an HTML `canvas` directly by Rust interacting with the browser DOM through [wasm-bindgen](https://rustwasm.github.io/wasm-bindgen/introduction.html)
-
-## Local Installation
-
-These instructions assume you have already installed Rust and `wasm-pack`, and that Python3 is available to act as a Web server.
-
-1. Clone this repo
-2. Change into the repo's top-level directory
-3. Compile using `wasm-pack build --release --target web`
-4. Start a Python3 Web server using `python3 -m http.server`
-5. Visit <http://0.0.0.0:8000>
-
-## Usage
-
-When the app starts, the "Rigid Backed Porous Absorber" tab will be selected by default.
-
-![Screen shot](./img/Screenshot.png)
-
-If this is the first time you have run this calculator, then all calculations will be performed using default values.  If you have used this calculator before, then each of the curves will be plotted using your previous values.
-
-## Default Values
-
-### Rigid Backed Porous Absorber
-
-| Property | Min | Default value | Max |
-|---|---|---|---|
-| Absorber thickness | 5 mm | 30 mm | 500 mm
-| Absorber flow resistivity | 100 rayls/m | 16,500 rayls/m | 100,000 rayls/m 
-| Cavity air gap | 0 mm | 100 mm | 500 mm
-| Angle of indcidence | 0° | 0° | 89°
-| Graph start frequency | 20 Hz | 62.5 Hz | 100 Hz
-| Octave subdivisions | 1 | 1 | 1, 2, 3 or 6
-
-### Slotted Panel
-
-| Property | Min | Default value | Max |
-|---|---|---|---|
-| Panel thickness | 1.0 mm | 10 mm | 50.0 mm
-| Slot distance | 2.0 mm | 25.4 mm | 300 mm
-| Slot width | 1.0 mm | 5.0 mm | 50.0 mm
-| Absorber flow resistivity | 100 rayls/m | 16,500 rayls/m | 100,000 rayls/m 
-| Absorber thickness | 5 mm | 30 mm | 500 mm
-| Air gap | 0 mm | 100 mm | 500 mm
-| Graph start frequency | 20 Hz | 62.5 Hz | 100 Hz
-| Octave subdivisions | 1 | 1 | 1, 2, 3 or 6
-
-
-### Perforated Panel
-
-| Property | Min | Default value | Max |
-|---|---|---|---|
-| Panel thickness | 1.0 mm | 10 mm | 50.0 mm
-| Hole centred every | 2.0 mm | 25.4 mm | 300 mm
-| Hole radius | 1.0 mm | 5.0 mm | Half hole centre distance
-| Absorber flow resistivity | 100 rayls/m | 16,500 rayls/m | 100,000 rayls/m 
-| Absorber thickness | 5 mm | 30 mm | 500 mm
-| Air gap | 0 mm | 100 mm | 500 mm
-| Graph start frequency | 20 Hz | 62.5 Hz | 100 Hz
-| Octave subdivisions | 1 | 1 | 1, 2, 3 or 6
-
-### Microperforated Panel
-
-Not implemented yet
-
-
-### Configuration
-
-| Property | Min | Default value | Max |
-|---|---|---|---|
-| Air temperature | -20°C | 20°C | 100°C
-| Air pressure | 0.800 Bar | 1.000 Bar | 1.100 Bar 
-
-
+<!--------------------------------------------------------------------------------------------------------------------->
+<a name="graph"></a>
 ## Graph
 
 If desired, the "Smooth curve" checkbox can be switched on.  This will connect each plot point using Bézier curves; however, it should be noted that this feature was added for its aesthetic appeal and does ***not*** imply that the actual absorption between the plot points follows the line drawn on the screen
@@ -154,32 +61,85 @@ I decided to use sliders as the input UI element instead of simple input fields 
 2. It creates an "animation" effect whereby you can see how the absorption curve changes dynamically as you move a slider
 
 
+
+<!--------------------------------------------------------------------------------------------------------------------->
+<a name="local-storage"></a>
+## Local Storage
+
+This app uses the browser's local storage to remember your absorber device parameters.  If at anytime you wish to clear these cached values, select the "Configuration" tab and press the "Clear Cache" button.  Only the values pertaining to this application are cleared from local storage.
+
+![Configuration](./img/configuration_screen.png)
+
+It is possible that after a new version of this app is released, old values in the local storage cache might cause you to see an empty chart.  If this happens, clear the local storage cache and refresh your browser page.
+
+
+
+<!--------------------------------------------------------------------------------------------------------------------->
+<a name="local-installation"></a>
+## Local Installation
+
+These instructions assume you have already installed Rust and `wasm-pack`, and that Python3 is available to act as a Web server.
+
+1. Clone this repo
+2. Change into the repo's top-level directory
+3. Compile using `wasm-pack build --release --target web`
+4. Start a Python3 Web server using `python3 -m http.server`
+5. Visit <http://0.0.0.0:8000>
+
+
+
+<!--------------------------------------------------------------------------------------------------------------------->
+<a name="background"></a>
+## Background
+
+This app is the reimplementation of an [Excel spreadsheet](http://whealy.com/acoustics/Porous.html) I wrote in 2004 and is part of an on-going exercise in learning Rust and cross-compiling it to Web Assembly using [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/) and [wasm-bindgen](https://rustwasm.github.io/wasm-bindgen/introduction.html).
+
+
+
+<!--------------------------------------------------------------------------------------------------------------------->
+<a name="to-do"></a>
 ## To Do
 
 Implement the calculations for a micro-perforated panel above an air gap.  No porous absorber material is needed in this type of device.
 
 Display the value of each plot point when the mouse pointer hovers it
 
+
+
+<!--------------------------------------------------------------------------------------------------------------------->
+<a name="caveat"></a>
+## Caveat
+
+The author has taken every reasonable to ensure that the calculations are accurate to the equations and methodology documented in the book "*Acoustic Absorbers and Diffusers.  Theory, Design and Practice*" by Trevor Cox and Peter D'Antonio (First Edition).  The author recognises that this book is now in its third edition and therefore, certain calculations may have been modified or revised.
+
+
+
+<!--------------------------------------------------------------------------------------------------------------------->
+<a name="known-issues"></a>
 ## Known Issues
 
 None so far
 
 
 
-
+<!--------------------------------------------------------------------------------------------------------------------->
+<a name="support"></a>
 ## Support
 
 Support *can* be provided but I cannot guarantee a prompt response...
 
 
 
+<!--------------------------------------------------------------------------------------------------------------------->
+<a name="contributing"></a>
 ## Contributing
 
 Chris Whealy  <chris@whealy.com>
 
 
 
-
+<!--------------------------------------------------------------------------------------------------------------------->
+<a name="license"></a>
 ## License
 
 This project is licensed under the Apache Software License, Version 2.0 except as noted otherwise in the [LICENSE](LICENSE) file.

@@ -37,8 +37,7 @@ async function start() {
   // Define which function is called based on the availability of local storage
   restore_tab_values = can_i_haz_local_storage ? restore_from_local_storage : no_op
     store_tab_values = can_i_haz_local_storage ?     write_to_local_storage : no_op
-
-  get_config = can_i_haz_local_storage ? fetch_config_values : fetch_config_from_dom
+          get_config = can_i_haz_local_storage ?        fetch_config_values : fetch_config_from_dom
 
   // Ensure the configuration tab is always loaded
   await fetch_tab("configuration")

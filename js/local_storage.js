@@ -21,18 +21,19 @@ const storageAvailable =
       return true
     }
     catch(e) {
-      return e instanceof DOMException && (
+      return e instanceof DOMException &&
         // everything except Firefox
-        e.code === 22 ||
+      ( e.code === 22 ||
         // Firefox
         e.code === 1014 ||
         // test name field too, because code might not be present
         // everything except Firefox
         e.name === 'QuotaExceededError' ||
         // Firefox
-        e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
-        // acknowledge QuotaExceededError only if there's something already stored
-        (storage && storage.length !== 0)
+        e.name === 'NS_ERROR_DOM_QUOTA_REACHED'
+      ) &&
+      // acknowledge QuotaExceededError only if there's something already stored
+      (storage && storage.length !== 0)
     }
   }
 
@@ -71,5 +72,15 @@ const write_to_local_storage =
     window.localStorage.setItem(tabName, JSON.stringify(cacheVals))
 
     trace(`<--- write_to_local_storage(${tabName})`)
+  }
+
+// *********************************************************************************************************************
+const clear_local_storage =
+  () => {
+    trace("---> clear_local_storage()")
+    let key_count = Object.keys(tabConfig).length
+    Object.keys(tabConfig).map(tab => window.localStorage.removeItem(tab))
+    alert(`All cached data for ${key_count} tabs has been removed from local storage`)
+    trace("<--- clear_local_storage()")
   }
 

@@ -40,7 +40,7 @@ const show_and_convert_units =
     let displayValue = null
 
     switch(field_config.id) {
-      case "perforated_porosity":
+      case "porosity":
         displayValue = (
             Math.PI
           * (($("hole_radius_mm").value / 1000) ** 2)
@@ -84,7 +84,7 @@ const to_imperial = (units, val) => {
     // Milliemetres to inches
     case "mm":
       let mm_as_inches = val / 25.4
-      result = `(${Number.parseFloat(mm_as_inches).toFixed(2)} in)`
+      result = `(${Number.parseFloat(mm_as_inches).toFixed(3)} in)`
       break
 
     // Degrees Centigrade to degrees Fahrenheit
