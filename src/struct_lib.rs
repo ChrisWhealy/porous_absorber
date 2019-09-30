@@ -70,7 +70,7 @@ impl<'a> Axis<'a> {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Absorption data for a Rigib Backed Porous Absorber
+// Absorption data for a Rigid Backed Porous Absorber
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #[derive(Debug)]
 pub struct PorousAbsInfo {
