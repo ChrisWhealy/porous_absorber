@@ -97,3 +97,11 @@ pub struct SlottedAbsInfo {
 , pub abs_against_backing : Vec<PlotPoint>
 , pub no_air_gap          : Vec<PlotPoint>
 }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Absorption data for a Microperforated Panel Absorber
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#[derive(Debug)]
+pub struct MicroperforatedAbsInfo {
+  pub data : Vec<PlotPoint>
+}

@@ -19,7 +19,7 @@ const MOD_NAME     = "tab_manager"
 const DEBUG_ACTIVE = false
 
 const trace_boundary = do_trace_boundary(DEBUG_ACTIVE)(MOD_NAME)
-const trace          = do_trace_info(DEBUG_ACTIVE)(MOD_NAME)
+const trace_info     = do_trace_info(DEBUG_ACTIVE)(MOD_NAME)
 
 // *********************************************************************************************************************
 // UI slider range limitation
@@ -97,6 +97,8 @@ const cache_values_and_deactivate =
 const fetch_tab =
   tabName => {
     const trace_bnd = trace_boundary("fetch_tab", tabName)
+    const trace     = trace_info("fetch_tab")
+
     trace_bnd(true)
 
     let req = new XMLHttpRequest()
@@ -142,6 +144,8 @@ const fetch_config_values =
 const update_screen =
   tabName => {
     const trace_bnd = trace_boundary("update_screen", tabName)
+    const trace     = trace_info("update_screen")
+
     trace_bnd(true)
     
     // Perform any unit conversions that might be needed then extract the input values relevant for the WASM module
@@ -157,7 +161,7 @@ const update_screen =
     }
 
     // What are we sending to WASM?
-    trace(`Passing ${current_field_values} to WASM function ${tabName}`)
+    trace(`Passing [${current_field_values.join(", ")}] to WASM function ${tabName}`)
 
     // WASM does its magic...
     // If the configuration tab is selected, then window[tabName] resolves to no_op

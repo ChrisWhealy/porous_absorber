@@ -23,11 +23,12 @@ If this is the first time you have run this calculator, then all calculations wi
 <a name="device-types"></a>
 ## Absorber Device Types
 
-At the moment, three absorber devices have been implemented:
+Four absorber device types have been implemented:
 
 * [Rigid Backed Porous Absorber](./docs/rb_porous_absorber.md)
 * [Slotted Panel](./docs/slotted_panel.md)
 * [Perforated Panel](./docs/perforated_panel.md)
+* [Microperforated Panel](./docs/microperforated_panel.md)
 
 There is also a [configuration](./docs/configuration.md) screen on which you can change less frequently altered values such as air temperature and pressure.
 
@@ -99,8 +100,6 @@ This app is the reimplementation of an [Excel spreadsheet](http://whealy.com/aco
 <!--------------------------------------------------------------------------------------------------------------------->
 <a name="to-do"></a>
 ## To Do
-
-Implement the calculations for a micro-perforated panel above an air gap.  No porous absorber material is needed in this type of device.
 
 Display the value of each plot point when the mouse pointer hovers it
 

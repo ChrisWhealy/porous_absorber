@@ -12,6 +12,7 @@ mod trace;
 
 mod porous_absorber;
 mod perforated_panel;
+mod microperforated_panel;
 mod slotted_panel;
 mod air;
 mod cavity;
@@ -38,12 +39,14 @@ use display::{DisplayConfig, DisplayError};
 use sound::{SoundConfig, SoundError};
 
 use porous_absorber::{PorousAbsorberConfig, PorousError};
-use perforated_panel::{PerforatedPanelConfig, PerforatedError};
 use slotted_panel::{SlottedPanelConfig, SlottedError};
+use perforated_panel::{PerforatedPanelConfig, PerforatedError};
+use microperforated_panel::{MicroperforatedPanelConfig, MicroperforatedError};
 
 use calc_engine::{
   calculate_porous_absorber
 , calculate_perforated_panel
+, calculate_microperforated_panel
 , calculate_slotted_panel
 };
 
@@ -94,6 +97,23 @@ pub fn rb_porous_absorber(
 , air_temp              : f64
 , air_pressure          : f64
 ) -> JsValue{
+  const FN_NAME : &str = &"rb_porous_absorber";
+
+  let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
+  let trace          = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
+
+  trace_boundary(&Some(true));
+
+  // What values did we receive from JavaScript?
+  trace(&format!("absorber_thickness_mm = {}", absorber_thickness_mm));
+  trace(&format!("flow_resistivity      = {}", flow_resistivity));
+  trace(&format!("air_gap_mm            = {}", air_gap_mm));
+  trace(&format!("graph_start_freq      = {}", graph_start_freq));
+  trace(&format!("smooth_curve          = {}", smooth_curve));
+  trace(&format!("subdivisions          = {}", subdivisions));
+  trace(&format!("air_temp              = {}", air_temp));
+  trace(&format!("air_pressure          = {}", air_pressure));
+
   // Empty return data structure
   let mut error_msgs: Vec<String> = vec!();
 
@@ -131,12 +151,14 @@ pub fn rb_porous_absorber(
     // Plot the graph
     render::plot_porous_absorber(&absorber_info, &display_cfg, &sound_cfg);
 
+    trace_boundary(&Some(false));
     JsValue::from("Ok")
   }
   else {
     log(&format!("{} error{} detected in input values", error_msgs.len(), if error_msgs.len() == 1 { "" } else { "s" }));
 
     // Serialize the error message(s) and pass back to JavaScript
+    trace_boundary(&Some(true));
     JsValue::from_serde(&error_msgs).unwrap()
   }
 }
@@ -178,7 +200,7 @@ pub fn perforated_panel(
   trace(&format!("smooth_curve          = {}", smooth_curve));
   trace(&format!("subdivisions          = {}", subdivisions));
   trace(&format!("air_temp              = {}", air_temp));
-  trace(&format!("air_pressure          = {}\n", air_pressure));
+  trace(&format!("air_pressure          = {}", air_pressure));
 
   // Empty return data structure
   let mut error_msgs: Vec<String> = vec!();
@@ -221,12 +243,14 @@ pub fn perforated_panel(
 
     render::plot_perforated_panel(&absorber_info, &display_cfg);
 
+    trace_boundary(&Some(false));
     JsValue::from("Ok")
   }
   else {
     log(&format!("{} error{} detected in input values", error_msgs.len(), if error_msgs.len() == 1 { "" } else { "s" }));
 
     // Serialize the error message(s) and pass back to JavaScript
+    trace_boundary(&Some(false));
     JsValue::from_serde(&error_msgs).unwrap()
   }
 }
@@ -268,7 +292,7 @@ pub fn slotted_panel(
   trace(&format!("smooth_curve          = {}", smooth_curve));
   trace(&format!("subdivisions          = {}", subdivisions));
   trace(&format!("air_temp              = {}", air_temp));
-  trace(&format!("air_pressure          = {}\n", air_pressure));
+  trace(&format!("air_pressure          = {}", air_pressure));
 
   // Empty return data structure
   let mut error_msgs: Vec<String> = vec!();
@@ -311,14 +335,102 @@ pub fn slotted_panel(
 
     render::plot_slotted_panel(&absorber_info, &display_cfg);
 
+    trace_boundary(&Some(false));
     JsValue::from("Ok")
   }
   else {
     log(&format!("{} error{} detected in input values", error_msgs.len(), if error_msgs.len() == 1 { "" } else { "s" }));
 
     // Serialize the error message(s) and pass back to JavaScript
+    trace_boundary(&Some(false));
     JsValue::from_serde(&error_msgs).unwrap()
   }
 }
 
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Microperforated panel
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#[wasm_bindgen]
+pub fn microperforated_panel(
+  panel_thickness_mm    : f64
+, repeat_distance_mm    : f64
+, hole_radius_mm        : f64
+, porosity              : f64
+, air_gap_mm            : u32
+, angle                 : u32
+, graph_start_freq      : f64
+, smooth_curve          : bool
+, subdivisions          : u32
+, air_temp              : f64
+, air_pressure          : f64
+) -> JsValue{
+  const FN_NAME : &str = &"microperforated_panel";
+
+  let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
+  let trace          = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
+
+  trace_boundary(&Some(true));
+
+  // What values did we receive from JavaScript?
+  trace(&format!("panel_thickness_mm    = {}", panel_thickness_mm));
+  trace(&format!("repeat_distance_mm    = {}", repeat_distance_mm));
+  trace(&format!("hole_radius_mm        = {}", hole_radius_mm));
+  trace(&format!("porosity              = {}", porosity));
+  trace(&format!("air_gap_mm            = {}", air_gap_mm));
+  trace(&format!("angle                 = {}", angle));
+  trace(&format!("graph_start_freq      = {}", graph_start_freq));
+  trace(&format!("smooth_curve          = {}", smooth_curve));
+  trace(&format!("subdivisions          = {}", subdivisions));
+  trace(&format!("air_temp              = {}", air_temp));
+  trace(&format!("air_pressure          = {}", air_pressure));
+
+  // Empty return data structure
+  let mut error_msgs: Vec<String> = vec!();
+
+  // Construct configuration structs
+  let air_cfg = AirConfig::new(air_temp, air_pressure).unwrap_or_else(|err: AirError| {
+    error_msgs.push(String::from(err.description()));
+    AirConfig::default()
+  });
+
+  let cavity_cfg = CavityConfig::new(air_gap_mm).unwrap_or_else(|err: CavityError| {
+    error_msgs.push(String::from(err.description()));
+    CavityConfig::default()
+  });
+
+  let display_cfg = DisplayConfig::new(graph_start_freq, smooth_curve, subdivisions).unwrap_or_else(|err: DisplayError| {
+    error_msgs.push(String::from(err.description()));
+    DisplayConfig::default()
+  });
+
+  let panel_cfg = MicroperforatedPanelConfig::new(panel_thickness_mm, repeat_distance_mm, hole_radius_mm, porosity).unwrap_or_else(|err: MicroperforatedError| {
+    error_msgs.push(String::from(err.description()));
+    MicroperforatedPanelConfig::default()
+  });
+
+  let sound_cfg = SoundConfig::new(angle).unwrap_or_else(|err: SoundError| {
+    error_msgs.push(String::from(err.description()));
+    SoundConfig::default()
+  });
+
+  // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
+  // value "Ok", else return the array of error messages
+  return if error_msgs.len() == 0 {
+    let absorber_info = calculate_microperforated_panel(&air_cfg, &cavity_cfg, &display_cfg, &panel_cfg, &sound_cfg);
+    
+    // Plot the graph
+    render::plot_microperforated_panel(&absorber_info, &display_cfg, &sound_cfg);
+
+    trace_boundary(&Some(false));
+    JsValue::from("Ok")
+  }
+  else {
+    log(&format!("{} error{} detected in input values", error_msgs.len(), if error_msgs.len() == 1 { "" } else { "s" }));
+
+    // Serialize the error message(s) and pass back to JavaScript
+    trace_boundary(&Some(false));
+    JsValue::from_serde(&error_msgs).unwrap()
+  }
+}
 

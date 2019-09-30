@@ -8,7 +8,7 @@ extern crate wasm_bindgen;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Usage
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-use libm::{sin, cos, sqrt, pow, log};
+use libm::{fabs, sin, cos, sqrt, pow, log};
 use num::complex::Complex;
 use std::f64::consts::PI;
 
@@ -20,11 +20,13 @@ use crate::display::DisplayConfig;
 use crate::sound::SoundConfig;
 use crate::porous_absorber::PorousAbsorberConfig;
 use crate::perforated_panel::PerforatedPanelConfig;
+use crate::microperforated_panel::MicroperforatedPanelConfig;
 use crate::slotted_panel::SlottedPanelConfig;
 
 use crate::struct_lib::{
   PorousAbsInfo
 , PerforatedAbsInfo
+, MicroperforatedAbsInfo
 , SlottedAbsInfo
 , PlotPoint
 };
@@ -44,6 +46,8 @@ const PI_OVER_180    : f64 = PI / 180.0;
 const ONE_80_OVER_PI : f64 = 180.0 / PI;
 const AIR_VISCOSITY  : f64 = 0.0000185;
 
+const LOOP_TOLERANCE : f64 = 0.000000001;
+const SHOW_PRECISION : f64 = 0.000000000001;
 
 // *********************************************************************************************************************
 // Public API
@@ -203,6 +207,44 @@ pub fn calculate_slotted_panel(
 
 
 // *********************************************************************************************************************
+// Microperforated Panel
+pub fn calculate_microperforated_panel(
+  air    : &AirConfig
+, cavity : &CavityConfig
+, display: &DisplayConfig
+, panel  : &MicroperforatedPanelConfig
+, sound  : &SoundConfig
+) -> MicroperforatedAbsInfo {
+  const FN_NAME : &str = &"calculate_microperforated_panel";
+
+  let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
+
+  trace_boundary(&Some(true));
+
+  let cos_angle = cos(sound.angle as f64 * PI / 180.0);
+
+  let abs_info = display
+    .frequencies
+    .iter()
+    .fold(
+      MicroperforatedAbsInfo { data: vec!() }
+    , | mut acc, frequency | {
+        let abs_data = do_microperforated_panel_calc(*frequency, &air, &cavity, &panel, cos_angle);
+
+        // Build the vectors of plot points for each absorber type
+        acc.data.push(PlotPoint { x: *frequency, y: abs_data});
+
+        return acc;
+      }
+    );
+
+  trace_boundary(&Some(false));
+  return abs_info;
+}
+
+
+
+// *********************************************************************************************************************
 // Private API
 // *********************************************************************************************************************
 
@@ -239,7 +281,7 @@ fn do_porous_abs_calc(
   let wave_no_abs_x_comp = ((wave_no_abs * wave_no_abs) - (wave_no_abs_y_comp * wave_no_abs_y_comp)).sqrt();
 
   // Angle of propagation within porous layer
-  let beta_porous = sin(abs(wave_no_abs_y_comp / wave_no_abs)) * ONE_80_OVER_PI;
+  let beta_porous = sin(cmplx_abs(wave_no_abs_y_comp / wave_no_abs)) * ONE_80_OVER_PI;
 
   // Intermediate term for porous impedance calculation
   let porous_wave_no     = wave_no_abs * porous_cfg.thickness;
@@ -325,8 +367,8 @@ fn do_perforated_panel_calc(
 
   trace(&format!("k air * t air      = {}", inter1));
   trace(&format!("cot(k air * t air) = {}", cot_inter1));
-  trace(&format!("k abs * t abs      = {}", inter2));
-  trace(&format!("cot(k abs * t abs) = {}", cot_inter2));
+  trace(&format!("k cmplx_abs * t cmplx_abs      = {}", inter2));
+  trace(&format!("cot(k cmplx_abs * t cmplx_abs) = {}", cot_inter2));
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // Absorber against panel
@@ -451,11 +493,11 @@ fn do_slotted_panel_calc(
 
   let inter2     = k_air * cavity_cfg.air_gap;
   let cot_inter2 = inter2.cos() / inter2.sin();
-  trace(&format!("cot(k abs * t air) = {}", cot_inter2));
+  trace(&format!("cot(k cmplx_abs * t air) = {}", cot_inter2));
 
   let inter3     = wave_no_abs * porous_cfg.thickness;
   let cot_inter3 = inter3.cos() / inter3.sin();
-  trace(&format!("cot(complex_wave_no * t abs) = {}", cot_inter3));
+  trace(&format!("cot(complex_wave_no * t cmplx_abs) = {}", cot_inter3));
 
   let inter4     = wave_no_abs * (cavity_cfg.air_gap + porous_cfg.thickness);
   let cot_inter4 = inter4.cos() / inter4.sin();
@@ -520,10 +562,89 @@ fn do_slotted_panel_calc(
 
 
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Reducer function to calculate the absorption of a microperforated panel absorber
+fn do_microperforated_panel_calc(
+  frequency  : f64
+, air_cfg    : &AirConfig
+, cavity_cfg : &CavityConfig
+, panel_cfg  : &MicroperforatedPanelConfig
+, cos_angle  : f64
+) -> f64 {
+  const FN_NAME : &str = &"do_microperforated_panel_calc";
+
+  let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
+  let trace          = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
+
+  trace_boundary(&Some(true));
+
+  // Frequently used intermediate values
+  let i            : Complex<f64> = Complex::new(0.0, 1.0);
+  let minus_i      : Complex<f64> = Complex::new(0.0, -1.0);
+  let sqrt_minus_i : Complex<f64> = minus_i.sqrt();
+
+  // Angular frequency and wave number in air
+  let omega = 2.0 * PI * frequency;
+  let k_air = air_cfg.two_pi_over_c * frequency;
+
+  trace(&format!("Angular frequency = {}", omega));
+  trace(&format!("Wave number = {}", k_air));
+
+  // Intermediate values for equation 6.36
+  // k' from eq 6.37
+  let k_prime = panel_cfg.hole_radius * sqrt(air_cfg.density_over_viscosity * omega);
+  trace(&format!("k_prime = {}", k_prime));
+
+  // i * omega * rho * t
+  let inter1 = i * omega * air_cfg.density * panel_cfg.thickness;
+  trace(&format!("i * omega * rho * t = {}", inter1));
+
+  // k' * root of -i
+  let inter2 = k_prime * sqrt_minus_i;
+  trace(&format!("k_prime * sqrt(-i) = {}", inter2));
+
+  // Bessel function values of the first kind, zero and first orders
+  let bessel_k1_0 = zbessel(0, inter2);
+  let bessel_k1_1 = zbessel(1, inter2);
+
+  trace(&format!("bessel_k1_0 = {}", bessel_k1_0));
+  trace(&format!("bessel_k1_1 = {}", bessel_k1_1));
+
+  // Eq 6.36
+  let microperf_z1 = inter1 / (1.0 - ((2.0 * bessel_k1_1) / (inter2 * bessel_k1_0)));
+  trace(&format!("Impedance at microperforated layer = {}", microperf_z1));
+
+  // Intermediate values for equation 6.39
+  let kd = k_air * cavity_cfg.air_gap;
+  trace(&format!("kd = {}", kd));
+
+  let air_z2 = minus_i * air_cfg.impedance * cos(kd) / sin(kd);
+  trace(&format!("Impedance at top of air layer = {}", air_z2));
+
+  let inter3 = sqrt(2.0 * omega * air_cfg.density * crate::air::AIR_VISCOSITY) / (2.0 * panel_cfg.porosity);
+  trace(&format!("sqrt(2 * omega * rho * eta) / 2 * porosity = {}", inter3));
+
+  let inter4 = (1.7 * i * omega * air_cfg.density * panel_cfg.hole_radius) / panel_cfg.porosity;
+  trace(&format!("(1.7i * omega * rho * radius) / porosity = {}", inter4));
+
+  let overall_z = ((microperf_z1 / panel_cfg.porosity) + air_z2 + inter3 + inter4) * cos_angle;
+  trace(&format!("Overall impedance = {}", overall_z));
+
+  let refl = difference_over_sum(overall_z, air_cfg.impedance);
+  let abs = reflectivity_as_alpha(refl);
+  trace(&format!("Reflectivity = {}", refl));
+  trace(&format!("Absorption coefficient = {}", abs));
+
+  trace_boundary(&Some(false));
+  return abs;
+}
+
+
+
 // *********************************************************************************************************************
 // The num::complex::Complex module does not contain a function for returning the absolute value of a complex number
 // However, this can be calculated by taking the square root of the normal square
-fn abs(cplx: Complex<f64>) -> f64 {
+fn cmplx_abs(cplx: Complex<f64>) -> f64 {
   sqrt(cplx.norm_sqr())
 }
 
@@ -537,7 +658,7 @@ fn difference_over_sum(a: Complex<f64>, b: f64) -> Complex<f64> {
 // Convert reflectivity to absoprtion and round to two decimal places
 // If the value is less than zero, then return 0.0
 fn reflectivity_as_alpha(refl: Complex<f64>) -> f64 {
-   let alpha = 1.0 - pow(abs(refl), 2.0);
+   let alpha = 1.0 - pow(cmplx_abs(refl), 2.0);
 
   // Ignore alpha values less than zero, else round to 2dp
   if alpha < 0.0 {
@@ -549,3 +670,90 @@ fn reflectivity_as_alpha(refl: Complex<f64>) -> f64 {
 }
 
 
+// *********************************************************************************************************************
+// Compute Bessel function of first kind of integer order>=0 and complex argument z.
+// 
+// Ref: "Handbook of Mathematical Functions with Formulas, Graphs, and Mathematical Tables"
+//      M. Abramowitz and I.A. Stegun
+//      National Bureau of Standards, U.S. Department of Commerce
+//      (1964) - chap. 9, p. 360, Eq. 9.1.10.
+// 
+// http://www.efg2.com/Lab/Mathematics/Complex/Bessel.htm
+// 
+// This routine is verified using tables in the above two references.
+// 
+// This implementation was translated first into VBA, then into Rust by Chris Whealy from an original Fortran
+// implementation by Gordon C. Everstine, Gaithersburg, MD
+// 
+fn zbessel(order: u32, z: Complex<f64>) -> Complex<f64> {
+  // Only the non-zero parts of the complex number are output
+  let mut result;
+
+  // Exit immediately for special case J0(0)=1
+  if order == 0 && z.re == 0.0 && z.im == 0.0 {
+    result = Complex::new(0.0, 0.0);
+  }
+  else {
+    // Divide the input value by 2 and then square it
+    let z_over_2         = Complex::new(z.re / 2.0, z.im / 2.0);
+    let z_over_2_squared = z_over_2.powf(2.0);
+
+    // Compute zero term of sum (1/n!) without common factor (z/2)^n.
+    let mut term0 : f64 = 1.0;
+
+    if order > 1 {
+      for i in 2..order {
+        term0 = term0 / i as f64;
+      }
+    }
+
+    let mut term = Complex::new(term0, 0.0);
+    let mut sum  = Complex::new(term0, 0.0);
+    let mut sign = true;
+
+    let mut j    = Complex::new(0.0, 0.0);
+    let mut temp = Complex::new(0.0, 0.0);
+    
+    // Sum as many terms of the series as needed to achieve the desired accuracy
+    // Maximum number of terms to sum arbitrarily limited to 300
+    for idx in 1..300 {
+      // Compute new term from preceding one
+      j.re    = idx as f64;
+      temp.re = order as f64 + j.re;
+      term    = (term / j) * (z_over_2_squared / temp);
+
+      // Series has alternating signs
+      sign = !sign;
+
+      if sign {
+        sum.re = sum.re + term.re;
+        sum.im = sum.im + term.im;
+      }
+      else {
+        sum.re = sum.re - term.re;
+        sum.im = sum.im - term.im;
+      }
+
+      temp.re = term0;
+
+      // If the current value is within calculation precision value, then quit the loop
+      if cmplx_abs(term / temp) < LOOP_TOLERANCE {
+        break;
+      }
+    }
+
+    // Multiply by common factor (z/2)^n
+    result = sum * z_over_2.powf(order as f64);
+
+    // Any values less than the display precision are ignored
+    if fabs(result.re) < SHOW_PRECISION {
+      result.re = 0.0;
+    }
+
+    if fabs(result.im) < SHOW_PRECISION {
+      result.im = 0.0;
+    }
+  }
+  
+  return result;
+}

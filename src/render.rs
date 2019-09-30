@@ -12,6 +12,7 @@ use crate::struct_lib::{
 , FontMetadata
 , PorousAbsInfo
 , PerforatedAbsInfo
+, MicroperforatedAbsInfo
 , SlottedAbsInfo
 };
 
@@ -127,6 +128,34 @@ pub fn plot_perforated_panel(
   draw_splines(&canvas, &absorber_info.no_air_gap,          &no_air_gap_series.plot_colour,          &display_cfg.smooth_curve);
   draw_splines(&canvas, &absorber_info.abs_against_panel,   &abs_against_panel_series.plot_colour,   &display_cfg.smooth_curve);
   draw_splines(&canvas, &absorber_info.abs_against_backing, &abs_against_backing_series.plot_colour, &display_cfg.smooth_curve);
+}
+
+
+// *********************************************************************************************************************
+// Microerforated Panel Absorber
+pub fn plot_microperforated_panel(
+  absorber_info : &MicroperforatedAbsInfo
+, display_cfg   : &DisplayConfig
+, sound_cfg     : &SoundConfig
+) {
+  let document  = web_sys::window().unwrap().document().unwrap();
+  let canvas_el = document.get_element_by_id("graph_canvas").unwrap();
+  let canvas    = canvas_el.dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
+
+  let mp_panel_series = SeriesMetadata { name : &"Microperforated Panel", plot_colour : JsValue::from(RGB_DARK_BLUE) }; 
+
+  clear(&canvas);
+
+  draw_title_and_key(
+    &canvas
+  , &format!("Overall absorption at {}°", sound_cfg.angle)
+  , &FontMetadata { typeface : &BASE_TYPEFACE, font_size : TITLE_FONT_SIZE, stroke_style : &JsValue::from(RGB_BLACK) }
+  , &FontMetadata { typeface : &BASE_TYPEFACE, font_size : LABEL_FONT_SIZE, stroke_style : &JsValue::from(RGB_BLACK) }
+  , vec!(&mp_panel_series)
+  );
+
+  draw_axes(&canvas, &display_cfg);
+  draw_splines(&canvas, &absorber_info.data, &mp_panel_series.plot_colour, &display_cfg.smooth_curve);
 }
 
 

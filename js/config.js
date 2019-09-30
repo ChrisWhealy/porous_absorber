@@ -72,15 +72,15 @@ import {
   , { id : "subdivision",           units : "each",    isWasmArg : true,  getter : getRadio,     setter : setRadio    }
   ]
 , "microperforated_panel" : [
-  //   { id : "panel_thickness_mm", units : "mm",      isWasmArg : true, getter : getFloat,     setter : setFloat    }
-  // , { id : "repeat_distance_mm", units : "mm",      isWasmArg : true, getter : getFloat,     setter : setFloat    }
-  // , { id : "hole_radius_mm",     units : "mm",      isWasmArg : true, getter : getFloat,     setter : setFloat    }
-  // , { id : "porosity",           units : "each",    isWasmArg : true, getter : getInnerHTML, setter : setFloat    }
-  // , { id : "air_gap_mm",         units : "mm",      isWasmArg : true, getter : getInt,       setter : setInt      }
-  // , { id : "angle",              units : "°",       isWasmArg : true, getter : getInt,       setter : setInt      }
-  // , { id : "graph_start_freq",   units : "Hz",      isWasmArg : true, getter : getFloat,     setter : setFloat    }
-  // , { id : "smooth_curve",       units : "each",    isWasmArg : true, getter : getCheckbox,  setter : setCheckbox }
-  // , { id : "subdivision",        units : "each",    isWasmArg : true, getter : getRadio,     setter : setRadio    }
+    { id : "panel_thickness_mm", units : "mm",      isWasmArg : true, getter : getFloat,     setter : setFloat    }
+  , { id : "repeat_distance_mm", units : "mm",      isWasmArg : true, getter : getFloat,     setter : setFloat    }
+  , { id : "hole_radius_mm",     units : "mm",      isWasmArg : true, getter : getFloat,     setter : setFloat    }
+  , { id : "porosity",           units : "each",    isWasmArg : true, getter : getInnerHTML, setter : setFloat    }
+  , { id : "air_gap_mm",         units : "mm",      isWasmArg : true, getter : getInt,       setter : setInt      }
+  , { id : "angle",              units : "°",       isWasmArg : true, getter : getInt,       setter : setInt      }
+  , { id : "graph_start_freq",   units : "Hz",      isWasmArg : true, getter : getFloat,     setter : setFloat    }
+  , { id : "smooth_curve",       units : "each",    isWasmArg : true, getter : getCheckbox,  setter : setCheckbox }
+  , { id : "subdivision",        units : "each",    isWasmArg : true, getter : getRadio,     setter : setRadio    }
   ]
 , "configuration" : [
     { id : "air_temp",     units : "°C",  isWasmArg : true, getter : getInt,   setter : setInt   }

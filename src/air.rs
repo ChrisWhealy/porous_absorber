@@ -7,10 +7,11 @@ use std::fmt;
  */
 const GAS_CONSTANT  : f64 = 287.05;       // Gas constant (J/Kg.K)
 const GAMMA         : f64 = 1.402;        // Specific heat ratio
-const AIR_VISCOSITY : f64 = 0.0000185;    // Kinemetric viscosity of air (m^2/s)
 const AIR_DENSITY_0 : f64 = 1.293;        // Air density at 0C (Kg.m^-3)
 const ONE_ATM       : f64 = 101325.0;     // One atmosphere (Pa)
 const KELVIN_OFFSET : f64 = 273.15;       // Zero celsius in degrees Kelvin
+
+pub const AIR_VISCOSITY : f64 = 0.0000185; // Kinemetric viscosity of air (m^2/s)
 
 pub fn air_density(pressure: f64, temp: f64) -> f64 {
   (pressure * ONE_ATM) / (GAS_CONSTANT * (temp + KELVIN_OFFSET))

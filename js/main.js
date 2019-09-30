@@ -14,6 +14,7 @@ import init
 , { rb_porous_absorber
   , slotted_panel
   , perforated_panel
+  , microperforated_panel
 }
 from '../pkg/porous_absorber_calculator.js'
 
@@ -38,7 +39,7 @@ window.double        = TM.double
 // *********************************************************************************************************************
 // Activate configuration tab and select default tab
 async function start_tabs() {
-  const trace_bnd = trace_boundary("start")
+  const trace_bnd = trace_boundary("start_tabs")
   trace_bnd(true)
 
   let can_i_haz_local_storage = LS.storage_available("localStorage")
@@ -74,7 +75,7 @@ async function start_wasm() {
 window.rb_porous_absorber    = rb_porous_absorber
 window.slotted_panel         = slotted_panel
 window.perforated_panel      = perforated_panel
-window.microperforated_panel = no_op
+window.microperforated_panel = microperforated_panel
 window.configuration         = no_op
 
 start_wasm()
