@@ -117,7 +117,23 @@ The author has taken every reasonable step to ensure that the calculations are a
 <a name="known-issues"></a>
 ## Known Issues
 
-None so far
+For best results, view this app using Google Chrome or Firefox Quantum browsers from a desktop machine.
+
+This app has not been optimized for display on mobile devices.
+
+### iOS Safari Issues
+
+According to [CanIUse](https://caniuse.com/#feat=wasm), WebAssembly should work on Safari for iOS, but I haven't had any success here yet...
+
+### MacOS Safari Useability Issues
+
+In Apple Safari for MacOS, clicking directly on a range slider does not select or highlight it.  This means that you cannot increment or decrement the slider value using the arrow keys simply by clicking on it first.
+
+Range slider values ***can*** be selected by tabbing whilst holding down the Option Key ⌥.  Unfortunately once selected, the range slider will still not be highlighted... DOH!
+
+### Brave Useability Issues
+
+When this app is viewed using the Brave browser, the spacing of the axis ticks amd labels is not correct
 
 
 
