@@ -4,27 +4,27 @@
 extern crate wasm_bindgen;
 extern crate web_sys;
 
-use crate::struct_lib::{
+use wasm_bindgen::prelude::*;
+use wasm_bindgen::{JsValue, JsCast};
+use std::f64::consts::PI;
+use libm::{sqrt, pow};
+
+use crate::structs::display::{
   PlotPoint
 , Axis
 , AxisOrientation
 , SeriesMetadata
 , FontMetadata
-, PorousAbsInfo
-, PerforatedAbsInfo
-, MicroperforatedAbsInfo
-, SlottedAbsInfo
+, DisplayConfig
 };
 
-use crate::display::DisplayConfig;
-use crate::sound::SoundConfig;
+use crate::structs::porous_absorber::PorousAbsInfo;
+use crate::structs::perforated_panel::PerforatedAbsInfo;
+use crate::structs::microperforated_panel::MicroperforatedAbsInfo;
+use crate::structs::slotted_panel::SlottedAbsInfo;
+use crate::structs::sound::SoundConfig;
 
 use crate::trace::Trace;
-
-use wasm_bindgen::prelude::*;
-use wasm_bindgen::{JsValue, JsCast};
-use std::f64::consts::PI;
-use libm::{sqrt, pow};
 
 const PI_OVER_TWO : f64 = PI / 2.0;
 const TWO_PI      : f64 = 2.0 * PI;

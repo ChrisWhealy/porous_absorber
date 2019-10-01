@@ -10,7 +10,7 @@ import { idiot } from "./utils.js"
 
 // *********************************************************************************************************************
 // Fetch DOM elements by id, class name or name
-function $(elementId) {
+function $id(elementId) {
   return document.getElementById(elementId)
 }
 
@@ -31,14 +31,14 @@ const getParsedElementValue =
          el ? parseFn(el.value)
             : console.log(`Element '${elementId}' not found`)
       )
-      ($(elementId))
+      ($id(elementId))
 
 const getFloat     = getParsedElementValue(parseFloat)
 const getInt       = getParsedElementValue(parseInt)
 const getText      = getParsedElementValue(idiot)
 
-const getInnerHTML = elementId => $(elementId).innerHTML
-const getCheckbox  = elementId => $(elementId).checked
+const getInnerHTML = elementId => $id(elementId).innerHTML
+const getCheckbox  = elementId => $id(elementId).checked
 
 const getRadio =
   elementId => {
@@ -56,7 +56,7 @@ const getRadio =
 const setDomElementProperty =
   (elementId, propName, val) => 
     (el => el ? el[propName] = val : console.log(`DOM element '${elementId}' not found`))
-    ($(elementId))
+    ($id(elementId))
 
 const setString   = (elementId, val) => setDomElementProperty(elementId, "value", val)
 const setInt      = (elementId, val) => setDomElementProperty(elementId, "value", parseInt(val))
@@ -74,7 +74,7 @@ const setRadio = (elementId, val) => {
 // Public API
 // *********************************************************************************************************************
 export {
-  $
+  $id
 , $class
 , $name
 

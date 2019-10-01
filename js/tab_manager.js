@@ -6,10 +6,17 @@
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
 
-import { push, setProperty }      from "./utils.js"
-import { $, $class }              from "./dom_access.js"
+import {
+  push
+, setProperty
+, isArray
+, isNotNullOrUndef
+} from "./utils.js"
+
+import { $id, $class }            from "./dom_access.js"
 import { tabConfig }              from "./config.js"
 import { show_and_convert_units } from "./unit_conversion.js"
+import { mousePositionOnCanvas }  from "./canvas.js"
 
 // *********************************************************************************************************************
 // Define trace functions
@@ -33,7 +40,7 @@ const double = val => val * 2.0
 // with some modifier function.  Default to the idiot function if no modifier is supplied
 const limit_max =
   (srcEl, targetEl, upperLimit, modifierFn) =>
-    (modFn => $(targetEl).max = Math.min(modFn(srcEl.value), upperLimit))
+    (modFn => $id(targetEl).max = Math.min(modFn(srcEl.value), upperLimit))
     (modifierFn || idiot)
 
 
@@ -50,7 +57,7 @@ const open_tab = (evt, tabName) => {
 
   // Make the selected tab button active
   evt.currentTarget.className += " active"
-  $(tabName).style.display = "block"
+  $id(tabName).style.display = "block"
   
   fetch_tab(tabName)
 
@@ -97,7 +104,6 @@ const cache_values_and_deactivate =
 const fetch_tab =
   tabName => {
     const trace_bnd = trace_boundary("fetch_tab", tabName)
-    const trace     = trace_info("fetch_tab")
 
     trace_bnd(true)
 
@@ -106,14 +112,24 @@ const fetch_tab =
     req.open('GET',`./tabs/${tabName}.html`)
     
     req.onload = () => {
-      trace(`Inserting HTML for ${tabName}`)
-      $(tabName).innerHTML = ""
-      $(tabName).insertAdjacentHTML('afterbegin', req.response)
-
-      // If local storage contains any values for the current tab's fields, then restore these
+      trace_boundary("onload", tabName)(true)
+      trace_info("onload")(`Inserting HTML for ${tabName}`)
+      $id(tabName).innerHTML = ""
+      $id(tabName).insertAdjacentHTML('afterbegin', req.response)
+      
+      // Restore the current tab's values
+      // This function is defined in main.js based on the availability of local storage.  If local storage is not
+      // available, then this function evaluates to no_op
       window.restore_tab_values(tabName)
-
+      
       update_screen(tabName)
+
+      // All tabs contain a canvas element except for configuration
+      // if (tabName !== "configuration") {
+      //   $id("graph_canvas").onmousemove = e => (p => $id('mouse').innerHTML = `${p.x}, ${p.y}`)(mousePositionOnCanvas(e))
+      // }
+
+      trace_boundary("onload", tabName)(false)
     }
     
     req.send()
@@ -131,7 +147,7 @@ const fetch_config_from_ls =
       .reduce((acc, field) => setProperty(acc, field.id, field.value), {})
     )
 
-const fetch_config_from_dom = () => [$("air_temp").value, $("air_pressure").value]
+const fetch_config_from_dom = () => [$id("air_temp").value, $id("air_pressure").value]
 
 const fetch_config_values =
   () =>
@@ -163,14 +179,14 @@ const update_screen =
     // What are we sending to WASM?
     trace(`Passing [${current_field_values.join(", ")}] to WASM function ${tabName}`)
 
-    // WASM does its magic...
-    // If the configuration tab is selected, then window[tabName] resolves to no_op
-    let wasm_response = window[tabName].apply(null, current_field_values) || "Ok"
+    // WASM does its magic unless the configuration tab is selected, in which case window[tabName] resolves to no_op
+    let wasm_response = window[tabName].apply(null, current_field_values)
     
-    // Did it work?
-    if (wasm_response !== "Ok") {
-      console.log(JSON.stringify(wasm_response, null, 2))
-    }
+    // Write the WASM response to the console using either "error" or "log"
+    // if (isNotNullOrUndef(wasm_response)) {
+    //   // We expect to get an object back from WASM. However, if we get an array, then there is at least one error
+    //   console[isArray(wasm_response) ? "error" : "log"](JSON.stringify(wasm_response, null, 2))
+    // }
     
     trace_bnd(false)
 }

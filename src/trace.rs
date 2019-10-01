@@ -20,7 +20,7 @@ extern "C" {
 
 
 /***********************************************************************************************************************
- * Trace execution flow
+ * Trace execution flow at function boundaries and provide tool for general logging
  */
 pub struct Trace {}
 

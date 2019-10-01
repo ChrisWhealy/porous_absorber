@@ -8,19 +8,9 @@ extern crate wasm_bindgen;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Submodules
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+mod structs;
 mod trace;
-
-mod porous_absorber;
-mod perforated_panel;
-mod microperforated_panel;
-mod slotted_panel;
-mod air;
-mod cavity;
-mod sound;
-mod display;
 mod render;
-
-mod struct_lib;
 mod calc_engine;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -33,15 +23,15 @@ use std::error::Error;
 
 use trace::Trace;
 
-use air::{AirConfig, AirError};
-use cavity::{CavityConfig, CavityError};
-use display::{DisplayConfig, DisplayError};
-use sound::{SoundConfig, SoundError};
+use structs::air::{AirConfig, AirError};
+use structs::cavity::{CavityConfig, CavityError};
+use structs::display::{DisplayConfig, DisplayError};
+use structs::sound::{SoundConfig, SoundError};
 
-use porous_absorber::{PorousAbsorberConfig, PorousError};
-use slotted_panel::{SlottedPanelConfig, SlottedError};
-use perforated_panel::{PerforatedPanelConfig, PerforatedError};
-use microperforated_panel::{MicroperforatedPanelConfig, MicroperforatedError};
+use structs::porous_absorber::{PorousAbsorberConfig, PorousError};
+use structs::slotted_panel::{SlottedPanelConfig, SlottedError};
+use structs::perforated_panel::{PerforatedPanelConfig, PerforatedError};
+use structs::microperforated_panel::{MicroperforatedPanelConfig, MicroperforatedError};
 
 use calc_engine::{
   calculate_porous_absorber
@@ -72,6 +62,12 @@ extern "C" {
 // *********************************************************************************************************************
 // Public API
 // *********************************************************************************************************************
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Default entry point
+// No specific functionality needs to attached to the default entry point.
+// This entry point will be called automatically when the WASM module is first invoked and must be present
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #[wasm_bindgen(start)]
 pub fn main() -> Result<(), JsValue> {
   Ok(())
@@ -79,7 +75,7 @@ pub fn main() -> Result<(), JsValue> {
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Main entry points
-// The names of the public functions must be identical to the tab names listed in the tabConfig object
+// The names of the public functions listed below must match the tab names listed in the tabConfig JavaScript object
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -145,22 +141,21 @@ pub fn rb_porous_absorber(
 
   // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
   // value "Ok", else return the array of error messages
-  return if error_msgs.len() == 0 {
+  let return_value = if error_msgs.len() == 0 {
     let absorber_info = calculate_porous_absorber(&air_cfg, &cavity_cfg, &display_cfg, &sound_cfg, &porous_cfg);
     
     // Plot the graph
     render::plot_porous_absorber(&absorber_info, &display_cfg, &sound_cfg);
 
-    trace_boundary(&Some(false));
-    JsValue::from("Ok")
+    JsValue::from_serde(&absorber_info).unwrap()
   }
   else {
-    log(&format!("{} error{} detected in input values", error_msgs.len(), if error_msgs.len() == 1 { "" } else { "s" }));
-
-    // Serialize the error message(s) and pass back to JavaScript
-    trace_boundary(&Some(true));
+    // Serialize the error message(s)
     JsValue::from_serde(&error_msgs).unwrap()
-  }
+  };
+
+  trace_boundary(&Some(true));
+  return_value
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -233,26 +228,21 @@ pub fn perforated_panel(
 
   // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
   // value "Ok", else return the array of error messages
-  return if error_msgs.len() == 0 {
+  let return_value = if error_msgs.len() == 0 {
     let absorber_info = calculate_perforated_panel(&air_cfg, &cavity_cfg, &display_cfg, &panel_cfg, &porous_cfg);
     
     // Plot the graph
-    trace(&format!("Absorber against panel {:?}", absorber_info.abs_against_panel));
-    trace(&format!("Absorber against backing {:?}", absorber_info.abs_against_backing));
-    trace(&format!("No air gap {:?}", absorber_info.no_air_gap));
-
     render::plot_perforated_panel(&absorber_info, &display_cfg);
 
-    trace_boundary(&Some(false));
-    JsValue::from("Ok")
+    JsValue::from_serde(&absorber_info).unwrap()
   }
   else {
-    log(&format!("{} error{} detected in input values", error_msgs.len(), if error_msgs.len() == 1 { "" } else { "s" }));
-
-    // Serialize the error message(s) and pass back to JavaScript
-    trace_boundary(&Some(false));
+    // Serialize the error message(s)
     JsValue::from_serde(&error_msgs).unwrap()
-  }
+  };
+
+  trace_boundary(&Some(false));
+  return_value
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -325,28 +315,22 @@ pub fn slotted_panel(
 
   // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
   // value "Ok", else return the array of error messages
-  return if error_msgs.len() == 0 {
+  let return_value = if error_msgs.len() == 0 {
     let absorber_info = calculate_slotted_panel(&air_cfg, &cavity_cfg, &display_cfg, &panel_cfg, &porous_cfg);
     
     // Plot the graph
-    trace(&format!("Absorber against panel {:?}", absorber_info.abs_against_panel));
-    trace(&format!("Absorber against backing {:?}", absorber_info.abs_against_backing));
-    trace(&format!("No air gap {:?}", absorber_info.no_air_gap));
-
     render::plot_slotted_panel(&absorber_info, &display_cfg);
 
-    trace_boundary(&Some(false));
-    JsValue::from("Ok")
+    JsValue::from_serde(&absorber_info).unwrap()
   }
   else {
-    log(&format!("{} error{} detected in input values", error_msgs.len(), if error_msgs.len() == 1 { "" } else { "s" }));
-
     // Serialize the error message(s) and pass back to JavaScript
-    trace_boundary(&Some(false));
     JsValue::from_serde(&error_msgs).unwrap()
-  }
-}
+  };
 
+  trace_boundary(&Some(false));
+  return_value
+}
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Microperforated panel
@@ -416,21 +400,20 @@ pub fn microperforated_panel(
 
   // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
   // value "Ok", else return the array of error messages
-  return if error_msgs.len() == 0 {
+  let return_value = if error_msgs.len() == 0 {
     let absorber_info = calculate_microperforated_panel(&air_cfg, &cavity_cfg, &display_cfg, &panel_cfg, &sound_cfg);
     
     // Plot the graph
     render::plot_microperforated_panel(&absorber_info, &display_cfg, &sound_cfg);
 
-    trace_boundary(&Some(false));
-    JsValue::from("Ok")
+    JsValue::from_serde(&absorber_info).unwrap()
   }
   else {
-    log(&format!("{} error{} detected in input values", error_msgs.len(), if error_msgs.len() == 1 { "" } else { "s" }));
-
-    // Serialize the error message(s) and pass back to JavaScript
-    trace_boundary(&Some(false));
+    // Serialize the error message(s)
     JsValue::from_serde(&error_msgs).unwrap()
-  }
+  };
+
+  trace_boundary(&Some(false));
+  return_value
 }
 

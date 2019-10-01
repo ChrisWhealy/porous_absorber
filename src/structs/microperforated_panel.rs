@@ -1,8 +1,19 @@
+// *********************************************************************************************************************
+// Porous Absorber Calculator
+//
+// Microperforated panel properties
+// 
+// (c) Chris Whealy 2019
+// *********************************************************************************************************************
+
 extern crate num_format;
 
 use std::f64::consts::PI;
 use std::error::Error;
 use std::fmt;
+use serde::Serialize;
+
+use crate::structs::display::PlotPoint;
 
 /***********************************************************************************************************************
  * Range check values
@@ -106,3 +117,10 @@ impl MicroperforatedPanelConfig {
   }
 }
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Absorption data for a Microperforated Panel Absorber
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#[derive(Debug, Serialize)]
+pub struct MicroperforatedAbsInfo {
+  pub data : Vec<PlotPoint>
+}

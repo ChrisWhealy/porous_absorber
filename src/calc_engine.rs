@@ -14,22 +14,14 @@ use std::f64::consts::PI;
 
 use crate::trace::Trace;
 
-use crate::air::AirConfig;
-use crate::cavity::CavityConfig;
-use crate::display::DisplayConfig;
-use crate::sound::SoundConfig;
-use crate::porous_absorber::PorousAbsorberConfig;
-use crate::perforated_panel::PerforatedPanelConfig;
-use crate::microperforated_panel::MicroperforatedPanelConfig;
-use crate::slotted_panel::SlottedPanelConfig;
-
-use crate::struct_lib::{
-  PorousAbsInfo
-, PerforatedAbsInfo
-, MicroperforatedAbsInfo
-, SlottedAbsInfo
-, PlotPoint
-};
+use crate::structs::air::AirConfig;
+use crate::structs::cavity::CavityConfig;
+use crate::structs::sound::SoundConfig;
+use crate::structs::display::{DisplayConfig, PlotPoint};
+use crate::structs::porous_absorber::{PorousAbsorberConfig, PorousAbsInfo};
+use crate::structs::perforated_panel::{PerforatedPanelConfig, PerforatedAbsInfo};
+use crate::structs::microperforated_panel::{MicroperforatedPanelConfig, MicroperforatedAbsInfo};
+use crate::structs::slotted_panel::{SlottedPanelConfig, SlottedAbsInfo};
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -46,8 +38,8 @@ const PI_OVER_180    : f64 = PI / 180.0;
 const ONE_80_OVER_PI : f64 = 180.0 / PI;
 const AIR_VISCOSITY  : f64 = 0.0000185;
 
-const LOOP_TOLERANCE : f64 = 0.000000001;
-const SHOW_PRECISION : f64 = 0.000000000001;
+const BESSEL_TOLERANCE : f64 = 0.000000001;
+const BESSEL_PRECISION : f64 = 0.000000000001;
 
 // *********************************************************************************************************************
 // Public API
@@ -621,7 +613,7 @@ fn do_microperforated_panel_calc(
   let air_z2 = minus_i * air_cfg.impedance * cos(kd) / sin(kd);
   trace(&format!("Impedance at top of air layer = {}", air_z2));
 
-  let inter3 = sqrt(2.0 * omega * air_cfg.density * crate::air::AIR_VISCOSITY) / (2.0 * panel_cfg.porosity);
+  let inter3 = sqrt(2.0 * omega * air_cfg.density * crate::structs::air::AIR_VISCOSITY) / (2.0 * panel_cfg.porosity);
   trace(&format!("sqrt(2 * omega * rho * eta) / 2 * porosity = {}", inter3));
 
   let inter4 = (1.7 * i * omega * air_cfg.density * panel_cfg.hole_radius) / panel_cfg.porosity;
@@ -737,7 +729,7 @@ fn zbessel(order: u32, z: Complex<f64>) -> Complex<f64> {
       temp.re = term0;
 
       // If the current value is within calculation precision value, then quit the loop
-      if cmplx_abs(term / temp) < LOOP_TOLERANCE {
+      if cmplx_abs(term / temp) < BESSEL_TOLERANCE {
         break;
       }
     }
@@ -746,11 +738,11 @@ fn zbessel(order: u32, z: Complex<f64>) -> Complex<f64> {
     result = sum * z_over_2.powf(order as f64);
 
     // Any values less than the display precision are ignored
-    if fabs(result.re) < SHOW_PRECISION {
+    if fabs(result.re) < BESSEL_PRECISION {
       result.re = 0.0;
     }
 
-    if fabs(result.im) < SHOW_PRECISION {
+    if fabs(result.im) < BESSEL_PRECISION {
       result.im = 0.0;
     }
   }

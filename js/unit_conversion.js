@@ -6,7 +6,7 @@
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
 
-import { $ } from "./dom_access.js"
+import { $id } from "./dom_access.js"
 
 // *********************************************************************************************************************
 // Define trace functions
@@ -53,7 +53,7 @@ const to_imperial = (units, val) => {
 const show_value =
   (field_suffix, fn) =>
     (val, field_config) => {
-      let el = $(`${field_config.id}${field_suffix}`)
+      let el = $id(`${field_config.id}${field_suffix}`)
 
       if (el) {
         el.innerHTML = (fn === "imperial")
@@ -88,20 +88,20 @@ const show_and_convert_units =
       case "porosity":
         displayValue = (
             Math.PI
-          * (($("hole_radius_mm").value / 1000) ** 2)
-          / (($("repeat_distance_mm").value / 1000) ** 2)
+          * (($id("hole_radius_mm").value / 1000) ** 2)
+          / (($id("repeat_distance_mm").value / 1000) ** 2)
           ).toFixed(6)
-        $(field_config.id).innerHTML = displayValue
+        $id(field_config.id).innerHTML = displayValue
         break
 
       case "slotted_porosity":
-        let sw = $("slot_width_mm").value / 1000
-        displayValue = (sw / (sw + ($("slot_distance_mm").value / 1000))).toFixed(6)
-        $(field_config.id).innerHTML = displayValue
+        let sw = $id("slot_width_mm").value / 1000
+        displayValue = (sw / (sw + ($id("slot_distance_mm").value / 1000))).toFixed(6)
+        $id(field_config.id).innerHTML = displayValue
         break
 
       case "cavity_depth_mm":
-        displayValue = (1 * $("air_gap_mm").value) + (1 * $("absorber_thickness_mm").value)
+        displayValue = (1 * $id("air_gap_mm").value) + (1 * $id("absorber_thickness_mm").value)
         break
 
       default:

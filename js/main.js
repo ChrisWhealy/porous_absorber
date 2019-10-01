@@ -10,6 +10,7 @@ import * as TM from "./tab_manager.js"
 import { no_op }  from "./utils.js"
 import { $class } from "./dom_access.js"
 
+// JavaScript wrappers for WASM functions
 import init
 , { rb_porous_absorber
   , slotted_panel
@@ -26,6 +27,7 @@ const MOD_NAME     = "main"
 const DEBUG_ACTIVE = false
 
 const trace_boundary = do_trace_boundary(DEBUG_ACTIVE)(MOD_NAME)
+const trace_info     = do_trace_info(DEBUG_ACTIVE)(MOD_NAME)
 
 // *********************************************************************************************************************
 // Make the tab's various onclick and oninput functions available at the window level
@@ -37,12 +39,15 @@ window.double        = TM.double
 
 
 // *********************************************************************************************************************
-// Activate configuration tab and select default tab
-async function start_tabs() {
-  const trace_bnd = trace_boundary("start_tabs")
+// Define the use of local storage
+function use_local_storage() {
+  const trace_bnd = trace_boundary("use_local_storage")
+  const trace     = trace_info("use_local_storage")
   trace_bnd(true)
 
   let can_i_haz_local_storage = LS.storage_available("localStorage")
+
+  trace(`Local storage is ${can_i_haz_local_storage ? "" : "not"} available`)
 
   // Define which function is called based on the availability of local storage
   window.restore_tab_values  = can_i_haz_local_storage ? LS.restore_from_local_storage : no_op
@@ -50,6 +55,15 @@ async function start_tabs() {
   window.clear_local_storage = can_i_haz_local_storage ? LS.clear_local_storage        : no_op
   window.get_config          = can_i_haz_local_storage ? TM.fetch_config_values        : TM.fetch_config_from_dom
 
+  trace_bnd(false)
+}
+
+// *********************************************************************************************************************
+// Activate configuration and default tabs
+async function start_tabs() {
+  const trace_bnd = trace_boundary("start_tabs")
+  trace_bnd(true)
+  
   // Ensure the configuration tab is always loaded
   await TM.fetch_tab("configuration")
 
@@ -61,13 +75,14 @@ async function start_tabs() {
   trace_bnd(false)
 }
 
-
 // *********************************************************************************************************************
 // Initialise the Web Assembly module, then start the tabs containing each absorber device type
 async function start_wasm() {
   await init()
   console.log("WASM module initialisation complete...")
-  start_tabs()
+  
+  use_local_storage()
+  await start_tabs()
 }
 
 // *********************************************************************************************************************
