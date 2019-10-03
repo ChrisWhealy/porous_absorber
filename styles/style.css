@@ -65,8 +65,7 @@ input[type=number] {
 
 .instruction {
   text-align     : leftt;
-  padding-top    : 1.25em;
-  padding-bottom : 1.25em;
+  padding-top    : 1em;
   font-size      : 1.25em;
 }
 
@@ -105,10 +104,20 @@ input[type=number] {
 /* Style the tab content */
 .tabContent {
   display    : none;
-  padding    : 6px 12px;
+  padding    : 1em;
   border     : 1px solid #ccc;
   border-top : none;
-  animation  : fadeEffect 1s; /* Fading effect takes 1 second */
+  animation  : fadeEffect 1s;
+}
+
+.fadeOut {
+  display : none;
+  animation : fadeEffect 1s;
+}
+
+.fadeIn {
+  display : block;
+  animation : fadeEffect 1s;
 }
 
 /* Go from zero to full opacity */
@@ -142,6 +151,7 @@ input[type=number] {
 /**********************************************************************************************************************/
 
 #graph_canvas {
-  border           : 1px solid #444444;
+  border           : 1px solid #ccc;
   background-color : #FFFFEE;
+  margin-top       : 0.5em;
 }

@@ -7,8 +7,10 @@
 import * as LS from "./local_storage.js"
 import * as TM from "./tab_manager.js"
 
-import { no_op }  from "./utils.js"
-import { $class } from "./dom_access.js"
+import { no_op }         from "./utils.js"
+import { $id, $class }   from "./dom_access.js"
+import { updateScreen }  from "./tab_manager.js"
+import { setCanvasSize } from "./canvas.js"
 
 // JavaScript wrappers for WASM functions
 import init
@@ -30,12 +32,42 @@ const trace_boundary = do_trace_boundary(DEBUG_ACTIVE)(MOD_NAME)
 const trace_info     = do_trace_info(DEBUG_ACTIVE)(MOD_NAME)
 
 // *********************************************************************************************************************
+// Define canvas sized based on current window size
+window.onload = () => setCanvasSize($id("graph_canvas"))
+
+window.resize = window.onresize = () => {
+  setCanvasSize($id("graph_canvas"))
+
+  // Redraw the active tab
+  for (var tablink of $class("tabButton")) {
+    if (tablink.className.search("active") > -1)
+      updateScreen(tablink.id.replace("tab_button_", ""))
+  }
+}
+
+
+// *********************************************************************************************************************
 // Make the tab's various onclick and oninput functions available at the window level
 window.open_tab      = TM.open_tab
-window.update_screen = TM.update_screen
+window.updateScreen = TM.updateScreen
 window.limit_max     = TM.limit_max
 window.half          = TM.half
 window.double        = TM.double
+
+// Make the WASM wrapper functions accessible
+window.rb_porous_absorber    = rb_porous_absorber
+window.slotted_panel         = slotted_panel
+window.perforated_panel      = perforated_panel
+window.microperforated_panel = microperforated_panel
+window.configuration         = no_op
+
+start_wasm()
+
+
+
+// *********************************************************************************************************************
+// Private API
+// *********************************************************************************************************************
 
 
 // *********************************************************************************************************************
@@ -85,12 +117,3 @@ async function start_wasm() {
   await start_tabs()
 }
 
-// *********************************************************************************************************************
-// Make the JavaScript wrapper functions accessible to coding outside this module
-window.rb_porous_absorber    = rb_porous_absorber
-window.slotted_panel         = slotted_panel
-window.perforated_panel      = perforated_panel
-window.microperforated_panel = microperforated_panel
-window.configuration         = no_op
-
-start_wasm()

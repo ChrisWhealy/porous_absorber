@@ -10,13 +10,14 @@ import {
   push
 , setProperty
 , isArray
+, isObject
 , isNotNullOrUndef
 } from "./utils.js"
 
 import { $id, $class }            from "./dom_access.js"
 import { tabConfig }              from "./config.js"
 import { show_and_convert_units } from "./unit_conversion.js"
-import { mousePositionOnCanvas }  from "./canvas.js"
+import { canvasMouseOverHandler } from "./canvas.js"
 
 // *********************************************************************************************************************
 // Define trace functions
@@ -51,6 +52,9 @@ const open_tab = (evt, tabName) => {
   const trace_bnd = trace_boundary("openTab")
   trace_bnd(true)
 
+  // Remove graph from screen when the configuration tab is selected
+  $id("graph_canvas").className = (tabName === "configuration") ? "fadeOut" : "fadeIn"
+  
   // Cache values from current tab and deactive that tab button
   cache_values_and_deactivate()
   hide_and_empty_all_tabs()
@@ -58,7 +62,7 @@ const open_tab = (evt, tabName) => {
   // Make the selected tab button active
   evt.currentTarget.className += " active"
   $id(tabName).style.display = "block"
-  
+
   fetch_tab(tabName)
 
   trace_bnd(false)
@@ -83,7 +87,7 @@ const hide_and_empty_all_tabs =
   }
 
 // *********************************************************************************************************************
-// Cache values from the current tab in local storage, then deactivate the tab button
+// Cache values from the current tab into local storage, then deactivate the tab button
 const cache_values_and_deactivate =
   () => {
     const trace_bnd = trace_boundary("cache_values_and_deactivate")
@@ -104,37 +108,73 @@ const cache_values_and_deactivate =
 const fetch_tab =
   tabName => {
     const trace_bnd = trace_boundary("fetch_tab", tabName)
-
     trace_bnd(true)
 
     let req = new XMLHttpRequest()
     
     req.open('GET',`./tabs/${tabName}.html`)
-    
-    req.onload = () => {
-      trace_boundary("onload", tabName)(true)
-      trace_info("onload")(`Inserting HTML for ${tabName}`)
+    req.onload = tabLoaded(tabName, req)
+    req.send()
+
+    trace_bnd(false)
+  }
+
+// *********************************************************************************************************************
+// Partial function that generates another function to respond to the onload event after tab HTML data is returned to
+// the client
+const tabLoaded =
+  (tabName, req) =>
+    () => {
+      let trace_bnd = trace_boundary("tabLoaded", tabName)
+      trace_bnd(true)
+
       $id(tabName).innerHTML = ""
       $id(tabName).insertAdjacentHTML('afterbegin', req.response)
       
       // Restore the current tab's values
-      // This function is defined in main.js based on the availability of local storage.  If local storage is not
-      // available, then this function evaluates to no_op
+      // This function is defined in main.js based on the availability of local storage.
+      // If local storage is not available, then this function evaluates to no_op
       window.restore_tab_values(tabName)
       
-      update_screen(tabName)
+      // Call WASM to update the screen
+      let wasm_response = updateScreen(tabName)
 
-      // All tabs contain a canvas element except for configuration
-      // if (tabName !== "configuration") {
-      //   $id("graph_canvas").onmousemove = e => (p => $id('mouse').innerHTML = `${p.x}, ${p.y}`)(mousePositionOnCanvas(e))
-      // }
+      // We expect to get either an object or an array back from WASM.
+      // If we get an object, then everything worked nicely. If however, if we get an array, then there was at least one
+      // error with the supplied arguments
+      if (isNotNullOrUndef(wasm_response)) {
+        if (isArray(wasm_response)) {
+          console.error(JSON.stringify(wasm_response, null, 2))
+        }
+        else if (isObject(wasm_response)) {
+          // For all tabs except configuration, pass the wasm_response obejct to the canvas mouse handler
+          if (tabName !== "configuration") {
+            // Unload the WASM response object
+            let xsAndYs = Object.
+              keys(wasm_response).
+              reduce(
+                (acc, key) => {
+                  wasm_response[key].map(
+                    plotPoint =>
+                      (yVals => acc[plotPoint.x] = isArray(yVals) ? yVals.concat([plotPoint.y]) : [plotPoint.y])
+                      (acc[plotPoint.x])
+                  )
 
-      trace_boundary("onload", tabName)(false)
+                  return acc
+                }
+              , {}
+              )
+            
+            // $id("graph_canvas").onmousemove = canvasMouseOverHandler($id("graph_canvas_overlay"), xsAndYs)
+          }
+        }
+        else {
+          console.log(`That's weird - got "${wasm_response}" back from WASM`)
+        }
+      }
+
+      trace_bnd(false)
     }
-    
-    req.send()
-    trace_bnd(false)
-  }
 
 // *********************************************************************************************************************
 // Fetch config values either from local storage or from the DOM
@@ -151,16 +191,16 @@ const fetch_config_from_dom = () => [$id("air_temp").value, $id("air_pressure").
 
 const fetch_config_values =
   () =>
-    !!window.localStorage.getItem("configuration")
+    window.localStorage && !!window.localStorage.getItem("configuration")
     ? fetch_config_from_ls()
     : fetch_config_from_dom()
 
 // *********************************************************************************************************************
 // This function must be called every time an input value is changed
-const update_screen =
+const updateScreen =
   tabName => {
-    const trace_bnd = trace_boundary("update_screen", tabName)
-    const trace     = trace_info("update_screen")
+    const trace_bnd = trace_boundary("updateScreen", tabName)
+    const trace     = trace_info("updateScreen")
 
     trace_bnd(true)
     
@@ -171,7 +211,8 @@ const update_screen =
           return field.isWasmArg ? push(field.getter(field.id), acc) : acc
         }, [])
 
-    // For non-configuration tabs, add the configuration values since these are common to all calculations
+    // The configuration tab values are common to all calculations and must therefore be added to the list of values
+    // passed to WASM
     if (tabName !== "configuration") {
       current_field_values = current_field_values.concat(window.get_config())
     }
@@ -181,14 +222,9 @@ const update_screen =
 
     // WASM does its magic unless the configuration tab is selected, in which case window[tabName] resolves to no_op
     let wasm_response = window[tabName].apply(null, current_field_values)
-    
-    // Write the WASM response to the console using either "error" or "log"
-    // if (isNotNullOrUndef(wasm_response)) {
-    //   // We expect to get an object back from WASM. However, if we get an array, then there is at least one error
-    //   console[isArray(wasm_response) ? "error" : "log"](JSON.stringify(wasm_response, null, 2))
-    // }
-    
+
     trace_bnd(false)
+    return wasm_response
 }
 
 
@@ -200,7 +236,7 @@ export {
 , half
 , double
 , open_tab
-, update_screen
+, updateScreen
 , fetch_tab
 , fetch_config_from_dom
 , fetch_config_from_ls
