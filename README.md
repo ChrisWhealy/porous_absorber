@@ -45,10 +45,14 @@ An online version of this tool is available [here](http://whealy.com/acoustics/P
 <a name="graph"></a>
 ## Graph
 
+The graph maintains an aspect ratio of 21:9 as the browser screen resizes.  The minimum grapth width is 1200 pixels.
+
+### Smooth Curve
+
 If desired, the "Smooth curve" checkbox can be switched on.  This will connect each plot point using Bézier curves; however, it should be noted that this feature was added for its aesthetic appeal and does ***not*** imply that the actual absorption between the plot points follows the line drawn on the screen
 
 
-### Graph start frequency
+### Start frequency
 
 The graph always plots an 8 octave range starting at the specified start frequency.  Normally, this should be left set to 62.5 Hz in order to see the standard analysis range (i.e. up to 16 KHz).  However, should you wish to, you can set the start frequency to be as low as 20 Hz, in which case, you will still see an 8 octave range, but the upper limit will now be 5.1 KHz
 
