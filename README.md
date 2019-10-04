@@ -19,7 +19,7 @@ If this is the first time you have run this calculator, then all calculations wi
 
 If you have used this calculator before, then each of the curves will be plotted using your previous values.
 
-As you move the mouse pointer over the chart, cross hairs will appear and the value of the plot point will be displayed when the mouse hovers over a plot point.
+As you move the mouse pointer over the chart, cross hairs will appear and the absorption value will be displayed when the mouse hovers over a plot point.
 
 
 <!--------------------------------------------------------------------------------------------------------------------->
