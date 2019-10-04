@@ -135,7 +135,7 @@ impl DisplayConfig {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Plot point
+// Plot point for simple canvas locations
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #[derive(Debug, Serialize)]
 pub struct PlotPoint {
@@ -144,8 +144,25 @@ pub struct PlotPoint {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Series metadata
+// Plot point to link a canvas location with a {Freqency, Absorption} pair
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#[derive(Debug, Serialize)]
+pub struct PlotAbsPoint {
+  pub x    : f64
+, pub y    : f64
+, pub freq : f64
+, pub abs  : f64
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Series data and metadata
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#[derive(Debug, Serialize)]
+pub struct SeriesData<'a> {
+  pub name        : &'a str
+, pub plot_points : Vec<PlotAbsPoint>
+}
+
 #[derive(Debug)]
 pub struct SeriesMetadata<'a> {
   pub name        : &'a str
@@ -181,7 +198,7 @@ pub enum AxisOrientation {
 pub struct Axis<'a> {
   pub title          : &'static str
 , pub start_point    : &'a PlotPoint
-, pub end_point      : PlotPoint
+, pub end_point      : &'a PlotPoint
 , pub values         : Vec<String>
 , pub orientation    : AxisOrientation
 , pub label_font     : &'a FontMetadata<'a>
@@ -200,5 +217,23 @@ impl<'a> Axis<'a> {
   pub fn tick_interval(&self) -> f64 {
     self.length() / (&self.values.len() - 1) as f64
   }
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Bounding box for the chart
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#[derive(Debug, Serialize)]
+pub struct ChartBox {
+  pub top_left     : PlotPoint
+, pub bottom_right : PlotPoint
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Chart Information to be returned to JavaScript
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#[derive(Debug, Serialize)]
+pub struct ChartInfo<'a> {
+  pub chart_box   : ChartBox
+, pub series_data : Vec<SeriesData<'a>>
 }
 

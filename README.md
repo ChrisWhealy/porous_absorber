@@ -15,8 +15,11 @@ When the app starts, the "Rigid Backed Porous Absorber" tab will be selected by 
 
 ![Screen shot](./img/rb_porous_absorber_screen.png)
 
-If this is the first time you have run this calculator, then all calculations will be performed using default values.  If you have used this calculator before, then each of the curves will be plotted using your previous values.
+If this is the first time you have run this calculator, then all calculations will be performed using default values.
 
+If you have used this calculator before, then each of the curves will be plotted using your previous values.
+
+As you move the mouse pointer over the chart, cross hairs will appear and the value of the plot point will be displayed when the mouse hovers over a plot point.
 
 
 <!--------------------------------------------------------------------------------------------------------------------->
@@ -105,7 +108,7 @@ This app is the reimplementation of an [Excel spreadsheet](http://whealy.com/aco
 <a name="to-do"></a>
 ## To Do
 
-Display the value of each plot point when the mouse pointer hovers it
+Nichts, nada, nowt...
 
 
 

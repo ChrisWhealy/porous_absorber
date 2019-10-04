@@ -54,6 +54,25 @@ const isObject      = x => isJsObject(x) || isNodeJsProcess(x) || isNodeJsGlobal
 
 const isNotNullOrUndef = x => !isNullOrUndef(x)
 
+// *********************************************************************************************************************
+// Invert the structure of the series_data array returned from WASM
+// The resulting object contains a property for each X axis value, which in turn, holds an array of one or more Y axis
+// values
+const invertPlotData =
+  plotData =>
+    plotData.reduce(
+      (acc, seriesData) => {
+        seriesData.plot_points.map(
+          plotPoint =>
+            ((yVals, yInfo) => setProperty(acc, plotPoint.x, yVals ? yVals.concat(yInfo) : [yInfo]))
+            (acc[plotPoint.x], removeX(plotPoint))
+        )
+        return acc
+      }
+    , {})
+
+// Create a new plot point object that does not include the "x" property
+const removeX = plotPoint => ({"y" : plotPoint.y, "freq" : plotPoint.freq, "abs" : plotPoint.abs})
 
 // *********************************************************************************************************************
 // Public API
@@ -87,4 +106,5 @@ export {
 
   // Object handlers
 , setProperty
+, invertPlotData
 }

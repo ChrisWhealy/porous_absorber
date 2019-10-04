@@ -6,8 +6,13 @@
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
 
-const MIN_CANVAS_WIDTH = 1200
-const RGB_LIGHT_GREY = "rgb(223, 223, 223)"
+const MIN_CANVAS_WIDTH  = 1200
+const PLOT_POINT_RADIUS = 5
+const RGB_LIGHT_GREY    = "rgb(223, 223, 223)"
+
+const CANVAS_CONTAINER = "canvas_container"
+const GRAPH            = "graph_canvas"
+const GRAPH_OVERLAY    = "graph_canvas_overlay"
 
 // *********************************************************************************************************************
 // Calculate mouse position when over a canvas element
@@ -34,7 +39,6 @@ const mousePositionViaElementHierarchy =
     // Stop when we reach the top of the DOM hierarchy
     while (el)
 
-    // Since "el" is now falsey, we must reference the previous element to obtain the required values
     return {
       "x" : x * (el.width  / el.offsetWidth  || 1)
     , "y" : y * (el.height / el.offsetHeight || 1)
@@ -43,33 +47,68 @@ const mousePositionViaElementHierarchy =
   (e.pageX, e.pageY, e.target)
 
 // *********************************************************************************************************************
-// Draw horizontal and vertical grid lines on canvas and create information popup when teh mouse pointer hovers over an
-// absorption plot point
+// Draw horizontal and vertical grid lines on the canvas within the chart boundary and create information popup when the
+// mouse pointer hovers over an absorption plot point
+// These cross hairs are drawn in the canvas overlay element, not the canvas containing the actual graph.  These two
+// canvas elements must sit exactly on top of each other
 // *********************************************************************************************************************
 const canvasMouseOverHandler =
-  (canvas, xsAndYs) =>
+  (canvas, chartBox, seriestData) =>
     e => {
       let mousePos = mousePositionOnCanvas(e)
       let ctx = canvas.getContext("2d")
 
-      // A quick, but non-intuitive way to blank out the canvas... :-)
+      // A quick, but non-intuitive way to blank out the entire canvas... :-)
       canvas.width = canvas.width
 
-      drawCrossHairs(ctx, mousePos, canvas.width, canvas.height)
-      // console.log(`xs and ys = ${JSON.stringify(xsAndYs)}`)
-    }
+      drawCrossHairs(ctx, mousePos, chartBox)
 
+      ctx.font = "10pt Arial"
+    
+      // For each point in the inverted data series
+      Object
+        .keys(seriestData)
+        .map(
+          xValStr => 
+            (xVal =>
+              // Does the mouse pointer's current X position fall within the width of a plot point?
+              (isBetween(xVal + PLOT_POINT_RADIUS, xVal - PLOT_POINT_RADIUS, mousePos.x))
+              // Yup, so check mouse pointer Y position
+              ? seriestData[xValStr].map(
+                  plotPoint => 
+                    (yVal =>
+                      // Does the mouse pointer's current Y position also fall within the height of a plot point?
+                      isBetween(yVal + PLOT_POINT_RADIUS, yVal - PLOT_POINT_RADIUS, mousePos.y)
+                      // Yup, so display the absorption information
+                      ? showAbsInfo(ctx, mousePos, plotPoint)
+                      // Nope...
+                      : null
+                    )
+                    (parseFloat(plotPoint.y))
+                )
+              // Nope...
+              : null
+            )
+            (parseFloat(xValStr))
+        )
+    }
 
 // *********************************************************************************************************************
 // Set canvas size and maintain aspect ratio of 21:9
 // *********************************************************************************************************************
 const setCanvasSize =
   canvas => {
-    canvas.width  = Math.max(MIN_CANVAS_WIDTH, parseInt(window.getComputedStyle(document.body).width) - 2)
-    canvas.height = (canvas.width / 21) * 9
+    // Only resize the canvas if the screen width has changed
+    // The canvas height does not need to change if only the screen height has changed
+    let screen_width = Math.max(MIN_CANVAS_WIDTH, parseInt(window.getComputedStyle(document.body).width) - 2)
+
+    if (canvas.width !== screen_width) {
+      canvas.width  = Math.max(MIN_CANVAS_WIDTH, parseInt(window.getComputedStyle(document.body).width) - 2)
+      canvas.height = (canvas.width / 21) * 9
+    }
   }
 
-  // *********************************************************************************************************************
+// *********************************************************************************************************************
 // Public API
 // *********************************************************************************************************************
 export {
@@ -77,25 +116,53 @@ export {
 , mousePositionViaElementHierarchy
 , canvasMouseOverHandler
 , setCanvasSize
+
+, CANVAS_CONTAINER
+, GRAPH
+, GRAPH_OVERLAY
 }
+
+
+
+
 
 // *********************************************************************************************************************
 // Private API
 // *********************************************************************************************************************
 const drawCrossHairs =
-  (ctx, mousePos, width, height) => {
-    // Plot a vertical line on the canvas
-    ctx.beginPath()
-    ctx.strokeStyle = RGB_LIGHT_GREY
+  (ctx, mousePos, chartBox) => {
+    // Define a function to determine whether the mouse pointer's current location falls inside the chart area
+    let boxFn = isInsideRect(chartBox.top_left.x, chartBox.top_left.y, chartBox.bottom_right.x, chartBox.bottom_right.y)
 
-    // Draw vertical line
-    ctx.moveTo(mousePos.x, 0)
-    ctx.lineTo(mousePos.x, height)
+    // Can we haz cross hairs?
+    if (boxFn(mousePos)) {
+      ctx.beginPath()
+      ctx.strokeStyle = RGB_LIGHT_GREY
 
-    // Draw horizontal line
-    ctx.moveTo(0, mousePos.y)
-    ctx.lineTo(width, mousePos.y)
+      // Draw vertical line
+      ctx.moveTo(mousePos.x, chartBox.top_left.y)
+      ctx.lineTo(mousePos.x, chartBox.bottom_right.y)
 
-    ctx.stroke()
+      // Draw horizontal line
+      ctx.moveTo(chartBox.top_left.x,     mousePos.y)
+      ctx.lineTo(chartBox.bottom_right.x, mousePos.y)
 
+      ctx.stroke()
+    }
+}
+
+
+const isBetween = (upper, lower, val) => val >= lower && val <= upper
+
+
+const isInsideRect =
+  (top_left_x, top_left_y, bottom_right_x, bottom_right_y) =>
+    mousePos =>
+      isBetween(bottom_right_x, top_left_x, mousePos.x) &&
+      isBetween(bottom_right_y, top_left_y, mousePos.y)
+
+
+// Before calling this function, you should have at least already set the canvas font
+const showAbsInfo = (ctx, mousePos, plotPoint) => {
+  ctx.fillText(`${plotPoint.abs} @ ${plotPoint.freq}Hz`, mousePos.x + 10, mousePos.y - 10)
 }

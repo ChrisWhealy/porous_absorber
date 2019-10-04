@@ -74,10 +74,10 @@ const convert_units = show_value("_alt_units", "imperial")
 
 // *********************************************************************************************************************
 // Display range slider value unit conversion if necessary
-const show_and_convert_units =
+const showAndConvertUnits =
   field_config => {
-    const trace_bnd = trace_boundary("show_and_convert_units", field_config.id)
-    //const trace     = trace_info("show_and_convert_units", field_config.id)
+    const trace_bnd = trace_boundary("showAndConvertUnits", field_config.id)
+    //const trace     = trace_info("showAndConvertUnits", field_config.id)
     trace_bnd(true)
 
     // trace(`${JSON.stringify(field_config)}`)
@@ -119,6 +119,6 @@ const show_and_convert_units =
 // Public API
 // *********************************************************************************************************************
 export {
-  show_and_convert_units
+  showAndConvertUnits
 }
 

@@ -21,7 +21,7 @@ const trace          = do_trace_info(DEBUG_ACTIVE)(MOD_NAME)
 // *********************************************************************************************************************
 // Check if local storage is available
 // Warning: This function cannot be run before the HTML page has fully initialised!
-const storage_available =
+const storageAvailable =
   type => {
     let storage
 
@@ -50,9 +50,9 @@ const storage_available =
   }
 
 // *********************************************************************************************************************
-const restore_from_local_storage =
+const restoreFromLocalStorage =
   tabName => {
-    const trace_bnd = trace_boundary("restore_from_local_storage", tabName)
+    const trace_bnd = trace_boundary("restoreFromLocalStorage", tabName)
     trace_bnd(true)
 
     let tabValueStr = window.localStorage.getItem(tabName)
@@ -73,9 +73,9 @@ const restore_from_local_storage =
   }
 
 // *********************************************************************************************************************
-const write_to_local_storage =
+const writeToLocalStorage =
   tabName => {
-    const trace_bnd = trace_boundary("write_to_local_storage", tabName)
+    const trace_bnd = trace_boundary("writeToLocalStorage", tabName)
     trace_bnd(true)
 
     let cacheVals = tabConfig[tabName].map(
@@ -91,9 +91,9 @@ const write_to_local_storage =
   }
 
 // *********************************************************************************************************************
-const clear_local_storage =
+const clearLocalStorage =
   () => {
-    const trace_bnd = trace_boundary("clear_local_storage")
+    const trace_bnd = trace_boundary("clearLocalStorage")
     trace_bnd(true)
 
     let key_count = Object.keys(tabConfig).length
@@ -107,8 +107,8 @@ const clear_local_storage =
 // Public API
 // *********************************************************************************************************************
 export {
-  storage_available
-, restore_from_local_storage
-, write_to_local_storage
-, clear_local_storage
+  storageAvailable
+, restoreFromLocalStorage
+, writeToLocalStorage
+, clearLocalStorage
 }

@@ -150,8 +150,21 @@ input[type=number] {
 
 /**********************************************************************************************************************/
 
+#canvas_container {
+  position : relative;
+}  
+
 #graph_canvas {
+  position         : absolute;
+  z-index          : auto;
+  margin-top       : 0.5em;
   border           : 1px solid #ccc;
   background-color : #FFFFEE;
-  margin-top       : 0.5em;
-}
+}  
+
+#graph_canvas_overlay {
+  margin-top : 0.5em;
+  border     : 1px solid transparent;
+  position   : absolute;
+  z-index    : 1;
+}  

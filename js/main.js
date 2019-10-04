@@ -7,10 +7,9 @@
 import * as LS from "./local_storage.js"
 import * as TM from "./tab_manager.js"
 
-import { no_op }         from "./utils.js"
-import { $id, $class }   from "./dom_access.js"
-import { updateScreen }  from "./tab_manager.js"
-import { setCanvasSize } from "./canvas.js"
+import { no_op }       from "./utils.js"
+import { $id, $class } from "./dom_access.js"
+import { fetchTab }    from "./tab_manager.js"
 
 // JavaScript wrappers for WASM functions
 import init
@@ -18,8 +17,13 @@ import init
   , slotted_panel
   , perforated_panel
   , microperforated_panel
-}
-from '../pkg/porous_absorber_calculator.js'
+} from '../pkg/porous_absorber_calculator.js'
+
+import {
+  setCanvasSize
+, GRAPH
+, GRAPH_OVERLAY
+} from "./canvas.js"
 
 // *********************************************************************************************************************
 // Define trace functions
@@ -32,27 +36,27 @@ const trace_boundary = do_trace_boundary(DEBUG_ACTIVE)(MOD_NAME)
 const trace_info     = do_trace_info(DEBUG_ACTIVE)(MOD_NAME)
 
 // *********************************************************************************************************************
-// Define canvas sized based on current window size
-window.onload = () => setCanvasSize($id("graph_canvas"))
+// Define canvas size based on current window size
+window.onload = () => [GRAPH, GRAPH_OVERLAY].map(elName => setCanvasSize($id(elName)))
 
 window.resize = window.onresize = () => {
-  setCanvasSize($id("graph_canvas"))
+  [GRAPH, GRAPH_OVERLAY].map(elName => setCanvasSize($id(elName)))
 
-  // Redraw the active tab
+  // Rebuild the active tab
   for (var tablink of $class("tabButton")) {
     if (tablink.className.search("active") > -1)
-      updateScreen(tablink.id.replace("tab_button_", ""))
+      fetchTab(tablink.id.replace("tab_button_", ""))
   }
 }
 
 
 // *********************************************************************************************************************
 // Make the tab's various onclick and oninput functions available at the window level
-window.open_tab      = TM.open_tab
+window.openTab      = TM.openTab
 window.updateScreen = TM.updateScreen
-window.limit_max     = TM.limit_max
-window.half          = TM.half
-window.double        = TM.double
+window.limitMax     = TM.limitMax
+window.half         = TM.half
+window.double       = TM.double
 
 // Make the WASM wrapper functions accessible
 window.rb_porous_absorber    = rb_porous_absorber
@@ -61,7 +65,7 @@ window.perforated_panel      = perforated_panel
 window.microperforated_panel = microperforated_panel
 window.configuration         = no_op
 
-start_wasm()
+startWASM()
 
 
 
@@ -72,32 +76,32 @@ start_wasm()
 
 // *********************************************************************************************************************
 // Define the use of local storage
-function use_local_storage() {
-  const trace_bnd = trace_boundary("use_local_storage")
-  const trace     = trace_info("use_local_storage")
+function useLocalStorage() {
+  const trace_bnd = trace_boundary("useLocalStorage")
+  const trace     = trace_info("useLocalStorage")
   trace_bnd(true)
 
-  let can_i_haz_local_storage = LS.storage_available("localStorage")
+  let can_i_haz_local_storage = LS.storageAvailable("localStorage")
 
   trace(`Local storage is ${can_i_haz_local_storage ? "" : "not"} available`)
 
   // Define which function is called based on the availability of local storage
-  window.restore_tab_values  = can_i_haz_local_storage ? LS.restore_from_local_storage : no_op
-  window.store_tab_values    = can_i_haz_local_storage ? LS.write_to_local_storage     : no_op
-  window.clear_local_storage = can_i_haz_local_storage ? LS.clear_local_storage        : no_op
-  window.get_config          = can_i_haz_local_storage ? TM.fetch_config_values        : TM.fetch_config_from_dom
+  window.restore_tab_values  = can_i_haz_local_storage ? LS.restoreFromLocalStorage : no_op
+  window.store_tab_values    = can_i_haz_local_storage ? LS.writeToLocalStorage     : no_op
+  window.clearLocalStorage = can_i_haz_local_storage ? LS.clearLocalStorage        : no_op
+  window.get_config          = can_i_haz_local_storage ? TM.fetchConfigValues          : TM.fetchConfigFromDom
 
   trace_bnd(false)
 }
 
 // *********************************************************************************************************************
 // Activate configuration and default tabs
-async function start_tabs() {
-  const trace_bnd = trace_boundary("start_tabs")
+async function startTabs() {
+  const trace_bnd = trace_boundary("startTabs")
   trace_bnd(true)
   
   // Ensure the configuration tab is always loaded
-  await TM.fetch_tab("configuration")
+  await TM.fetchTab("configuration")
 
   // Select the default tab
   for (var tablink of $class("tabButton")) {
@@ -109,11 +113,11 @@ async function start_tabs() {
 
 // *********************************************************************************************************************
 // Initialise the Web Assembly module, then start the tabs containing each absorber device type
-async function start_wasm() {
+async function startWASM() {
   await init()
   console.log("WASM module initialisation complete...")
   
-  use_local_storage()
-  await start_tabs()
+  useLocalStorage()
+  await startTabs()
 }
 

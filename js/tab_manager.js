@@ -10,14 +10,19 @@ import {
   push
 , setProperty
 , isArray
-, isObject
 , isNotNullOrUndef
+, invertPlotData
 } from "./utils.js"
 
-import { $id, $class }            from "./dom_access.js"
-import { tabConfig }              from "./config.js"
-import { show_and_convert_units } from "./unit_conversion.js"
-import { canvasMouseOverHandler } from "./canvas.js"
+import { $id, $class }         from "./dom_access.js"
+import { tabConfig }           from "./config.js"
+import { showAndConvertUnits } from "./unit_conversion.js"
+
+import {
+  canvasMouseOverHandler
+, CANVAS_CONTAINER
+, GRAPH_OVERLAY
+} from "./canvas.js"
 
 // *********************************************************************************************************************
 // Define trace functions
@@ -33,13 +38,13 @@ const trace_info     = do_trace_info(DEBUG_ACTIVE)(MOD_NAME)
 // UI slider range limitation
 // *********************************************************************************************************************
 
-// Modifier function for use with the limit_max() function
+// Modifier function for use with the limitMax() function
 const half   = val => val / 2.0
 const double = val => val * 2.0
 
 // Restrict the maximum value of the target UI element to the current value of the source element after adjusting it
 // with some modifier function.  Default to the idiot function if no modifier is supplied
-const limit_max =
+const limitMax =
   (srcEl, targetEl, upperLimit, modifierFn) =>
     (modFn => $id(targetEl).max = Math.min(modFn(srcEl.value), upperLimit))
     (modifierFn || idiot)
@@ -48,29 +53,30 @@ const limit_max =
 // *********************************************************************************************************************
 // Tab management
 // *********************************************************************************************************************
-const open_tab = (evt, tabName) => {
+const openTab = (evt, tabName) => {
   const trace_bnd = trace_boundary("openTab")
   trace_bnd(true)
 
-  // Remove graph from screen when the configuration tab is selected
-  $id("graph_canvas").className = (tabName === "configuration") ? "fadeOut" : "fadeIn"
+  // Remove graph from screen when the configuration tab is selected and blank out graph overlay canvas
+  $id(CANVAS_CONTAINER).className = (tabName === "configuration") ? "fadeOut" : "fadeIn"
+  $id(GRAPH_OVERLAY).width        = $id(GRAPH_OVERLAY).width     
   
   // Cache values from current tab and deactive that tab button
-  cache_values_and_deactivate()
-  hide_and_empty_all_tabs()
+  cacheValuesAndDeactivate()
+  hideAndEmptyAllTabs()
 
   // Make the selected tab button active
   evt.currentTarget.className += " active"
   $id(tabName).style.display = "block"
 
-  fetch_tab(tabName)
+  fetchTab(tabName)
 
   trace_bnd(false)
 }
 
 // *********************************************************************************************************************
 // Hide tabs and remove their content except for the configuration tab
-const hide_and_empty_all_tabs =
+const hideAndEmptyAllTabs =
   () => {
     const trace_bnd = trace_boundary("hide_all_tabs")
     trace_bnd(true)
@@ -88,9 +94,9 @@ const hide_and_empty_all_tabs =
 
 // *********************************************************************************************************************
 // Cache values from the current tab into local storage, then deactivate the tab button
-const cache_values_and_deactivate =
+const cacheValuesAndDeactivate =
   () => {
-    const trace_bnd = trace_boundary("cache_values_and_deactivate")
+    const trace_bnd = trace_boundary("cacheValuesAndDeactivate")
     trace_bnd(true)
 
     for (var tablink of $class("tabButton")) {
@@ -105,9 +111,9 @@ const cache_values_and_deactivate =
 
 // *********************************************************************************************************************
 // Fetch tab content from server
-const fetch_tab =
+const fetchTab =
   tabName => {
-    const trace_bnd = trace_boundary("fetch_tab", tabName)
+    const trace_bnd = trace_boundary("fetchTab", tabName)
     trace_bnd(true)
 
     let req = new XMLHttpRequest()
@@ -139,38 +145,27 @@ const tabLoaded =
       // Call WASM to update the screen
       let wasm_response = updateScreen(tabName)
 
-      // We expect to get either an object or an array back from WASM.
-      // If we get an object, then everything worked nicely. If however, if we get an array, then there was at least one
-      // error with the supplied arguments
-      if (isNotNullOrUndef(wasm_response)) {
-        if (isArray(wasm_response)) {
-          console.error(JSON.stringify(wasm_response, null, 2))
+      // If the WASM function returns an array, then there has been a validation error with one or more of the arguments
+      if (isArray(wasm_response)) {
+        console.error(JSON.stringify(wasm_response, null, 2))
+      }
+      // If the non-null wasm_response is an object containing the property "series_data", then a graph has been plotted
+      // and we are getting the chart data back 
+      else if (isNotNullOrUndef(wasm_response) && wasm_response.series_data) {
+        // For all tabs except configuration, invert the structure of the wasm_response.series_data array and pass the
+        // result to the canvas overlay mouse move handler
+        // The chart_box property defines the bounding box within which the cross hairs should appear
+        if (tabName !== "configuration") {
+          $id(GRAPH_OVERLAY).onmousemove = canvasMouseOverHandler(
+            $id(GRAPH_OVERLAY)
+          , wasm_response.chart_box
+          , invertPlotData(wasm_response.series_data)
+          )
         }
-        else if (isObject(wasm_response)) {
-          // For all tabs except configuration, pass the wasm_response obejct to the canvas mouse handler
-          if (tabName !== "configuration") {
-            // Unload the WASM response object
-            let xsAndYs = Object.
-              keys(wasm_response).
-              reduce(
-                (acc, key) => {
-                  wasm_response[key].map(
-                    plotPoint =>
-                      (yVals => acc[plotPoint.x] = isArray(yVals) ? yVals.concat([plotPoint.y]) : [plotPoint.y])
-                      (acc[plotPoint.x])
-                  )
-
-                  return acc
-                }
-              , {}
-              )
-            
-            // $id("graph_canvas").onmousemove = canvasMouseOverHandler($id("graph_canvas_overlay"), xsAndYs)
-          }
-        }
-        else {
-          console.log(`That's weird - got "${wasm_response}" back from WASM`)
-        }
+      }
+      else {
+        if (isNotNullOrUndef(wasm_response))
+          console.warn(`That's weird - got the unexpected value "${wasm_response}" back from WASM`)
       }
 
       trace_bnd(false)
@@ -179,7 +174,7 @@ const tabLoaded =
 // *********************************************************************************************************************
 // Fetch config values either from local storage or from the DOM
 // These values must be returned as an array where the order is "air_temp" followed by "air_pressure"
-const fetch_config_from_ls =
+const fetchConfigFromLS =
   () =>
     (config_vals => [config_vals.air_temp, config_vals.air_pressure])
     (JSON
@@ -187,13 +182,13 @@ const fetch_config_from_ls =
       .reduce((acc, field) => setProperty(acc, field.id, field.value), {})
     )
 
-const fetch_config_from_dom = () => [$id("air_temp").value, $id("air_pressure").value]
+const fetchConfigFromDom = () => [$id("air_temp").value, $id("air_pressure").value]
 
-const fetch_config_values =
+const fetchConfigValues =
   () =>
     window.localStorage && !!window.localStorage.getItem("configuration")
-    ? fetch_config_from_ls()
-    : fetch_config_from_dom()
+    ? fetchConfigFromLS()
+    : fetchConfigFromDom()
 
 // *********************************************************************************************************************
 // This function must be called every time an input value is changed
@@ -207,7 +202,7 @@ const updateScreen =
     // Perform any unit conversions that might be needed then extract the input values relevant for the WASM module
     let current_field_values = tabConfig[tabName]
       .reduce((acc, field) => {
-          show_and_convert_units(field)
+          showAndConvertUnits(field)
           return field.isWasmArg ? push(field.getter(field.id), acc) : acc
         }, [])
 
@@ -232,13 +227,13 @@ const updateScreen =
 // Public API
 // *********************************************************************************************************************
 export {
-  limit_max
+  limitMax
 , half
 , double
-, open_tab
+, openTab
 , updateScreen
-, fetch_tab
-, fetch_config_from_dom
-, fetch_config_from_ls
-, fetch_config_values
+, fetchTab
+, fetchConfigFromDom
+, fetchConfigFromLS
+, fetchConfigValues
 }

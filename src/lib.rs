@@ -58,7 +58,6 @@ extern "C" {
 }
 
 
-
 // *********************************************************************************************************************
 // Public API
 // *********************************************************************************************************************
@@ -145,9 +144,9 @@ pub fn rb_porous_absorber(
     let absorber_info = calculate_porous_absorber(&air_cfg, &cavity_cfg, &display_cfg, &sound_cfg, &porous_cfg);
     
     // Plot the graph
-    render::plot_porous_absorber(&absorber_info, &display_cfg, &sound_cfg);
+    let chart_info = render::plot_porous_absorber(&absorber_info, &display_cfg, &sound_cfg);
 
-    JsValue::from_serde(&absorber_info).unwrap()
+    JsValue::from_serde(&chart_info).unwrap()
   }
   else {
     // Serialize the error message(s)
@@ -155,6 +154,8 @@ pub fn rb_porous_absorber(
   };
 
   trace_boundary(&Some(true));
+
+  // Return either the {X,Y} values of plot points or the error messages back to JavaScript
   return_value
 }
 
@@ -232,9 +233,9 @@ pub fn perforated_panel(
     let absorber_info = calculate_perforated_panel(&air_cfg, &cavity_cfg, &display_cfg, &panel_cfg, &porous_cfg);
     
     // Plot the graph
-    render::plot_perforated_panel(&absorber_info, &display_cfg);
+    let chart_info = render::plot_perforated_panel(&absorber_info, &display_cfg);
 
-    JsValue::from_serde(&absorber_info).unwrap()
+    JsValue::from_serde(&chart_info).unwrap()
   }
   else {
     // Serialize the error message(s)
@@ -242,6 +243,8 @@ pub fn perforated_panel(
   };
 
   trace_boundary(&Some(false));
+
+  // Return either the {X,Y} values of plot points or the error messages back to JavaScript
   return_value
 }
 
@@ -319,16 +322,18 @@ pub fn slotted_panel(
     let absorber_info = calculate_slotted_panel(&air_cfg, &cavity_cfg, &display_cfg, &panel_cfg, &porous_cfg);
     
     // Plot the graph
-    render::plot_slotted_panel(&absorber_info, &display_cfg);
+    let chart_info = render::plot_slotted_panel(&absorber_info, &display_cfg);
 
-    JsValue::from_serde(&absorber_info).unwrap()
+    JsValue::from_serde(&chart_info).unwrap()
   }
   else {
-    // Serialize the error message(s) and pass back to JavaScript
+    // Serialize the error message(s)
     JsValue::from_serde(&error_msgs).unwrap()
   };
 
   trace_boundary(&Some(false));
+
+  // Return either the {X,Y} values of plot points or the error messages back to JavaScript
   return_value
 }
 
@@ -404,9 +409,9 @@ pub fn microperforated_panel(
     let absorber_info = calculate_microperforated_panel(&air_cfg, &cavity_cfg, &display_cfg, &panel_cfg, &sound_cfg);
     
     // Plot the graph
-    render::plot_microperforated_panel(&absorber_info, &display_cfg, &sound_cfg);
+    let chart_info = render::plot_microperforated_panel(&absorber_info, &display_cfg, &sound_cfg);
 
-    JsValue::from_serde(&absorber_info).unwrap()
+    JsValue::from_serde(&chart_info).unwrap()
   }
   else {
     // Serialize the error message(s)
@@ -414,6 +419,8 @@ pub fn microperforated_panel(
   };
 
   trace_boundary(&Some(false));
+
+  // Return either the {X,Y} values of plot points or the error messages back to JavaScript
   return_value
 }
 
