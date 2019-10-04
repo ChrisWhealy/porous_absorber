@@ -164,5 +164,5 @@ const isInsideRect =
 
 // Before calling this function, you should have at least already set the canvas font
 const showAbsInfo = (ctx, mousePos, plotPoint) => {
-  ctx.fillText(`${plotPoint.abs} @ ${plotPoint.freq}Hz`, mousePos.x + 10, mousePos.y - 10)
+  ctx.fillText(`${plotPoint.abs} @ ${plotPoint.freq.toFixed(0)}Hz`, mousePos.x + 10, mousePos.y - 10)
 }

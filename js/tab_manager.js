@@ -38,7 +38,7 @@ const trace_info     = do_trace_info(DEBUG_ACTIVE)(MOD_NAME)
 // UI slider range limitation
 // *********************************************************************************************************************
 
-// Modifier function for use with the limitMax() function
+// Modifier functions for use with the limitMax() function
 const half   = val => val / 2.0
 const double = val => val * 2.0
 
@@ -53,26 +53,27 @@ const limitMax =
 // *********************************************************************************************************************
 // Tab management
 // *********************************************************************************************************************
-const openTab = (evt, tabName) => {
-  const trace_bnd = trace_boundary("openTab")
-  trace_bnd(true)
+const openTab =
+  (evt, tabName) => {
+    const trace_bnd = trace_boundary("openTab")
+    trace_bnd(true)
 
-  // Remove graph from screen when the configuration tab is selected and blank out graph overlay canvas
-  $id(CANVAS_CONTAINER).className = (tabName === "configuration") ? "fadeOut" : "fadeIn"
-  $id(GRAPH_OVERLAY).width        = $id(GRAPH_OVERLAY).width     
-  
-  // Cache values from current tab and deactive that tab button
-  cacheValuesAndDeactivate()
-  hideAndEmptyAllTabs()
+    // Remove graph from screen when the configuration tab is selected and blank out graph overlay canvas
+    $id(CANVAS_CONTAINER).className = (tabName === "configuration") ? "fadeOut" : "fadeIn"
+    $id(GRAPH_OVERLAY).width        = $id(GRAPH_OVERLAY).width     
+    
+    // Cache values from current tab and deactive that tab button
+    cacheValuesAndDeactivate()
+    hideAndEmptyAllTabs()
 
-  // Make the selected tab button active
-  evt.currentTarget.className += " active"
-  $id(tabName).style.display = "block"
+    // Make the selected tab button active
+    evt.currentTarget.className += " active"
+    $id(tabName).style.display = "block"
 
-  fetchTab(tabName)
+    fetchTab(tabName)
 
-  trace_bnd(false)
-}
+    trace_bnd(false)
+  }
 
 // *********************************************************************************************************************
 // Hide tabs and remove their content except for the configuration tab
@@ -137,36 +138,12 @@ const tabLoaded =
       $id(tabName).innerHTML = ""
       $id(tabName).insertAdjacentHTML('afterbegin', req.response)
       
-      // Restore the current tab's values
-      // This function is defined in main.js based on the availability of local storage.
-      // If local storage is not available, then this function evaluates to no_op
+      // Restore the current tab's values using the function defined in main.js that uin turn, is based on the
+      // availability of local storage.  If local storage is not available, then this function evaluates to no_op
       window.restore_tab_values(tabName)
       
-      // Call WASM to update the screen
-      let wasm_response = updateScreen(tabName)
-
-      // If the WASM function returns an array, then there has been a validation error with one or more of the arguments
-      if (isArray(wasm_response)) {
-        console.error(JSON.stringify(wasm_response, null, 2))
-      }
-      // If the non-null wasm_response is an object containing the property "series_data", then a graph has been plotted
-      // and we are getting the chart data back 
-      else if (isNotNullOrUndef(wasm_response) && wasm_response.series_data) {
-        // For all tabs except configuration, invert the structure of the wasm_response.series_data array and pass the
-        // result to the canvas overlay mouse move handler
-        // The chart_box property defines the bounding box within which the cross hairs should appear
-        if (tabName !== "configuration") {
-          $id(GRAPH_OVERLAY).onmousemove = canvasMouseOverHandler(
-            $id(GRAPH_OVERLAY)
-          , wasm_response.chart_box
-          , invertPlotData(wasm_response.series_data)
-          )
-        }
-      }
-      else {
-        if (isNotNullOrUndef(wasm_response))
-          console.warn(`That's weird - got the unexpected value "${wasm_response}" back from WASM`)
-      }
+      // Call WASM to update the screen and then replace the mousemove handler for the canvas overlay
+      updateScreenAndMouseHandler(tabName)
 
       trace_bnd(false)
     }
@@ -224,6 +201,39 @@ const updateScreen =
 
 
 // *********************************************************************************************************************
+// Update the graph by calling the required WASM function.  This function is called either when a tab is selected or the
+// user changes the octave subdivisions.  In either case, the number of plot points on the graph has changed, and
+// therefore the mousemove handler for the canvas overlay must be replaced
+const updateScreenAndMouseHandler =
+  tabName => {
+    // Call WASM to update the screen
+    let wasm_response = updateScreen(tabName)
+
+    // If the WASM function returns an array, then there has been a validation error with one or more of the arguments
+    if (isArray(wasm_response)) {
+      console.error(JSON.stringify(wasm_response, null, 2))
+    }
+    // If the non-null wasm_response is an object containing the property "series_data", then a graph has been plotted
+    // and we are getting the chart data back 
+    else if (isNotNullOrUndef(wasm_response) && wasm_response.series_data) {
+      // For all tabs except configuration, invert the structure of the wasm_response.series_data array and pass the
+      // result to the canvas overlay mouse move handler
+      // The chart_box property defines the bounding box within which the cross hairs should appear
+      if (tabName !== "configuration") {
+        $id(GRAPH_OVERLAY).onmousemove = canvasMouseOverHandler(
+          $id(GRAPH_OVERLAY)
+        , wasm_response.chart_box
+        , invertPlotData(wasm_response.series_data)
+        )
+      }
+    }
+    else {
+      if (isNotNullOrUndef(wasm_response))
+        console.warn(`That's weird - got the unexpected value "${wasm_response}" back from WASM`)
+    }
+  }
+
+// *********************************************************************************************************************
 // Public API
 // *********************************************************************************************************************
 export {
@@ -232,6 +242,7 @@ export {
 , double
 , openTab
 , updateScreen
+, updateScreenAndMouseHandler
 , fetchTab
 , fetchConfigFromDom
 , fetchConfigFromLS

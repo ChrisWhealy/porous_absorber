@@ -9,7 +9,12 @@ import * as TM from "./tab_manager.js"
 
 import { no_op }       from "./utils.js"
 import { $id, $class } from "./dom_access.js"
-import { fetchTab }    from "./tab_manager.js"
+
+import {
+  setCanvasSize
+, GRAPH
+, GRAPH_OVERLAY
+} from "./canvas.js"
 
 // JavaScript wrappers for WASM functions
 import init
@@ -18,12 +23,6 @@ import init
   , perforated_panel
   , microperforated_panel
 } from '../pkg/porous_absorber_calculator.js'
-
-import {
-  setCanvasSize
-, GRAPH
-, GRAPH_OVERLAY
-} from "./canvas.js"
 
 // *********************************************************************************************************************
 // Define trace functions
@@ -45,18 +44,19 @@ window.resize = window.onresize = () => {
   // Rebuild the active tab
   for (var tablink of $class("tabButton")) {
     if (tablink.className.search("active") > -1)
-      fetchTab(tablink.id.replace("tab_button_", ""))
+      TM.fetchTab(tablink.id.replace("tab_button_", ""))
   }
 }
 
 
 // *********************************************************************************************************************
 // Make the tab's various onclick and oninput functions available at the window level
-window.openTab      = TM.openTab
-window.updateScreen = TM.updateScreen
-window.limitMax     = TM.limitMax
-window.half         = TM.half
-window.double       = TM.double
+window.openTab                     = TM.openTab
+window.updateScreen                = TM.updateScreen
+window.updateScreenAndMouseHandler = TM.updateScreenAndMouseHandler
+window.limitMax                    = TM.limitMax
+window.half                        = TM.half
+window.double                      = TM.double
 
 // Make the WASM wrapper functions accessible
 window.rb_porous_absorber    = rb_porous_absorber
@@ -86,10 +86,10 @@ function useLocalStorage() {
   trace(`Local storage is ${can_i_haz_local_storage ? "" : "not"} available`)
 
   // Define which function is called based on the availability of local storage
-  window.restore_tab_values  = can_i_haz_local_storage ? LS.restoreFromLocalStorage : no_op
-  window.store_tab_values    = can_i_haz_local_storage ? LS.writeToLocalStorage     : no_op
-  window.clearLocalStorage = can_i_haz_local_storage ? LS.clearLocalStorage        : no_op
-  window.get_config          = can_i_haz_local_storage ? TM.fetchConfigValues          : TM.fetchConfigFromDom
+  window.restore_tab_values = can_i_haz_local_storage ? LS.restoreFromLocalStorage : no_op
+  window.store_tab_values   = can_i_haz_local_storage ? LS.writeToLocalStorage     : no_op
+  window.clearLocalStorage  = can_i_haz_local_storage ? LS.clearLocalStorage       : no_op
+  window.get_config         = can_i_haz_local_storage ? TM.fetchConfigValues       : TM.fetchConfigFromDom
 
   trace_bnd(false)
 }
