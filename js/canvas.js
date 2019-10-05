@@ -29,22 +29,22 @@ const mousePositionOnCanvas =
       (e.target)
 
 const mousePositionViaElementHierarchy =
-  e => ((x, y, el) => {
+  e =>
+    ((x, y, el) => {
+      do {
+        x  -= el.offsetLeft
+        y  -= el.offsetTop
+        el  = el.offsetParent
+      }
+      // Stop when we reach the top of the DOM hierarchy
+      while (el)
 
-    do {
-      x  -= el.offsetLeft
-      y  -= el.offsetTop
-      el  = el.offsetParent
-    }
-    // Stop when we reach the top of the DOM hierarchy
-    while (el)
-
-    return {
-      "x" : x * (el.width  / el.offsetWidth  || 1)
-    , "y" : y * (el.height / el.offsetHeight || 1)
-    }
-  })
-  (e.pageX, e.pageY, e.target)
+      return {
+        "x" : x * (el.width  / el.offsetWidth  || 1)
+      , "y" : y * (el.height / el.offsetHeight || 1)
+      }
+    })
+    (e.pageX, e.pageY, e.target)
 
 // *********************************************************************************************************************
 // Draw horizontal and vertical grid lines on the canvas within the chart boundary and create information popup when the
@@ -65,7 +65,7 @@ const canvasMouseOverHandler =
 
       ctx.font = "10pt Arial"
     
-      // For each point in the inverted data series
+      // For each X value in the inverted data series
       Object
         .keys(seriestData)
         .map(
@@ -97,16 +97,15 @@ const canvasMouseOverHandler =
 // Set canvas size and maintain aspect ratio of 21:9
 // *********************************************************************************************************************
 const setCanvasSize =
-  canvas => {
-    // Only resize the canvas if the screen width has changed
-    // The canvas height does not need to change if only the screen height has changed
-    let screen_width = Math.max(MIN_CANVAS_WIDTH, parseInt(window.getComputedStyle(document.body).width) - 2)
-
-    if (canvas.width !== screen_width) {
-      canvas.width  = Math.max(MIN_CANVAS_WIDTH, parseInt(window.getComputedStyle(document.body).width) - 2)
-      canvas.height = (canvas.width / 21) * 9
-    }
-  }
+  canvas =>
+    (screen_width =>
+      // Only resize the canvas if the screen width has changed
+      // The canvas height does not need to change if only the screen height changes
+      (canvas.width !== screen_width)
+      ? (canvas.width = screen_width, canvas.height = (canvas.width / 21) * 9)
+      : null
+    )
+    (Math.max(MIN_CANVAS_WIDTH, parseInt(window.getComputedStyle(document.body).width) - 2))
 
 // *********************************************************************************************************************
 // Public API
