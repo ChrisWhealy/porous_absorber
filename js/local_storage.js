@@ -6,7 +6,8 @@
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
 
-import { tabConfig } from "./config.js"
+import { tabConfig }   from "./config.js"
+import { setProperty } from "./utils.js"
 
 // *********************************************************************************************************************
 // Define trace functions
@@ -104,6 +105,17 @@ const clearLocalStorage =
   }
 
 // *********************************************************************************************************************
+// Fetch config values from local storage
+// These values must be returned as an array where the order is "air_temp" followed by "air_pressure"
+const fetchConfig =
+  () =>
+    (config_vals => [config_vals.air_temp, config_vals.air_pressure])
+    (JSON
+      .parse(window.localStorage.getItem("configuration"))
+      .reduce((acc, field) => setProperty(acc, field.id, field.value), {})
+    )
+
+// *********************************************************************************************************************
 // Public API
 // *********************************************************************************************************************
 export {
@@ -111,4 +123,5 @@ export {
 , restoreFromLocalStorage
 , writeToLocalStorage
 , clearLocalStorage
+, fetchConfig
 }

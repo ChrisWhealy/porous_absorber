@@ -92,10 +92,14 @@ function useLocalStorage() {
   window.restore_tab_values = can_i_haz_local_storage ? LS.restoreFromLocalStorage : no_op
   window.store_tab_values   = can_i_haz_local_storage ? LS.writeToLocalStorage     : no_op
   window.clearLocalStorage  = can_i_haz_local_storage ? LS.clearLocalStorage       : no_op
-  window.get_config         = can_i_haz_local_storage ? TM.fetchConfigValues       : TM.fetchConfigFromDom
+  window.get_config         = can_i_haz_local_storage ? LS.fetchConfig             : fetchConfigFromDom
 
   trace_bnd(false)
 }
+
+// *********************************************************************************************************************
+// Fetch config values from DOM
+const fetchConfigFromDom = () => [$id("air_temp").value, $id("air_pressure").value]
 
 // *********************************************************************************************************************
 // Activate configuration and default tabs

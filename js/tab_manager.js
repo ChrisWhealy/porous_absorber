@@ -8,7 +8,6 @@
 
 import {
   push
-, setProperty
 , isArray
 , isNotNullOrUndef
 , invertPlotData
@@ -107,17 +106,8 @@ const fetchTab =
     trace_bnd(false)
   }
 
-// *********************************************************************************************************************
-// Fetch config values either from local storage or from the DOM
-const fetchConfigFromDom = () => [$id("air_temp").value, $id("air_pressure").value]
 
-const fetchConfigValues =
-  () =>
-    window.localStorage && !!window.localStorage.getItem("configuration")
-    ? fetchConfigFromLS()
-    : fetchConfigFromDom()
-
-// *********************************************************************************************************************
+  // *********************************************************************************************************************
 // This function must be called every time an input value is changed
 const updateScreen =
   tabName => {
@@ -193,8 +183,6 @@ export {
 , openTab
 , cacheValues
 , fetchTab
-, fetchConfigFromDom
-, fetchConfigValues
 , updateScreen
 , updateScreenAndMouseHandler
 }
@@ -261,14 +249,4 @@ const tabLoaded =
       trace_bnd(false)
     }
 
-// *********************************************************************************************************************
-// Fetch config values either from local storage or from the DOM
-// These values must be returned as an array where the order is "air_temp" followed by "air_pressure"
-const fetchConfigFromLS =
-  () =>
-    (config_vals => [config_vals.air_temp, config_vals.air_pressure])
-    (JSON
-      .parse(window.localStorage.getItem("configuration"))
-      .reduce((acc, field) => setProperty(acc, field.id, field.value), {})
-    )
 
