@@ -6,7 +6,7 @@
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
 
-const MIN_CANVAS_WIDTH  = 1200
+const MIN_CANVAS_WIDTH  = 1000
 const PLOT_POINT_RADIUS = 5
 const RGB_LIGHT_GREY    = "rgb(223, 223, 223)"
 

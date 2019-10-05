@@ -48,7 +48,7 @@ An online version of this tool is available [here](http://whealy.com/acoustics/P
 <a name="graph"></a>
 ## Graph
 
-The graph maintains an aspect ratio of 21:9 as the browser screen resizes.  The minimum grapth width is 1200 pixels.
+The graph maintains an aspect ratio of 21:9 as the browser screen resizes down to a minimum width of 1000 pixels.
 
 ### Smooth Curve
 
