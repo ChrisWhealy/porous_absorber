@@ -136,11 +136,11 @@ According to [CanIUse](https://caniuse.com/#feat=wasm), WebAssembly should work 
 
 In Apple Safari for MacOS, clicking directly on a range slider does not select or highlight it.  This means that you cannot increment or decrement the slider value using the arrow keys simply by clicking on it first.
 
-Range slider values ***can*** be selected by tabbing whilst holding down the Option Key ⌥.  Unfortunately once selected, the range slider will still not be highlighted... DOH!
+Range slider values ***can*** be selected by tabbing whilst holding down the Option Key ⌥.  Unfortunately once selected, the range slider will still not be highlighted, thus there is no visible indication that the slider is selected... DOH!
 
 ### Brave Useability Issues
 
-When this app is viewed using the Brave browser, the spacing of the axis ticks amd labels is not correct
+When this app is viewed using the Brave browser, the spacing of the axis ticks and labels is not correct
 
 
 
