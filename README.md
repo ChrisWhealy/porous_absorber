@@ -108,7 +108,7 @@ This app is the reimplementation of an [Excel spreadsheet](http://whealy.com/aco
 <a name="to-do"></a>
 ## To Do
 
-When the "Smooth Curve" option is switched on, the calculation of Bézier control points does to create the desired smooth curve effect.  Just leave the "Smooth Curve" option switched off for the time being until I can fix this.
+When the "Smooth Curve" option is switched on, the calculation of Bézier control points doesn't quite create the required smooth curve effect.  Just leave the "Smooth Curve" option switched off for the time being until I can fix this.
 
 
 
