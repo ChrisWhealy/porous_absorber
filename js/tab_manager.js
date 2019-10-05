@@ -76,33 +76,14 @@ const openTab =
   }
 
 // *********************************************************************************************************************
-// Hide tabs and remove their content except for the configuration tab
-const hideAndEmptyAllTabs =
+// Cache values from the current tab into local storage
+const cacheValues =
   () => {
-    const trace_bnd = trace_boundary("hide_all_tabs")
-    trace_bnd(true)
-
-    for (var tab of $class("tabContent")) {
-      tab.style.display = "none"
-
-      if (tab.id !== "configuration") {
-        tab.innerHTML = ""
-      }
-    }
-
-    trace_bnd(false)
-  }
-
-// *********************************************************************************************************************
-// Cache values from the current tab into local storage, then deactivate the tab button
-const cacheValuesAndDeactivate =
-  () => {
-    const trace_bnd = trace_boundary("cacheValuesAndDeactivate")
+    const trace_bnd = trace_boundary("cacheValues")
     trace_bnd(true)
 
     for (var tablink of $class("tabButton")) {
       if (tablink.className.indexOf("active") > -1) {
-        tablink.className = tablink.className.replace(" active", "")
         window.store_tab_values(tablink.id.replace("tab_button_", ""))
       }
     }
@@ -127,38 +108,7 @@ const fetchTab =
   }
 
 // *********************************************************************************************************************
-// Partial function that generates another function to respond to the onload event after tab HTML data is returned to
-// the client
-const tabLoaded =
-  (tabName, req) =>
-    () => {
-      let trace_bnd = trace_boundary("tabLoaded", tabName)
-      trace_bnd(true)
-
-      $id(tabName).innerHTML = ""
-      $id(tabName).insertAdjacentHTML('afterbegin', req.response)
-      
-      // Restore the current tab's values using the function defined in main.js that uin turn, is based on the
-      // availability of local storage.  If local storage is not available, then this function evaluates to no_op
-      window.restore_tab_values(tabName)
-      
-      // Call WASM to update the screen and then replace the mousemove handler for the canvas overlay
-      updateScreenAndMouseHandler(tabName)
-
-      trace_bnd(false)
-    }
-
-// *********************************************************************************************************************
 // Fetch config values either from local storage or from the DOM
-// These values must be returned as an array where the order is "air_temp" followed by "air_pressure"
-const fetchConfigFromLS =
-  () =>
-    (config_vals => [config_vals.air_temp, config_vals.air_pressure])
-    (JSON
-      .parse(window.localStorage.getItem("configuration"))
-      .reduce((acc, field) => setProperty(acc, field.id, field.value), {})
-    )
-
 const fetchConfigFromDom = () => [$id("air_temp").value, $id("air_pressure").value]
 
 const fetchConfigValues =
@@ -241,10 +191,84 @@ export {
 , half
 , double
 , openTab
-, updateScreen
-, updateScreenAndMouseHandler
+, cacheValues
 , fetchTab
 , fetchConfigFromDom
-, fetchConfigFromLS
 , fetchConfigValues
+, updateScreen
+, updateScreenAndMouseHandler
 }
+
+
+// *********************************************************************************************************************
+// Private API
+// *********************************************************************************************************************
+
+// *********************************************************************************************************************
+// Hide tabs and remove their content except for the configuration tab
+const hideAndEmptyAllTabs =
+  () => {
+    const trace_bnd = trace_boundary("hide_all_tabs")
+    trace_bnd(true)
+
+    for (var tab of $class("tabContent")) {
+      tab.style.display = "none"
+
+      if (tab.id !== "configuration") {
+        tab.innerHTML = ""
+      }
+    }
+
+    trace_bnd(false)
+  }
+
+// *********************************************************************************************************************
+// Cache values from the current tab into local storage, then deactivate the tab button
+const cacheValuesAndDeactivate =
+  () => {
+    const trace_bnd = trace_boundary("cacheValuesAndDeactivate")
+    trace_bnd(true)
+
+    for (var tablink of $class("tabButton")) {
+      if (tablink.className.indexOf("active") > -1) {
+        tablink.className = tablink.className.replace(" active", "")
+        window.store_tab_values(tablink.id.replace("tab_button_", ""))
+      }
+    }
+
+    trace_bnd(false)
+  }
+
+// *********************************************************************************************************************
+// Partial function that generates another function to respond to the onload event after tab HTML data is returned to
+// the client
+const tabLoaded =
+  (tabName, req) =>
+    () => {
+      let trace_bnd = trace_boundary("tabLoaded", tabName)
+      trace_bnd(true)
+
+      $id(tabName).innerHTML = ""
+      $id(tabName).insertAdjacentHTML('afterbegin', req.response)
+      
+      // Restore the current tab's values using the function defined in main.js that uin turn, is based on the
+      // availability of local storage.  If local storage is not available, then this function evaluates to no_op
+      window.restore_tab_values(tabName)
+      
+      // Call WASM to update the screen and then replace the mousemove handler for the canvas overlay
+      updateScreenAndMouseHandler(tabName)
+
+      trace_bnd(false)
+    }
+
+// *********************************************************************************************************************
+// Fetch config values either from local storage or from the DOM
+// These values must be returned as an array where the order is "air_temp" followed by "air_pressure"
+const fetchConfigFromLS =
+  () =>
+    (config_vals => [config_vals.air_temp, config_vals.air_pressure])
+    (JSON
+      .parse(window.localStorage.getItem("configuration"))
+      .reduce((acc, field) => setProperty(acc, field.id, field.value), {})
+    )
+

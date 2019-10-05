@@ -38,8 +38,11 @@ const trace_info     = do_trace_info(DEBUG_ACTIVE)(MOD_NAME)
 // Define canvas size based on current window size
 window.onload = () => [GRAPH, GRAPH_OVERLAY].map(elName => setCanvasSize($id(elName)))
 
-window.resize = window.onresize = () => {
+window.onresize = () => {
   [GRAPH, GRAPH_OVERLAY].map(elName => setCanvasSize($id(elName)))
+
+  // Cache the current parameter values
+  TM.cacheValues()
 
   // Rebuild the active tab
   for (var tablink of $class("tabButton")) {
