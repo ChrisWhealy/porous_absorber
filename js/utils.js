@@ -74,6 +74,17 @@ const invertPlotData =
 // Create a new plot point object that does not include the "x" property
 const removeX = plotPoint => ({"y" : plotPoint.y, "freq" : plotPoint.freq, "abs" : plotPoint.abs})
 
+// Inclusive numeric range test
+const isBetween = (upper, lower, val) => val >= lower && val <= upper
+
+const isInsideRect =
+  (top_left_x, top_left_y, bottom_right_x, bottom_right_y) =>
+    mousePos =>
+      isBetween(bottom_right_x, top_left_x, mousePos.x) &&
+      isBetween(bottom_right_y, top_left_y, mousePos.y)
+
+
+
 // *********************************************************************************************************************
 // Public API
 // *********************************************************************************************************************
@@ -103,6 +114,10 @@ export {
 , isString         
 , isSymbol         
 , isUndefined      
+
+  // Numeric tests
+, isBetween
+, isInsideRect
 
   // Object handlers
 , setProperty

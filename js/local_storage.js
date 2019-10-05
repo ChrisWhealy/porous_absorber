@@ -6,8 +6,13 @@
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
 
-import { tabConfig }   from "./config.js"
-import { setProperty } from "./utils.js"
+import { tabConfig } from "./config.js"
+
+import {
+  setProperty
+, isNull
+, isNullOrUndef
+} from "./utils.js"
 
 // *********************************************************************************************************************
 // Define trace functions
@@ -17,7 +22,7 @@ const MOD_NAME     = "local_storage"
 const DEBUG_ACTIVE = false
 
 const trace_boundary = do_trace_boundary(DEBUG_ACTIVE)(MOD_NAME)
-const trace          = do_trace_info(DEBUG_ACTIVE)(MOD_NAME)
+const trace_info     = do_trace_info(DEBUG_ACTIVE)(MOD_NAME)
 
 // *********************************************************************************************************************
 // Check if local storage is available
@@ -54,20 +59,22 @@ const storageAvailable =
 const restoreFromLocalStorage =
   tabName => {
     const trace_bnd = trace_boundary("restoreFromLocalStorage", tabName)
+    const trace     = trace_info("restoreFromLocalStorage")
     trace_bnd(true)
 
     let tabValueStr = window.localStorage.getItem(tabName)
 
-    if (!!tabValueStr) {
+    if (isNull(tabValueStr)) {
+      trace(`No values for ${tabName} found in local storage`)
+    }
+    else {
+      trace(`Cached values for tab "${tabName}" found in local storage`)
       let thisConfig = tabConfig[tabName]
-
+  
       JSON.parse(tabValueStr).map((field, idx) => {
         trace(`     ${field.id}=${field.value}`)
         thisConfig[idx].setter(field.id, field.value)
       })
-    }
-    else {
-      trace(`No values for ${tabName} found in local storage`)
     }
 
     trace_bnd(false)
@@ -77,13 +84,15 @@ const restoreFromLocalStorage =
 const writeToLocalStorage =
   tabName => {
     const trace_bnd = trace_boundary("writeToLocalStorage", tabName)
+    const trace     = trace_info("writeToLocalStorage")
     trace_bnd(true)
 
     let cacheVals = tabConfig[tabName].map(
-      field => ({
-        "id"    : field.id
-      , "value" : field.getter(field.id)
-    }))
+      field =>
+        isNullOrUndef(field.getter(field.id))
+        ? { "id" : field.id, "value" : field.default }
+        : { "id" : field.id, "value" : field.getter(field.id) }
+      )
 
     trace(`Writing ${JSON.stringify(cacheVals)} to local storage`)
     window.localStorage.setItem(tabName, JSON.stringify(cacheVals))
@@ -107,7 +116,7 @@ const clearLocalStorage =
 // *********************************************************************************************************************
 // Fetch config values from local storage
 // These values must be returned as an array where the order is "air_temp" followed by "air_pressure"
-const fetchConfig =
+const fetchConfigTabValues =
   () =>
     (config_vals => [config_vals.air_temp, config_vals.air_pressure])
     (JSON
@@ -123,5 +132,5 @@ export {
 , restoreFromLocalStorage
 , writeToLocalStorage
 , clearLocalStorage
-, fetchConfig
+, fetchConfigTabValues
 }

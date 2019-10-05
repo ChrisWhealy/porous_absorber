@@ -6,9 +6,13 @@
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
 
+import { isBetween, isInsideRect } from "./utils.js"
+
 const MIN_CANVAS_WIDTH  = 1000
 const PLOT_POINT_RADIUS = 5
 const RGB_LIGHT_GREY    = "rgb(223, 223, 223)"
+
+const ABS_INFO_OFFSET = 10
 
 const CANVAS_CONTAINER = "canvas_container"
 const GRAPH            = "graph_canvas"
@@ -123,11 +127,10 @@ export {
 
 
 
-
-
 // *********************************************************************************************************************
 // Private API
 // *********************************************************************************************************************
+
 const drawCrossHairs =
   (ctx, mousePos, chartBox) => {
     // Define a function to determine whether the mouse pointer's current location falls inside the chart area
@@ -151,17 +154,9 @@ const drawCrossHairs =
 }
 
 
-const isBetween = (upper, lower, val) => val >= lower && val <= upper
-
-
-const isInsideRect =
-  (top_left_x, top_left_y, bottom_right_x, bottom_right_y) =>
-    mousePos =>
-      isBetween(bottom_right_x, top_left_x, mousePos.x) &&
-      isBetween(bottom_right_y, top_left_y, mousePos.y)
-
-
+// *********************************************************************************************************************
+// Add "absorption @ frequency" text to canvas
 // Before calling this function, you should have at least already set the canvas font
 const showAbsInfo = (ctx, mousePos, plotPoint) => {
-  ctx.fillText(`${plotPoint.abs} @ ${plotPoint.freq.toFixed(0)}Hz`, mousePos.x + 10, mousePos.y - 10)
+  ctx.fillText(`${plotPoint.abs} @ ${plotPoint.freq.toFixed(0)}Hz`, mousePos.x + ABS_INFO_OFFSET, mousePos.y - ABS_INFO_OFFSET)
 }

@@ -58,7 +58,7 @@ const openTab =
     trace_bnd(true)
 
     // Remove graph from screen when the configuration tab is selected and blank out graph overlay canvas
-    $id(CANVAS_CONTAINER).className = (tabName === "configuration") ? "fadeOut" : "fadeIn"
+    $id(CANVAS_CONTAINER).className = tabName === "configuration" ? "fadeOut" : "fadeIn"
     $id(GRAPH_OVERLAY).width        = $id(GRAPH_OVERLAY).width     
     
     // Cache values from current tab and deactive that tab button
@@ -123,10 +123,12 @@ const updateScreen =
           return field.isWasmArg ? push(field.getter(field.id), acc) : acc
         }, [])
 
+    trace(`Tab vield values = [${current_field_values.join(", ")}]`)
+
     // The configuration tab values are common to all calculations and must therefore be added to the list of values
     // passed to WASM
     if (tabName !== "configuration") {
-      current_field_values = current_field_values.concat(window.get_config())
+      current_field_values = current_field_values.concat(window.getConfigTabValues())
     }
 
     // What are we sending to WASM?
@@ -141,12 +143,20 @@ const updateScreen =
 
 
 // *********************************************************************************************************************
-// Update the graph by calling the required WASM function.  This function is called either when a tab is selected or the
-// user changes the octave subdivisions.  In either case, the number of plot points on the graph has changed, and
-// therefore the mousemove handler for the canvas overlay must be replaced
+// Update the graph by calling the required WASM function.
+// This function is called either:
+//  1) When a tab is selected, or
+//  2) The user changes the octave subdivisions, or
+//  3) The screen width is resized.
+//  In the first two cases, the number of plot points on the graph has changed, so the mousemove handler for the canvas
+//  overlay must be replaced. In the last case, the canvas size has changed so the graph must be redrawn at the new size
 const updateScreenAndMouseHandler =
   tabName => {
-    // Call WASM to update the screen
+    const trace_bnd = trace_boundary("updateScreenAndMouseHandler", tabName)
+
+    trace_bnd(true)
+
+    // Call WASM to update the graph
     let wasm_response = updateScreen(tabName)
 
     // If the WASM function returns an array, then there has been a validation error with one or more of the arguments
@@ -157,7 +167,7 @@ const updateScreenAndMouseHandler =
     // and we are getting the chart data back 
     else if (isNotNullOrUndef(wasm_response) && wasm_response.series_data) {
       // For all tabs except configuration, invert the structure of the wasm_response.series_data array and pass the
-      // result to the canvas overlay mouse move handler
+      // result to the canvas overlay mousemove handler
       // The chart_box property defines the bounding box within which the cross hairs should appear
       if (tabName !== "configuration") {
         $id(GRAPH_OVERLAY).onmousemove = canvasMouseOverHandler(
@@ -171,6 +181,8 @@ const updateScreenAndMouseHandler =
       if (isNotNullOrUndef(wasm_response))
         console.warn(`That's weird - got the unexpected value "${wasm_response}" back from WASM`)
     }
+
+    trace_bnd(false)
   }
 
 // *********************************************************************************************************************
@@ -239,9 +251,9 @@ const tabLoaded =
       $id(tabName).innerHTML = ""
       $id(tabName).insertAdjacentHTML('afterbegin', req.response)
       
-      // Restore the current tab's values using the function defined in main.js that uin turn, is based on the
+      // Restore the current tab's values using the function defined in main.js that in turn, is based on the
       // availability of local storage.  If local storage is not available, then this function evaluates to no_op
-      window.restore_tab_values(tabName)
+      window.restoreTabValues(tabName)
       
       // Call WASM to update the screen and then replace the mousemove handler for the canvas overlay
       updateScreenAndMouseHandler(tabName)

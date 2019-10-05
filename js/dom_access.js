@@ -9,6 +9,15 @@
 import { idiot } from "./utils.js"
 
 // *********************************************************************************************************************
+// Define trace functions
+import { do_trace_info} from "./trace.js"
+
+const MOD_NAME     = "dom_access"
+const DEBUG_ACTIVE = false
+
+const trace_info = do_trace_info(DEBUG_ACTIVE)(MOD_NAME)
+
+// *********************************************************************************************************************
 // Fetch DOM elements by id, class name or name
 function $id(elementId) {
   return document.getElementById(elementId)
@@ -29,7 +38,7 @@ const getParsedElementValue =
     elementId =>
       (el =>
          el ? parseFn(el.value)
-            : console.log(`Element '${elementId}' not found`)
+            : trace_info("getParsedElementValue")(`Element '${elementId}' not found`)
       )
       ($id(elementId))
 
@@ -54,8 +63,12 @@ const getRadio =
 // *********************************************************************************************************************
 // Write values to DOM elements
 const setDomElementProperty =
-  (elementId, propName, val) => 
-    (el => el ? el[propName] = val : console.log(`DOM element '${elementId}' not found`))
+  (elementId, propName, parsedVal) => 
+    (el =>
+      el
+      ? el[propName] = parsedVal
+      : getParsedElementValue("setDomElementProperty")(`DOM element '${elementId}' not found`)
+    )
     ($id(elementId))
 
 const setString   = (elementId, val) => setDomElementProperty(elementId, "value", val)

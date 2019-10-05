@@ -47,7 +47,7 @@ window.onresize = () => {
   // Rebuild the active tab
   for (var tablink of $class("tabButton")) {
     if (tablink.className.search("active") > -1)
-      TM.fetchTab(tablink.id.replace("tab_button_", ""))
+      TM.updateScreenAndMouseHandler(tablink.id.replace("tab_button_", ""))
   }
 }
 
@@ -86,13 +86,18 @@ function useLocalStorage() {
 
   let can_i_haz_local_storage = LS.storageAvailable("localStorage")
 
-  trace(`Local storage is ${can_i_haz_local_storage ? "" : "not"} available`)
+  trace(`Local storage is${can_i_haz_local_storage ? " " : " not "}available`)
+
+  // If local storage is availabel, then we must check that it has been populated with the configuration tab values
+  if (can_i_haz_local_storage) {
+    LS.writeToLocalStorage("configuration")
+  }
 
   // Define which function is called based on the availability of local storage
-  window.restore_tab_values = can_i_haz_local_storage ? LS.restoreFromLocalStorage : no_op
+  window.restoreTabValues   = can_i_haz_local_storage ? LS.restoreFromLocalStorage : no_op
   window.store_tab_values   = can_i_haz_local_storage ? LS.writeToLocalStorage     : no_op
   window.clearLocalStorage  = can_i_haz_local_storage ? LS.clearLocalStorage       : no_op
-  window.get_config         = can_i_haz_local_storage ? LS.fetchConfig             : fetchConfigFromDom
+  window.getConfigTabValues = can_i_haz_local_storage ? LS.fetchConfigTabValues    : fetchConfigFromDom
 
   trace_bnd(false)
 }

@@ -16,7 +16,7 @@ const MOD_NAME     = "unit_conversion"
 const DEBUG_ACTIVE = false
 
 const trace_boundary = do_trace_boundary(DEBUG_ACTIVE)(MOD_NAME)
-const trace          = do_trace_info(DEBUG_ACTIVE)(MOD_NAME)
+const trace_info     = do_trace_info(DEBUG_ACTIVE)(MOD_NAME)
 
 // *********************************************************************************************************************
 // Convert metric units to imperial
@@ -53,7 +53,12 @@ const to_imperial = (units, val) => {
 const show_value =
   (field_suffix, fn) =>
     (val, field_config) => {
-      let el = $id(`${field_config.id}${field_suffix}`)
+      const trace_bnd = trace_boundary("show_value", field_config.id)
+      const trace     = trace_info("show_value")
+
+      trace_bnd(true)
+
+      let el    = $id(`${field_config.id}${field_suffix}`)
 
       if (el) {
         el.innerHTML = (fn === "imperial")
@@ -63,8 +68,10 @@ const show_value =
                          : `${val.toLocaleString('en')} ${field_config.units}`
       }
       else {
-        trace(`${field_config.id}${field_suffix} element not found`)
+        trace(`DOM element ${field_config.id}${field_suffix} not found`)
       }
+
+      trace_bnd(false)
     }
 
 // *********************************************************************************************************************
@@ -77,7 +84,7 @@ const convert_units = show_value("_alt_units", "imperial")
 const showAndConvertUnits =
   field_config => {
     const trace_bnd = trace_boundary("showAndConvertUnits", field_config.id)
-    //const trace     = trace_info("showAndConvertUnits", field_config.id)
+    // const trace     = trace_info("showAndConvertUnits", field_config.id)
     trace_bnd(true)
 
     // trace(`${JSON.stringify(field_config)}`)
@@ -106,10 +113,10 @@ const showAndConvertUnits =
 
       default:
         displayValue = field_config.getter(field_config.id)
-      }
+    }
 
-      show_units(displayValue, field_config)
-      convert_units(displayValue, field_config)
+    show_units(displayValue, field_config)
+    convert_units(displayValue, field_config)
 
     trace_bnd(false)
   }
