@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
  * Porous Absorber Calculator
  * 
- * Basic utilities module
+ * Fundamental utilities module
  * 
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
@@ -13,7 +13,7 @@ const no_op = () => {}
 // See http://dkeenan.com/Lambda/ for details
 const idiot = val => val
 
-// Set an object property value and returnd the updated object.  Needed for use in single expression functions
+// Set an object property value and return the updated object.  Needed for use in single expression functions
 const setProperty = (obj, propName, propVal) => (_ => obj)(obj[propName] = propVal)
 
 // Versions of Array.push and Array.unshift that can be used in a single expression function such as Array.map()

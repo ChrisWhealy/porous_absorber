@@ -26,13 +26,8 @@ import init
 
 // *********************************************************************************************************************
 // Define trace functions
-import { do_trace_boundary, do_trace_info} from "./trace.js"
-
-const MOD_NAME     = "main"
-const DEBUG_ACTIVE = false
-
-const trace_boundary = do_trace_boundary(DEBUG_ACTIVE)(MOD_NAME)
-const trace_info     = do_trace_info(DEBUG_ACTIVE)(MOD_NAME)
+import { define_trace } from "./appConfig.js"
+const { trace_boundary, trace_info } = define_trace("main")
 
 // *********************************************************************************************************************
 // Define canvas size based on current window size

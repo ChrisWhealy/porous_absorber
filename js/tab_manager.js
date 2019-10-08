@@ -14,7 +14,7 @@ import {
 } from "./utils.js"
 
 import { $id, $class }         from "./dom_access.js"
-import { tabConfig }           from "./config.js"
+import { tabConfig }           from "./tabConfig.js"
 import { showAndConvertUnits } from "./unit_conversion.js"
 
 import {
@@ -25,13 +25,8 @@ import {
 
 // *********************************************************************************************************************
 // Define trace functions
-import { do_trace_boundary, do_trace_info} from "./trace.js"
-
-const MOD_NAME     = "tab_manager"
-const DEBUG_ACTIVE = false
-
-const trace_boundary = do_trace_boundary(DEBUG_ACTIVE)(MOD_NAME)
-const trace_info     = do_trace_info(DEBUG_ACTIVE)(MOD_NAME)
+import { define_trace } from "./appConfig.js"
+const { trace_boundary, trace_info } = define_trace("tab_manager")
 
 // *********************************************************************************************************************
 // UI slider range limitation
@@ -123,7 +118,7 @@ const updateScreen =
           return field.isWasmArg ? push(field.getter(field.id), acc) : acc
         }, [])
 
-    trace(`Tab vield values = [${current_field_values.join(", ")}]`)
+    trace(`Tab field values = [${current_field_values.join(", ")}]`)
 
     // The configuration tab values are common to all calculations and must therefore be added to the list of values
     // passed to WASM

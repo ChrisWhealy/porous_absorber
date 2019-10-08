@@ -10,13 +10,8 @@ import { $id } from "./dom_access.js"
 
 // *********************************************************************************************************************
 // Define trace functions
-import { do_trace_boundary, do_trace_info} from "./trace.js"
-
-const MOD_NAME     = "unit_conversion"
-const DEBUG_ACTIVE = false
-
-const trace_boundary = do_trace_boundary(DEBUG_ACTIVE)(MOD_NAME)
-const trace_info     = do_trace_info(DEBUG_ACTIVE)(MOD_NAME)
+import { define_trace } from "./appConfig.js"
+const { trace_boundary, trace_info } = define_trace("unit_conversion")
 
 // *********************************************************************************************************************
 // Convert metric units to imperial
@@ -58,7 +53,7 @@ const show_value =
 
       trace_bnd(true)
 
-      let el    = $id(`${field_config.id}${field_suffix}`)
+      let el = $id(`${field_config.id}${field_suffix}`)
 
       if (el) {
         el.innerHTML = (fn === "imperial")
@@ -84,10 +79,7 @@ const convert_units = show_value("_alt_units", "imperial")
 const showAndConvertUnits =
   field_config => {
     const trace_bnd = trace_boundary("showAndConvertUnits", field_config.id)
-    // const trace     = trace_info("showAndConvertUnits", field_config.id)
     trace_bnd(true)
-
-    // trace(`${JSON.stringify(field_config)}`)
 
     let displayValue = null
 

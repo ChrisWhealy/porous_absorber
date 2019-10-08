@@ -6,7 +6,7 @@
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
 
-import { tabConfig } from "./config.js"
+import { tabConfig } from "./tabConfig.js"
 
 import {
   setProperty
@@ -16,13 +16,8 @@ import {
 
 // *********************************************************************************************************************
 // Define trace functions
-import { do_trace_boundary, do_trace_info} from "./trace.js"
-
-const MOD_NAME     = "local_storage"
-const DEBUG_ACTIVE = false
-
-const trace_boundary = do_trace_boundary(DEBUG_ACTIVE)(MOD_NAME)
-const trace_info     = do_trace_info(DEBUG_ACTIVE)(MOD_NAME)
+import { define_trace } from "./appConfig.js"
+const { trace_boundary, trace_info } = define_trace("local_storage")
 
 // *********************************************************************************************************************
 // Check if local storage is available
