@@ -441,19 +441,21 @@ fn draw_axes(canvas: &web_sys::HtmlCanvasElement, display_cfg: &DisplayConfig) -
   // Draw X axis
   trace(&"Drawing X axis");
 
-  let mut freq_strs : Vec<String> = vec!();
-  display_cfg
+  let freq_strs : Vec<String> = display_cfg
     .frequencies
     .iter()
     .fold(
-      ()
-    , | _, f |
-        if f == &62.5 {
-          freq_strs.push(String::from("62.5"))
+      vec!()
+    , | mut acc, f | {
+        acc.push(if f == &62.5 {
+          String::from("62.5")
         }
         else {
-          freq_strs.push(String::from(format!("{}",f.round() as u32)))
-        }
+          String::from(format!("{}",f.round() as u32))
+        });
+
+        return acc;
+      }
     );
 
   let x_axis_end_point = PlotPoint { x : canvas.width() as f64 - LEFT_AXIS_INSET, y : canvas.height() as f64 - BOTTOM_AXIS_INSET };
@@ -711,7 +713,7 @@ fn draw_curved_path(
 
     // Are there only 2 points?
     if points.len() == 2 {
-      // Yup, so draw a line to the last point and we're done
+      // Yup, so draw a straight line to the last point and we're done
       ctx.line_to(points[1].x, points[1].y);
     }
     else {
