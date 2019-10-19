@@ -342,25 +342,9 @@ fn draw_title_and_key(
 
       if series_idx < series_list.len() {
         trace(&format!("row_idx = {}, col_idx = {}, series_idx = {}", row_idx, col_idx, series_idx));
+        trace(&format!("Drawing key symbol at {},{}", x + (KEY_SYMBOL_LENGTH / 2.0), y));
 
-        // Draw key symbol line
-        ctx.save();
-        ctx.set_stroke_style(&series_list[series_idx].plot_colour);
-        ctx.begin_path();
-        ctx.move_to(x, y);
-        ctx.line_to(x + KEY_SYMBOL_LENGTH, y);
-        ctx.stroke();
-        ctx.restore();
-
-        // Draw key symbol point
-        draw_point(
-          &ctx
-        , &(x + (KEY_SYMBOL_LENGTH / 2.0))
-        , &y
-        , &series_list[series_idx].plot_colour
-        );
-
-        trace(&format!("Drawing key point at {},{}", x + (KEY_SYMBOL_LENGTH / 2.0), y));
+        draw_key_symbol(&ctx, &PlotPoint {x: x, y: y}, &series_list[series_idx].plot_colour, &KEY_SYMBOL_LENGTH);
 
         // Draw key text
         ctx.fill_text(series_list[series_idx].name, x + 40.0, y + (key_font.font_size / 2.0) - 3.0).unwrap();
@@ -625,6 +609,15 @@ fn draw_control_points(ctx : &web_sys::CanvasRenderingContext2d, cps : &Vec<Plot
 
     draw_line(ctx, &cps[idx], &cps[idx + 1], &JsValue::from(RGB_LIGHT_PINK));
   }
+}
+
+
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Draw key symbol
+fn draw_key_symbol(ctx : &web_sys::CanvasRenderingContext2d, location : &PlotPoint, colour : &JsValue, symbol_length : &f64) {
+  draw_line(ctx, location, &PlotPoint {x: location.x + symbol_length, y: location.y}, colour);
+  draw_point(ctx, &(location.x + (symbol_length / 2.0)), &location.y, colour);
 }
 
 
