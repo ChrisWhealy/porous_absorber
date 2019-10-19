@@ -46,6 +46,7 @@ const BOTTOM_MARGIN_INSET : f64 = 17.5;
 
 const RGB_BLACK           : &str = &"rgba(0, 0, 0)";
 const RGB_PINK            : &str = &"rgb(234, 51, 247)";
+const RGB_LIGHT_PINK      : &str = &"rgb(246, 195, 203)";
 const RGB_DARK_BLUE       : &str = &"rgb(6, 1, 123)";
 const RGB_GREEN           : &str = &"rgb(20, 255, 20)";
 
@@ -363,7 +364,8 @@ fn draw_title_and_key(
         // Draw key symbol point
         draw_point(
           &ctx
-        , &PlotAbsPoint { x : x + (KEY_SYMBOL_LENGTH / 2.0), y : y, freq : 0.0, abs : 0.0 }
+        , &(x + (KEY_SYMBOL_LENGTH / 2.0))
+        , &y
         , &series_list[series_idx].plot_colour
         );
 
@@ -610,7 +612,7 @@ fn gen_control_points(pt1: &PlotAbsPoint, pt2: &PlotAbsPoint, pt3: &PlotAbsPoint
   let y_vec = pt3.y - pt1.y;
 
   let d01  = distance(pt1.x, pt1.y, pt2.x, pt2.y);
-  let d12  = distance(pt2.y, pt2.y, pt3.x, pt3.y);
+  let d12  = distance(pt2.x, pt2.y, pt3.x, pt3.y);
   let d012 = d01 + d12;
 
   // Return the coordinates of the two control points between the three current points
@@ -623,16 +625,45 @@ fn gen_control_points(pt1: &PlotAbsPoint, pt2: &PlotAbsPoint, pt3: &PlotAbsPoint
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Draw a control point
+fn draw_control_points(ctx : &web_sys::CanvasRenderingContext2d, cps : &Vec<PlotPoint>) {
+  for i in 0..(cps.len() / 2) {
+    let idx = 2 * i;
+    draw_point(ctx, &cps[idx].x,     &cps[idx].y,     &JsValue::from(RGB_LIGHT_PINK));
+    draw_point(ctx, &cps[idx + 1].x, &cps[idx + 1].y, &JsValue::from(RGB_LIGHT_PINK));
+
+    draw_line(ctx, &cps[idx], &cps[idx + 1], &JsValue::from(RGB_LIGHT_PINK));
+  }
+}
+
+
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Draw a straight line
+fn draw_line(ctx : &web_sys::CanvasRenderingContext2d, start : &PlotPoint, end : &PlotPoint, stroke_style: &JsValue) {
+  ctx.begin_path();
+  ctx.move_to(start.x, start.y);
+  ctx.line_to(end.x,   end.y);
+
+  ctx.save();
+  ctx.set_stroke_style(stroke_style);
+  ctx.stroke();
+  ctx.restore();
+}
+
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Draw a plot point
 fn draw_point(
   ctx        : &web_sys::CanvasRenderingContext2d
-, pt         : &PlotAbsPoint
+, x          : &f64
+, y          : &f64
 , fill_style : &JsValue
 ) {
   ctx.begin_path();
   ctx.save();
   ctx.set_fill_style(fill_style);
-  ctx.arc(pt.x, pt.y, PLOT_POINT_RADIUS, 0.0, TWO_PI).unwrap();
+  ctx.arc(*x, *y, PLOT_POINT_RADIUS, 0.0, TWO_PI).unwrap();
   ctx.fill();
   ctx.restore();
 }
@@ -650,6 +681,7 @@ fn draw_splines(
   const FN_NAME : &str = &"draw_splines";
 
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
+  let trace          = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
 
   trace_boundary(&Some(true));
 
@@ -664,12 +696,14 @@ fn draw_splines(
   let mut points : Vec<PlotAbsPoint> = vec!();
 
   for idx in 0..abs_points.len() {
-    points.push(PlotAbsPoint {
+    let plot_abs_point = PlotAbsPoint {
       x    : LEFT_AXIS_INSET + x_tick_interval * idx as f64
     , y    : y_pos(abs_points[idx].y)
     , freq : abs_points[idx].x
     , abs  : abs_points[idx].y
-    })
+    };
+    trace(&format!("PlotPoint(x: {}, y: {}, freq: {}, abs: {})", plot_abs_point.x, plot_abs_point.y, plot_abs_point.freq, plot_abs_point.abs));
+    points.push(plot_abs_point);
   }
 
   // Between each triplet of plot points, there will be two invisible control points
@@ -681,11 +715,26 @@ fn draw_splines(
     cps.append(&mut gen_control_points(&points[idx], &points[idx + 1], &points[idx + 2], tension));
   }
 
-  // Draw all the plot points
-  for idx in 0..points.len() {
-    draw_point(&ctx, &points[idx], &stroke_colour)
+  if TRACE_ACTIVE == &true {
+    trace(&format!("Control points"));
+    for cp in cps.iter() {
+      trace(&format!("({},{})", cp.x, cp.y));
+    }
   }
 
+  // Draw all the plot points
+  trace(&format!("Drawing points"));
+  for idx in 0..points.len() {
+    draw_point(&ctx, &points[idx].x, &points[idx].y, &stroke_colour)
+  }
+
+  // If tracing is switched on, also draw the control points
+  trace(&format!("Drawing control points"));
+  if TRACE_ACTIVE == &true {
+    draw_control_points(&ctx, &cps);
+  }
+
+  trace(&format!("Drawing curve"));
   draw_curved_path(&ctx, &cps, &points, &stroke_colour);
 
   trace_boundary(&Some(false));
