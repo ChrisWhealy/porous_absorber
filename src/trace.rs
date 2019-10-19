@@ -20,11 +20,14 @@ extern "C" {
 
 
 /***********************************************************************************************************************
- * Trace execution flow at function boundaries and provide tool for general logging
+ * Trace struct is simply a container for the required functionality
  */
 pub struct Trace {}
 
 impl Trace {
+  /***********************************************************************************************************************
+   * Trace execution flow at function boundaries
+   */
   pub fn make_boundary_trace_fn<'a>(is_active: &'a bool, lib_name: &'a str, fn_name: &'a str) ->
     impl Fn(&'a Option<bool>) {
       move |is_entry| {
@@ -42,6 +45,9 @@ impl Trace {
       }
     }
 
+  /***********************************************************************************************************************
+   * General data tracing
+   */
   pub fn make_trace_fn<'a>(is_active: &'a bool, lib_name: &'a str, fn_name: &'a str) ->
     impl Fn(&str) + 'a {
       move |info| {

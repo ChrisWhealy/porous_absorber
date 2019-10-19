@@ -4,7 +4,6 @@
 extern crate wasm_bindgen;
 extern crate web_sys;
 
-use wasm_bindgen::prelude::*;
 use wasm_bindgen::{JsValue, JsCast};
 use std::f64::consts::PI;
 use libm::{sqrt, pow};
@@ -64,14 +63,6 @@ const PLOT_POINT_RADIUS   : f64 = 5.0;
 const LIB_NAME     : &str  = &"render";
 const TRACE_ACTIVE : &bool = &false;
 
-// *********************************************************************************************************************
-// Interface to browser functionality
-// *********************************************************************************************************************
-#[wasm_bindgen]
-extern "C" {
-  #[wasm_bindgen(js_namespace = console)]
-  fn log(s: &str);
-}
 
 
 // *********************************************************************************************************************

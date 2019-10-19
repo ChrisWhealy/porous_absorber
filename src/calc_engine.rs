@@ -252,8 +252,9 @@ fn do_porous_abs_calc(
   // Frequently used intermediate values
   let minus_i: Complex<f64> = Complex::new(0.0, -1.0);
 
-  let sin_phi: f64 = sin(sound_cfg.angle as f64 * PI_OVER_180);
-  let cos_phi: f64 = cos(sound_cfg.angle as f64 * PI_OVER_180);
+  let angle_rad = sound_cfg.angle as f64 * PI_OVER_180;
+  let sin_phi: f64 = sin(angle_rad);
+  let cos_phi: f64 = cos(angle_rad);
 
   // Wave number in air
   let k_air = air_cfg.two_pi_over_c * frequency;
