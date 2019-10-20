@@ -76,15 +76,12 @@ pub fn plot_porous_absorber<'a>(
 , display_cfg   : &DisplayConfig
 , sound_cfg     : &SoundConfig
 ) -> ChartInfo<'a> {
-  const SERIES1 : &str = &"Air Gap";
-  const SERIES2 : &str = &"No Air Gap";
-
   let document  = web_sys::window().unwrap().document().unwrap();
   let canvas_el = document.get_element_by_id(CANVAS_NAME).unwrap();
   let canvas    = canvas_el.dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
 
-  let air_gap_series    = SeriesMetadata { name : SERIES1, plot_colour : JsValue::from(RGB_PINK) };
-  let no_air_gap_series = SeriesMetadata { name : SERIES2, plot_colour : JsValue::from(RGB_DARK_BLUE) };
+  let air_gap_series    = SeriesMetadata { name : &"Air Gap",    plot_colour : JsValue::from(RGB_PINK) };
+  let no_air_gap_series = SeriesMetadata { name : &"No Air Gap", plot_colour : JsValue::from(RGB_DARK_BLUE) };
 
   clear(&canvas);
 
@@ -100,11 +97,11 @@ pub fn plot_porous_absorber<'a>(
     chart_box   : draw_axes(&canvas, &display_cfg)
   , series_data : vec!(
       SeriesData {
-        name        : SERIES1
+        name        : air_gap_series.name
       , plot_points : draw_splines(&canvas, &absorber_info.air_gap, &air_gap_series.plot_colour, &display_cfg.smooth_curve)
       }
     , SeriesData {
-        name        : SERIES2
+        name        : no_air_gap_series.name
       , plot_points : draw_splines(&canvas, &absorber_info.no_air_gap, &no_air_gap_series.plot_colour, &display_cfg.smooth_curve)
       })
   };
@@ -116,17 +113,13 @@ pub fn plot_perforated_panel<'a>(
   absorber_info : &'a PerforatedAbsInfo
 , display_cfg   : &DisplayConfig
 ) -> ChartInfo<'a> {
-  const SERIES1 : &str = &"No Air Gap";
-  const SERIES2 : &str = &"Absorber Against Panel";
-  const SERIES3 : &str = &"Absorber Against Backing";
-
   let document  = web_sys::window().unwrap().document().unwrap();
   let canvas_el = document.get_element_by_id(CANVAS_NAME).unwrap();
   let canvas    = canvas_el.dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
 
-  let no_air_gap_series          = SeriesMetadata { name : SERIES1, plot_colour : JsValue::from(RGB_GREEN) }; 
-  let abs_against_panel_series   = SeriesMetadata { name : SERIES2, plot_colour : JsValue::from(RGB_DARK_BLUE) };
-  let abs_against_backing_series = SeriesMetadata { name : SERIES3, plot_colour : JsValue::from(RGB_PINK) };
+  let no_air_gap_series          = SeriesMetadata { name : &"No Air Gap",               plot_colour : JsValue::from(RGB_GREEN) }; 
+  let abs_against_panel_series   = SeriesMetadata { name : &"Absorber Against Panel",   plot_colour : JsValue::from(RGB_DARK_BLUE) };
+  let abs_against_backing_series = SeriesMetadata { name : &"Absorber Against Backing", plot_colour : JsValue::from(RGB_PINK) };
 
   clear(&canvas);
 
@@ -142,15 +135,15 @@ pub fn plot_perforated_panel<'a>(
     chart_box   : draw_axes(&canvas, &display_cfg)
   , series_data : vec!(
       SeriesData {
-        name        : SERIES1
+        name        : no_air_gap_series.name
       , plot_points : draw_splines(&canvas, &absorber_info.no_air_gap, &no_air_gap_series.plot_colour, &display_cfg.smooth_curve)
       }
     , SeriesData {
-        name        : SERIES2
+        name        : abs_against_panel_series.name
       , plot_points : draw_splines(&canvas, &absorber_info.abs_against_panel, &abs_against_panel_series.plot_colour, &display_cfg.smooth_curve)
       }
     , SeriesData {
-        name        : SERIES3
+        name        : abs_against_backing_series.name
       , plot_points : draw_splines(&canvas, &absorber_info.abs_against_backing, &abs_against_backing_series.plot_colour, &display_cfg.smooth_curve)
       })
   };
@@ -158,19 +151,17 @@ pub fn plot_perforated_panel<'a>(
 
 
 // *********************************************************************************************************************
-// Microerforated Panel Absorber
+// Microperforated Panel Absorber
 pub fn plot_microperforated_panel<'a>(
   absorber_info : &'a MicroperforatedAbsInfo
 , display_cfg   : &DisplayConfig
 , sound_cfg     : &SoundConfig
 ) -> ChartInfo<'a> {
-  const SERIES1 : &str = &"Microperforated Panel";
-
   let document  = web_sys::window().unwrap().document().unwrap();
   let canvas_el = document.get_element_by_id(CANVAS_NAME).unwrap();
   let canvas    = canvas_el.dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
 
-  let mp_panel_series = SeriesMetadata { name : SERIES1, plot_colour : JsValue::from(RGB_DARK_BLUE) }; 
+  let mp_panel_series = SeriesMetadata { name : &"Microperforated Panel", plot_colour : JsValue::from(RGB_DARK_BLUE) }; 
 
   clear(&canvas);
 
@@ -186,7 +177,7 @@ pub fn plot_microperforated_panel<'a>(
     chart_box   : draw_axes(&canvas, &display_cfg)
   , series_data : vec!(
       SeriesData {
-        name        : SERIES1
+        name        : mp_panel_series.name
       , plot_points : draw_splines(&canvas, &absorber_info.data, &mp_panel_series.plot_colour, &display_cfg.smooth_curve)
       })
   };
@@ -199,17 +190,13 @@ pub fn plot_slotted_panel<'a>(
   absorber_info : &'a SlottedAbsInfo
 , display_cfg   : &DisplayConfig
 ) -> ChartInfo<'a> {
-  const SERIES1 : &str = &"No Air Gap";
-  const SERIES2 : &str = &"Absorber Against Panel";
-  const SERIES3 : &str = &"Absorber Against Backing";
-
   let document  = web_sys::window().unwrap().document().unwrap();
   let canvas_el = document.get_element_by_id(CANVAS_NAME).unwrap();
   let canvas    = canvas_el.dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
 
-  let no_air_gap_series          = SeriesMetadata { name : SERIES1, plot_colour : JsValue::from(RGB_GREEN) }; 
-  let abs_against_panel_series   = SeriesMetadata { name : SERIES2, plot_colour : JsValue::from(RGB_DARK_BLUE) };
-  let abs_against_backing_series = SeriesMetadata { name : SERIES3, plot_colour : JsValue::from(RGB_PINK) };
+  let no_air_gap_series          = SeriesMetadata { name : &"No Air Gap",               plot_colour : JsValue::from(RGB_GREEN) }; 
+  let abs_against_panel_series   = SeriesMetadata { name : &"Absorber Against Panel",   plot_colour : JsValue::from(RGB_DARK_BLUE) };
+  let abs_against_backing_series = SeriesMetadata { name : &"Absorber Against Backing", plot_colour : JsValue::from(RGB_PINK) };
 
   clear(&canvas);
 
@@ -225,15 +212,15 @@ pub fn plot_slotted_panel<'a>(
     chart_box   : draw_axes(&canvas, &display_cfg)
   , series_data : vec!(
       SeriesData {
-        name        : SERIES1
+        name        : no_air_gap_series.name
       , plot_points : draw_splines(&canvas, &absorber_info.no_air_gap, &no_air_gap_series.plot_colour, &display_cfg.smooth_curve)
       }
     , SeriesData {
-        name        : SERIES2
+        name        : abs_against_panel_series.name
       , plot_points : draw_splines(&canvas, &absorber_info.abs_against_panel,   &abs_against_panel_series.plot_colour, &display_cfg.smooth_curve)
       }
     , SeriesData {
-        name        : SERIES3
+        name        : abs_against_backing_series.name
       , plot_points : draw_splines(&canvas, &absorber_info.abs_against_backing, &abs_against_backing_series.plot_colour, &display_cfg.smooth_curve)
       })
   };
