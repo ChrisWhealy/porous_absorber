@@ -86,7 +86,7 @@ pub fn calculate_porous_absorber<'a>(
         let (abs_no_air_gap, abs_air_gap) = do_porous_abs_calc(*frequency, &air, &cavity, &sound, &porous);
 
         // Build the vectors of plot points for each absorber type
-        // The order of plot_points entries in the abs_series array must match the order used in the render module by
+        // The order of plot_points entries in the abs_series vector must match the order used in the render module by
         // function plot_generic_device when calculating the series_data vector.  The correct vector of plot_points must
         // be passed to function render::draw_splines
         acc.abs_series[0].plot_points.push(PlotAbsPoint { x : 0.0, y : 0.0, freq: *frequency, abs: abs_air_gap});
@@ -145,7 +145,7 @@ pub fn calculate_perforated_panel<'a>(
         ) = do_perforated_panel_calc(*frequency, &air, &cavity, &panel, &porous, end_corrected_panel_thickness);
 
         // Build the vectors of plot points for each absorber type
-        // The order of plot_points entries in the abs_series array must match the order used in the render module by
+        // The order of plot_points entries in the abs_series vector must match the order used in the render module by
         // function plot_generic_device when calculating the series_data vector.  The correct vector of plot_points must
         // be passed to function render::draw_splines
         acc.abs_series[0].plot_points.push(PlotAbsPoint { x: 0.0, y : 0.0, freq : *frequency, abs : abs_no_air_gap});
@@ -190,8 +190,9 @@ pub fn calculate_slotted_panel<'a>(
   let resistance_at_panel   = resistance_at_backing * panel.porosity;
   let mass_term_for_air     = end_corrected_panel_thickness * air.density / panel.porosity;
 
-  trace(&format!("End correction delta          = {}", &end_correction_delta));
-  trace(&format!("End corrected panel thickness = {}", &end_corrected_panel_thickness));
+  trace(&format!("Resistance at backing = {}", &resistance_at_backing));
+  trace(&format!("Resistance at panel   = {}", &resistance_at_panel));
+  trace(&format!("Mass term for air     = {}", &mass_term_for_air));
 
   let abs_info = display
     .frequencies
@@ -222,7 +223,7 @@ pub fn calculate_slotted_panel<'a>(
             );
 
         // Build the vectors of plot points for each absorber type
-        // The order of plot_points entries in the abs_series array must match the order used in the render module by
+        // The order of plot_points entries in the abs_series vector must match the order used in the render module by
         // function plot_generic_device when calculating the series_data vector.  The correct vector of plot_points must
         // be passed to function render::draw_splines
         acc.abs_series[0].plot_points.push(PlotAbsPoint { x: 0.0, y : 0.0, freq : *frequency, abs : abs_no_air_gap});
@@ -303,31 +304,22 @@ fn do_porous_abs_calc(
   let cos_phi: f64 = cos(angle_rad);
 
   // Wave number in air
-  let k_air = air_cfg.two_pi_over_c * frequency;
+  let k_air = wave_no_in_air(air_cfg, &frequency);
 
-  // Delaney and Bazley's term X
-  let d_and_b_term_x = (air_cfg.density * frequency) / porous_cfg.sigma as f64;
-
-  // Characteristic absorber impedance
-  let z_abs = air_cfg.impedance * Complex::new(1.0 + 0.0571 * pow(d_and_b_term_x, -0.754), -0.087 * pow(d_and_b_term_x, -0.732));
-
-  // Complex wave number within the porous absorber layer with its Y and X component values
-  let wave_no_abs = air_cfg.two_pi_over_c
-     * frequency
-     * Complex::new(1.0 + 0.0978 * pow(d_and_b_term_x, -0.7), -0.189 * pow(d_and_b_term_x, -0.595));
-        
-  let wave_no_abs_y_comp = k_air * sin_phi;
-  let wave_no_abs_x_comp = ((wave_no_abs * wave_no_abs) - (wave_no_abs_y_comp * wave_no_abs_y_comp)).sqrt();
+  // Characteristic absorber impedance and wave number
+  let (z_abs, wave_no_abs) = absorber_props(air_cfg, porous_cfg, &frequency);
+  let wave_no_abs_y        = k_air * sin_phi;
+  let wave_no_abs_x        = ((wave_no_abs * wave_no_abs) - (wave_no_abs_y * wave_no_abs_y)).sqrt();
 
   // Angle of propagation within porous layer
-  let beta_porous = sin(cmplx_abs(wave_no_abs_y_comp / wave_no_abs)) * ONE_80_OVER_PI;
+  let beta_porous = sin(cmplx_abs(wave_no_abs_y / wave_no_abs)) * ONE_80_OVER_PI;
 
   // Intermediate term for porous impedance calculation
   let porous_wave_no     = wave_no_abs * porous_cfg.thickness;
   let cot_porous_wave_no = porous_wave_no.cos() / porous_wave_no.sin();
 
   // Impedance at absorber surface
-  let z_abs_surface = minus_i * z_abs * (wave_no_abs / wave_no_abs_x_comp) * cot_porous_wave_no;
+  let z_abs_surface = minus_i * z_abs * (wave_no_abs / wave_no_abs_x) * cot_porous_wave_no;
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // Calculate absorption coefficient for porous absorber with no air gap
@@ -339,12 +331,12 @@ fn do_porous_abs_calc(
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   // X and Y components of the wave number in the air gap
-  let wave_no_air_y_comp = wave_no_abs * sin(beta_porous * PI_OVER_180);
-  let wave_no_air_x_comp = ((k_air * k_air) - (wave_no_air_y_comp * wave_no_air_y_comp)).sqrt();
+  let wave_no_air_y = wave_no_abs * sin(beta_porous * PI_OVER_180);
+  let wave_no_air_x = ((k_air * k_air) - (wave_no_air_y * wave_no_air_y)).sqrt();
 
   // Impedance at top of air gap (after passing through porous absorber)
   let temp_imp = k_air * cavity_cfg.air_gap;
-  let air_gap_z = minus_i * air_cfg.impedance * (k_air / wave_no_air_x_comp) * (cos(temp_imp) / sin(temp_imp));
+  let air_gap_z = minus_i * air_cfg.impedance * (k_air / wave_no_air_x) * (cos(temp_imp) / sin(temp_imp));
 
   // Impedance at top of porous absorber after passing through air gap
   let intermediate3 = minus_i * z_abs * cot_porous_wave_no;
@@ -379,25 +371,16 @@ fn do_perforated_panel_calc(
   let i      : Complex<f64> = Complex::new(0.0, 1.0);
   let minus_i: Complex<f64> = Complex::new(0.0, -1.0);
 
-  // Angular frequency and wave number in air
-  let omega = 2.0 * PI * frequency;
-  let k_air = air_cfg.two_pi_over_c * frequency;
-
+  // Wave number in air and angular frequency
+  let k_air = wave_no_in_air(air_cfg, &frequency);
+  let omega = f_ang(frequency);
+  trace(&format!("Wave number       = {}", k_air));
   trace(&format!("Angular frequency = {}", omega));
-  trace(&format!("Wave number = {}", k_air));
 
-  // Delaney and Bazley's term X
-  let d_and_b_term_x = (air_cfg.density * frequency) / porous_cfg.sigma as f64;
-  trace(&format!("Delaney and Bazley's term X = {}", d_and_b_term_x));
-
-  // Characteristic absorber impedance
-  let z_abs = air_cfg.impedance * Complex::new(1.0 + 0.0571 * pow(d_and_b_term_x, -0.754), -0.087 * pow(d_and_b_term_x, -0.732));
+  // Characteristic absorber impedance and wave number
+  let (z_abs, wave_no_abs) = absorber_props(air_cfg, porous_cfg, &frequency);
   trace(&format!("Characteristic impedance = {}", z_abs));
-
-  // Complex wave number within the porous absorber layer
-  let wave_no_abs = k_air * Complex::new(1.0 + 0.0978 * pow(d_and_b_term_x, -0.7), -0.189 * pow(d_and_b_term_x, -0.595));
-
-  trace(&format!("Complex wave number = {}", wave_no_abs));
+  trace(&format!("Complex wave number      = {}", wave_no_abs));
 
   // Intermediate terms
   let inter1     = k_air * cavity_cfg.air_gap;
@@ -507,25 +490,16 @@ fn do_slotted_panel_calc(
   let i      : Complex<f64> = Complex::new(0.0, 1.0);
   let minus_i: Complex<f64> = Complex::new(0.0, -1.0);
 
-  // Angular frequency and wave number in air
-  let omega = 2.0 * PI * frequency;
-  let k_air = air_cfg.two_pi_over_c * frequency;
-
+  // Wave number in air and angular frequency
+  let k_air = wave_no_in_air(air_cfg, &frequency);
+  let omega = f_ang(frequency);
+  trace(&format!("Wave number       = {}", k_air));
   trace(&format!("Angular frequency = {}", omega));
-  trace(&format!("Wave number = {}", k_air));
 
-  // Delaney and Bazley's term X
-  let d_and_b_term_x = (air_cfg.density * frequency) / porous_cfg.sigma as f64;
-  trace(&format!("Delaney and Bazley's term X = {}", d_and_b_term_x));
-
-  // Characteristic absorber impedance
-  let z_abs = air_cfg.impedance * Complex::new(1.0 + 0.0571 * pow(d_and_b_term_x, -0.754), -0.087 * pow(d_and_b_term_x, -0.732));
+  // Characteristic absorber impedance and wave number
+  let (z_abs, wave_no_abs) = absorber_props(air_cfg, porous_cfg, &frequency);
   trace(&format!("Characteristic impedance = {}", z_abs));
-
-  // Complex wave number within the porous absorber layer
-  let wave_no_abs = k_air * Complex::new(1.0 + 0.0978 * pow(d_and_b_term_x, -0.7), -0.189 * pow(d_and_b_term_x, -0.595));
-
-  trace(&format!("Complex wave number = {}", wave_no_abs));
+  trace(&format!("Complex wave number      = {}", wave_no_abs));
 
   // Intermediate terms
   let inter1     = k_air * ec_panel_thickness;
@@ -625,12 +599,11 @@ fn do_microperforated_panel_calc(
   let minus_i      : Complex<f64> = Complex::new(0.0, -1.0);
   let sqrt_minus_i : Complex<f64> = minus_i.sqrt();
 
-  // Angular frequency and wave number in air
-  let omega = 2.0 * PI * frequency;
-  let k_air = air_cfg.two_pi_over_c * frequency;
-
+  // Wave number in air and angular frequency
+  let k_air = wave_no_in_air(air_cfg, &frequency);
+  let omega = f_ang(frequency);
+  trace(&format!("Wave number       = {}", k_air));
   trace(&format!("Angular frequency = {}", omega));
-  trace(&format!("Wave number = {}", k_air));
 
   // Intermediate values for equation 6.36
   // k' from eq 6.37
@@ -697,6 +670,40 @@ fn cmplx_abs(cplx: Complex<f64>) -> f64 {
 fn difference_over_sum(a: Complex<f64>, b: f64) -> Complex<f64> {
   (a - b ) / (a + b)
 }
+
+// *********************************************************************************************************************
+// Calculate characteristic absorber impedance and wave number
+// *********************************************************************************************************************
+fn absorber_props(air_cfg : &AirConfig, porous_cfg : &PorousAbsorberConfig, frequency : &f64) ->
+  (Complex<f64>, Complex<f64>)
+{
+  let d_and_b_term_x = db_x(&air_cfg.density, frequency, &porous_cfg.sigma);
+
+  // Complex impedance
+  let z_abs = air_cfg.impedance *
+              Complex::new(1.0 + 0.0571 * pow(d_and_b_term_x, -0.754), -0.087 * pow(d_and_b_term_x, -0.732));
+
+  // Complex wave number
+  let k_abs = wave_no_in_air(air_cfg, frequency) *
+              Complex::new(1.0 + 0.0978 * pow(d_and_b_term_x, -0.7), -0.189 * pow(d_and_b_term_x, -0.595));
+
+  return (z_abs, k_abs);
+}
+
+// *********************************************************************************************************************
+// Calculate wave number in air
+// *********************************************************************************************************************
+fn wave_no_in_air(air_cfg : &AirConfig, frequency: &f64) -> f64 { air_cfg.two_pi_over_c * frequency }
+
+// *********************************************************************************************************************
+// Calculate angular frequency
+// *********************************************************************************************************************
+fn f_ang(frequency: f64) -> f64 { 2.0 * PI * frequency }
+
+// *********************************************************************************************************************
+// Calculate Delaney & Bazley's term X
+// *********************************************************************************************************************
+fn db_x(density: &f64, frequency: &f64, sigma: &u32) -> f64 { (density * frequency) / *sigma as f64 }
 
 // *********************************************************************************************************************
 // Convert reflectivity to absoprtion and round to two decimal places
