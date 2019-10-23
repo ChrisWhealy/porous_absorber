@@ -11,6 +11,7 @@ import {
 , isArray
 , isNotNullOrUndef
 , invertPlotData
+, idiot
 } from "./utils.js"
 
 import { $id, $class }         from "./dom_access.js"

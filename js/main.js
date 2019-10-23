@@ -16,7 +16,11 @@ import {
 , GRAPH_OVERLAY
 } from "./canvas.js"
 
-// JavaScript wrappers for WASM functions
+// *********************************************************************************************************************
+// JavaScript wrapper functions for the underlying WASM functions
+//
+// Other than the default function name "init", the other function names must match the names of the Rust functions
+// exposed using the #[wasm_bindgen] directive in lib.rs
 import init
 , { rb_porous_absorber
   , slotted_panel
