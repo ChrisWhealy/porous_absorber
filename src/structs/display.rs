@@ -10,7 +10,6 @@ use std::error::Error;
 use std::fmt;
 use libm::{pow, log2, fabs};
 use serde::Serialize;
-use wasm_bindgen::JsValue;
 
 /***********************************************************************************************************************
  * Graph start frequency and octave subdivision range check values
@@ -144,9 +143,9 @@ pub struct PlotPoint {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Plot point to link a canvas location with a {Freqency, Absorption} pair
+// Plot Absorption Point links a {Freqency, Absorption} pair with a canvas (x,y) location
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct PlotAbsPoint {
   pub x    : f64
 , pub y    : f64
@@ -166,7 +165,7 @@ pub struct SeriesData<'a> {
 #[derive(Debug)]
 pub struct SeriesMetadata<'a> {
   pub name        : &'a str
-, pub plot_colour : JsValue
+, pub plot_colour : &'a str
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -176,7 +175,7 @@ pub struct SeriesMetadata<'a> {
 pub struct FontMetadata<'a> {
   pub typeface     : &'a str
 , pub font_size    : f64
-, pub stroke_style : &'a JsValue
+, pub stroke_style : &'a str
 }
 
 impl<'a> FontMetadata<'a> {
@@ -186,7 +185,7 @@ impl<'a> FontMetadata<'a> {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Axis dimensions
+// Axis orientation
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #[derive(Debug)]
 pub enum AxisOrientation {
@@ -194,6 +193,9 @@ pub enum AxisOrientation {
 , Vertical
 }
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Axis properties
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #[derive(Debug)]
 pub struct Axis<'a> {
   pub title          : &'static str
@@ -220,7 +222,7 @@ impl<'a> Axis<'a> {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Bounding box for the chart
+// Bounding box for the chart.  This defines the bounding box within which the cross-hairs appear
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #[derive(Debug, Serialize)]
 pub struct ChartBox {

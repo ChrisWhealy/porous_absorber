@@ -5,31 +5,29 @@
 // *********************************************************************************************************************
 extern crate wasm_bindgen;
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Usage
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 use libm::{fabs, sin, cos, sqrt, pow, log};
 use num::complex::Complex;
 use std::f64::consts::PI;
 
-use crate::trace::Trace;
-
 use crate::structs::air::AirConfig;
 use crate::structs::cavity::CavityConfig;
 use crate::structs::sound::SoundConfig;
-use crate::structs::display::{DisplayConfig, PlotPoint};
-use crate::structs::porous_absorber::{PorousAbsorberConfig, PorousAbsInfo};
-use crate::structs::perforated_panel::{PerforatedPanelConfig, PerforatedAbsInfo};
-use crate::structs::microperforated_panel::{MicroperforatedPanelConfig, MicroperforatedAbsInfo};
-use crate::structs::slotted_panel::{SlottedPanelConfig, SlottedAbsInfo};
+use crate::structs::display::{DisplayConfig, PlotAbsPoint, SeriesData};
 
+use crate::structs::porous_absorber::PorousAbsorberConfig;
+use crate::structs::perforated_panel::PerforatedPanelConfig;
+use crate::structs::microperforated_panel::MicroperforatedPanelConfig;
+use crate::structs::slotted_panel::SlottedPanelConfig;
+
+use crate::structs::generic_device_info::{DeviceType, GenericDeviceInfo};
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Trace functionality
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+use crate::trace::Trace;
+
 const LIB_NAME     : &str  = &"calc_engine";
 const TRACE_ACTIVE : &bool = &false;
-
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Constants
@@ -41,19 +39,32 @@ const AIR_VISCOSITY  : f64 = 0.0000185;
 const BESSEL_TOLERANCE : f64 = 0.000000001;
 const BESSEL_PRECISION : f64 = 0.000000000001;
 
-// *********************************************************************************************************************
-// Public API
-// *********************************************************************************************************************
+const STR_AIR_GAP             : &str = &"Air Gap";
+const STR_NO_AIR_GAP          : &str = &"No Air Gap";
+const STR_ABS_AGAINST_PANEL   : &str = &"Absorber Against Panel";
+const STR_ABS_AGAINST_BACKING : &str = &"Absorber Against Backing";
+const STR_MP_PANEL            : &str = &"Microperforated Panel";
+
 
 // *********************************************************************************************************************
-// Porous Absorber
-pub fn calculate_porous_absorber(
-  air    : &AirConfig
-, cavity : &CavityConfig
-, display: &DisplayConfig
-, sound  : &SoundConfig
-, porous : &PorousAbsorberConfig
-) -> PorousAbsInfo {
+// *********************************************************************************************************************
+//
+//                                                  P U B L I C   A P I
+//
+// *********************************************************************************************************************
+// *********************************************************************************************************************
+
+
+// *********************************************************************************************************************
+// Rigid Backed Porous Absorber
+// *********************************************************************************************************************
+pub fn calculate_porous_absorber<'a>(
+  air    : &'a AirConfig
+, cavity : &'a CavityConfig
+, display: &'a DisplayConfig
+, sound  : &'a SoundConfig
+, porous : &'a PorousAbsorberConfig
+) -> GenericDeviceInfo<'a> {
   const FN_NAME : &str = &"calculate_porous_absorber";
 
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
@@ -64,13 +75,22 @@ pub fn calculate_porous_absorber(
     .frequencies
     .iter()
     .fold(
-      PorousAbsInfo { air_gap: vec!(), no_air_gap : vec!() }
+      GenericDeviceInfo {
+        device_type : DeviceType::RigidBackedPorousAbsorber
+      , abs_series  : vec!(
+          SeriesData { name : STR_AIR_GAP,    plot_points : vec!() }
+        , SeriesData { name : STR_NO_AIR_GAP, plot_points : vec!() }
+        )
+      }
     , | mut acc, frequency | {
         let (abs_no_air_gap, abs_air_gap) = do_porous_abs_calc(*frequency, &air, &cavity, &sound, &porous);
 
         // Build the vectors of plot points for each absorber type
-        acc.no_air_gap.push(PlotPoint { x: *frequency, y: abs_no_air_gap});
-        acc.air_gap.push(PlotPoint { x: *frequency, y: abs_air_gap});
+        // The order of plot_points entries in the abs_series array must match the order used in the render module by
+        // function plot_generic_device when calculating the series_data vector.  The correct vector of plot_points must
+        // be passed to function render::draw_splines
+        acc.abs_series[0].plot_points.push(PlotAbsPoint { x : 0.0, y : 0.0, freq: *frequency, abs: abs_air_gap});
+        acc.abs_series[1].plot_points.push(PlotAbsPoint { x : 0.0, y : 0.0, freq: *frequency, abs: abs_no_air_gap});
 
         return acc;
       }
@@ -83,13 +103,14 @@ pub fn calculate_porous_absorber(
 
 // *********************************************************************************************************************
 // Perforated Panel
-pub fn calculate_perforated_panel(
-  air    : &AirConfig
-, cavity : &CavityConfig
-, display: &DisplayConfig
-, panel  : &PerforatedPanelConfig
-, porous : &PorousAbsorberConfig
-) -> PerforatedAbsInfo {
+// *********************************************************************************************************************
+pub fn calculate_perforated_panel<'a>(
+  air    : &'a AirConfig
+, cavity : &'a CavityConfig
+, display: &'a DisplayConfig
+, panel  : &'a PerforatedPanelConfig
+, porous : &'a PorousAbsorberConfig
+) -> GenericDeviceInfo<'a> {
   const FN_NAME : &str = &"calculate_perforated_panel";
 
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
@@ -108,7 +129,14 @@ pub fn calculate_perforated_panel(
     .frequencies
     .iter()
     .fold(
-      PerforatedAbsInfo { abs_against_panel: vec!(), abs_against_backing : vec!(), no_air_gap: vec!() }
+      GenericDeviceInfo {
+        device_type : DeviceType::PerforatedPanelAbsorber
+      , abs_series  : vec!(
+          SeriesData { name : STR_NO_AIR_GAP,          plot_points : vec!() }
+        , SeriesData { name : STR_ABS_AGAINST_PANEL,   plot_points : vec!() }
+        , SeriesData { name : STR_ABS_AGAINST_BACKING, plot_points : vec!() }
+        )
+      }
     , | mut acc, frequency | {
         let (
           abs_no_air_gap
@@ -117,9 +145,12 @@ pub fn calculate_perforated_panel(
         ) = do_perforated_panel_calc(*frequency, &air, &cavity, &panel, &porous, end_corrected_panel_thickness);
 
         // Build the vectors of plot points for each absorber type
-        acc.abs_against_backing.push(PlotPoint { x: *frequency, y: abs_against_backing});
-          acc.abs_against_panel.push(PlotPoint { x: *frequency, y: abs_against_panel});
-                 acc.no_air_gap.push(PlotPoint { x: *frequency, y: abs_no_air_gap});
+        // The order of plot_points entries in the abs_series array must match the order used in the render module by
+        // function plot_generic_device when calculating the series_data vector.  The correct vector of plot_points must
+        // be passed to function render::draw_splines
+        acc.abs_series[0].plot_points.push(PlotAbsPoint { x: 0.0, y : 0.0, freq : *frequency, abs : abs_no_air_gap});
+        acc.abs_series[1].plot_points.push(PlotAbsPoint { x: 0.0, y : 0.0, freq : *frequency, abs : abs_against_panel});
+        acc.abs_series[2].plot_points.push(PlotAbsPoint { x: 0.0, y : 0.0, freq : *frequency, abs : abs_against_backing});
 
         return acc;
       }
@@ -130,16 +161,16 @@ pub fn calculate_perforated_panel(
 }
 
 
-
 // *********************************************************************************************************************
 // Slotted Panel
-pub fn calculate_slotted_panel(
-  air    : &AirConfig
-, cavity : &CavityConfig
-, display: &DisplayConfig
-, panel  : &SlottedPanelConfig
-, porous : &PorousAbsorberConfig
-) -> SlottedAbsInfo {
+// *********************************************************************************************************************
+pub fn calculate_slotted_panel<'a>(
+  air    : &'a AirConfig
+, cavity : &'a CavityConfig
+, display: &'a DisplayConfig
+, panel  : &'a SlottedPanelConfig
+, porous : &'a PorousAbsorberConfig
+) -> GenericDeviceInfo<'a> {
   const FN_NAME : &str = &"calculate_slotted_panel";
 
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
@@ -166,7 +197,14 @@ pub fn calculate_slotted_panel(
     .frequencies
     .iter()
     .fold(
-      SlottedAbsInfo { abs_against_panel: vec!(), abs_against_backing : vec!(), no_air_gap: vec!() }
+      GenericDeviceInfo {
+        device_type : DeviceType::SlottedPanelAbsorber
+      , abs_series  : vec!(
+          SeriesData { name : STR_NO_AIR_GAP,          plot_points : vec!() }
+        , SeriesData { name : STR_ABS_AGAINST_PANEL,   plot_points : vec!() }
+        , SeriesData { name : STR_ABS_AGAINST_BACKING, plot_points : vec!() }
+        )
+      }
     , | mut acc, frequency | {
         let (
           abs_no_air_gap
@@ -184,9 +222,12 @@ pub fn calculate_slotted_panel(
             );
 
         // Build the vectors of plot points for each absorber type
-        acc.abs_against_backing.push(PlotPoint { x: *frequency, y: abs_against_backing});
-          acc.abs_against_panel.push(PlotPoint { x: *frequency, y: abs_against_panel});
-                 acc.no_air_gap.push(PlotPoint { x: *frequency, y: abs_no_air_gap});
+        // The order of plot_points entries in the abs_series array must match the order used in the render module by
+        // function plot_generic_device when calculating the series_data vector.  The correct vector of plot_points must
+        // be passed to function render::draw_splines
+        acc.abs_series[0].plot_points.push(PlotAbsPoint { x: 0.0, y : 0.0, freq : *frequency, abs : abs_no_air_gap});
+        acc.abs_series[1].plot_points.push(PlotAbsPoint { x: 0.0, y : 0.0, freq : *frequency, abs : abs_against_panel});
+        acc.abs_series[2].plot_points.push(PlotAbsPoint { x: 0.0, y : 0.0, freq : *frequency, abs : abs_against_backing});
 
         return acc;
       }
@@ -197,16 +238,16 @@ pub fn calculate_slotted_panel(
 }
 
 
-
 // *********************************************************************************************************************
 // Microperforated Panel
-pub fn calculate_microperforated_panel(
-  air    : &AirConfig
-, cavity : &CavityConfig
-, display: &DisplayConfig
-, panel  : &MicroperforatedPanelConfig
-, sound  : &SoundConfig
-) -> MicroperforatedAbsInfo {
+// *********************************************************************************************************************
+pub fn calculate_microperforated_panel<'a>(
+  air    : &'a AirConfig
+, cavity : &'a CavityConfig
+, display: &'a DisplayConfig
+, panel  : &'a MicroperforatedPanelConfig
+, sound  : &'a SoundConfig
+) -> GenericDeviceInfo<'a> {
   const FN_NAME : &str = &"calculate_microperforated_panel";
 
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
@@ -219,12 +260,13 @@ pub fn calculate_microperforated_panel(
     .frequencies
     .iter()
     .fold(
-      MicroperforatedAbsInfo { data: vec!() }
+      GenericDeviceInfo {
+        device_type : DeviceType::MicroperforatedPanelAbsorber
+      , abs_series  : vec!(SeriesData { name : STR_MP_PANEL, plot_points : vec!() })
+      }
     , | mut acc, frequency | {
         let abs_data = do_microperforated_panel_calc(*frequency, &air, &cavity, &panel, cos_angle);
-
-        // Build the vectors of plot points for each absorber type
-        acc.data.push(PlotPoint { x: *frequency, y: abs_data});
+        acc.abs_series[0].plot_points.push(PlotAbsPoint { x: 0.0, y : 0.0, freq : *frequency, abs: abs_data});
 
         return acc;
       }
@@ -235,13 +277,17 @@ pub fn calculate_microperforated_panel(
 }
 
 
+// *********************************************************************************************************************
+// *********************************************************************************************************************
+//
+//                                                 P R I V A T E   A P I
+//
+// *********************************************************************************************************************
+// *********************************************************************************************************************
 
 // *********************************************************************************************************************
-// Private API
-// *********************************************************************************************************************
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Reducer function to calculate the absorption of a porous absorber at a specific frequency
+// *********************************************************************************************************************
 fn do_porous_abs_calc(
   frequency  : f64
 , air_cfg    : &AirConfig
@@ -311,8 +357,9 @@ fn do_porous_abs_calc(
   return (abs_alpha, abs_air_alpha);
 }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Reducer function to calculate the absorption of a perforated panel absorber
+// *********************************************************************************************************************
+// Reducer function to calculate the absorption of a perforated panel absorber at a specific frequency
+// *********************************************************************************************************************
 fn do_perforated_panel_calc(
   frequency          : f64
 , air_cfg            : &AirConfig
@@ -436,8 +483,9 @@ fn do_perforated_panel_calc(
 
 
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Reducer function to calculate the absorption of a slotted panel absorber
+// *********************************************************************************************************************
+// Reducer function to calculate the absorption of a slotted panel absorber at a specific frequency
+// *********************************************************************************************************************
 fn do_slotted_panel_calc(
   frequency             : f64
 , air_cfg               : &AirConfig
@@ -555,8 +603,9 @@ fn do_slotted_panel_calc(
 
 
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Reducer function to calculate the absorption of a microperforated panel absorber
+// *********************************************************************************************************************
+// Reducer function to calculate the absorption of a microperforated panel absorber at a specific frequency
+// *********************************************************************************************************************
 fn do_microperforated_panel_calc(
   frequency  : f64
 , air_cfg    : &AirConfig
@@ -637,12 +686,14 @@ fn do_microperforated_panel_calc(
 // *********************************************************************************************************************
 // The num::complex::Complex module does not contain a function for returning the absolute value of a complex number
 // However, this can be calculated by taking the square root of the normal square
+// *********************************************************************************************************************
 fn cmplx_abs(cplx: Complex<f64>) -> f64 {
   sqrt(cplx.norm_sqr())
 }
 
 // *********************************************************************************************************************
-// General purpose differnce over sum calculation
+// General purpose difference over sum calculation
+// *********************************************************************************************************************
 fn difference_over_sum(a: Complex<f64>, b: f64) -> Complex<f64> {
   (a - b ) / (a + b)
 }
@@ -650,6 +701,7 @@ fn difference_over_sum(a: Complex<f64>, b: f64) -> Complex<f64> {
 // *********************************************************************************************************************
 // Convert reflectivity to absoprtion and round to two decimal places
 // If the value is less than zero, then return 0.0
+// *********************************************************************************************************************
 fn reflectivity_as_alpha(refl: Complex<f64>) -> f64 {
    let alpha = 1.0 - pow(cmplx_abs(refl), 2.0);
 
@@ -664,7 +716,7 @@ fn reflectivity_as_alpha(refl: Complex<f64>) -> f64 {
 
 
 // *********************************************************************************************************************
-// Compute Bessel function of first kind of integer order>=0 and complex argument z.
+// Compute Bessel function of the first kind of integer order>=0 and complex argument z.
 // 
 // Ref: "Handbook of Mathematical Functions with Formulas, Graphs, and Mathematical Tables"
 //      M. Abramowitz and I.A. Stegun
@@ -675,9 +727,9 @@ fn reflectivity_as_alpha(refl: Complex<f64>) -> f64 {
 // 
 // This routine is verified using tables in the above two references.
 // 
-// This implementation was translated first into VBA, then into Rust by Chris Whealy from an original Fortran
-// implementation by Gordon C. Everstine, Gaithersburg, MD
-// 
+// This implementation was translated into Rust by Chris Whealy from an original Fortran implementation by
+// Gordon C. Everstine, Gaithersburg, MD
+// *********************************************************************************************************************
 fn zbessel(order: u32, z: Complex<f64>) -> Complex<f64> {
   // Only the non-zero parts of the complex number are output
   let mut result;

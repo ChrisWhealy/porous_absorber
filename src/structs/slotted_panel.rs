@@ -10,9 +10,6 @@ extern crate num_format;
 
 use std::error::Error;
 use std::fmt;
-use serde::Serialize;
-
-use crate::structs::display::PlotPoint;
 
 /***********************************************************************************************************************
  * Range check values
@@ -116,13 +113,3 @@ impl SlottedPanelConfig {
   }
 }
 
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Absorption data for a Slotted Panel Absorber
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#[derive(Debug, Serialize)]
-pub struct SlottedAbsInfo {
-  pub abs_against_panel   : Vec<PlotPoint>
-, pub abs_against_backing : Vec<PlotPoint>
-, pub no_air_gap          : Vec<PlotPoint>
-}

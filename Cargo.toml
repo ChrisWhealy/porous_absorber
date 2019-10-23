@@ -1,9 +1,9 @@
 [package]
 name = "porous_absorber_calculator"
-version = "0.4.1"
+version = "0.5.0"
 authors = ["Chris Whealy <chris@whealy.com>"]
 edition = "2018"
-description = "Calculates the acoustic absorption curve of various porous absorber systems"
+description = "Calculates the acoustic absorption curve of various porous absorber devices"
 
 [lib]
 crate-type = ["cdylib"]

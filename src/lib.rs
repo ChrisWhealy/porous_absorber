@@ -21,7 +21,6 @@ use wasm_bindgen::JsValue;
 
 use std::error::Error;
 
-use trace::Trace;
 
 use structs::air::{AirConfig, AirError};
 use structs::cavity::{CavityConfig, CavityError};
@@ -44,32 +43,40 @@ use calc_engine::{
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Trace functionality
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+use trace::Trace;
+
 const LIB_NAME     : &str  = &"lib";
 const TRACE_ACTIVE : &bool = &false;
 
 
 // *********************************************************************************************************************
-// Public API
+// *********************************************************************************************************************
+//
+//                                                  P U B L I C   A P I
+//
+// *********************************************************************************************************************
 // *********************************************************************************************************************
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// *********************************************************************************************************************
 // Default entry point
-// No specific functionality needs to attached to the default entry point.
-// This entry point will be called automatically when the WASM module is first invoked and must be present
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+// This entry point must be present since it will be called automatically when the WASM module is first initialised
+// No specific functionality is needed here
+// *********************************************************************************************************************
 #[wasm_bindgen(start)]
 pub fn main() -> Result<(), JsValue> {
   Ok(())
 }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Main entry points
-// The names of the public functions listed below must match the tab names listed in the tabConfig JavaScript object
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// *********************************************************************************************************************
+// Main entry points
+//
+// The names of the public functions exposed by the #[wasm_bindgen] directive must exactly match the tab names listed in
+// the tabConfig JavaScript object
+//
 // Rigid backed porous absorber
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// *********************************************************************************************************************
 #[wasm_bindgen]
 pub fn rb_porous_absorber(
   absorber_thickness_mm : u32
@@ -134,7 +141,7 @@ pub fn rb_porous_absorber(
     let absorber_info = calculate_porous_absorber(&air_cfg, &cavity_cfg, &display_cfg, &sound_cfg, &porous_cfg);
     
     // Plot the graph
-    let chart_info = render::plot_porous_absorber(&absorber_info, &display_cfg, &sound_cfg);
+    let chart_info = render::plot_generic_device(absorber_info, &display_cfg, &format!("Overall absorption at {}°", sound_cfg.angle));
 
     JsValue::from_serde(&chart_info).unwrap()
   }
@@ -149,9 +156,10 @@ pub fn rb_porous_absorber(
   return_value
 }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+// *********************************************************************************************************************
 // Perforated panel
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// *********************************************************************************************************************
 #[wasm_bindgen]
 pub fn perforated_panel(
   panel_thickness_mm    : f64
@@ -223,7 +231,7 @@ pub fn perforated_panel(
     let absorber_info = calculate_perforated_panel(&air_cfg, &cavity_cfg, &display_cfg, &panel_cfg, &porous_cfg);
     
     // Plot the graph
-    let chart_info = render::plot_perforated_panel(&absorber_info, &display_cfg);
+    let chart_info = render::plot_generic_device(absorber_info, &display_cfg, &"Normal Incidence Absorption");
 
     JsValue::from_serde(&chart_info).unwrap()
   }
@@ -238,9 +246,10 @@ pub fn perforated_panel(
   return_value
 }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+// *********************************************************************************************************************
 // Slotted panel
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// *********************************************************************************************************************
 #[wasm_bindgen]
 pub fn slotted_panel(
   panel_thickness_mm    : f64
@@ -312,7 +321,7 @@ pub fn slotted_panel(
     let absorber_info = calculate_slotted_panel(&air_cfg, &cavity_cfg, &display_cfg, &panel_cfg, &porous_cfg);
     
     // Plot the graph
-    let chart_info = render::plot_slotted_panel(&absorber_info, &display_cfg);
+    let chart_info = render::plot_generic_device(absorber_info, &display_cfg, &"Normal Incidence Absorption");
 
     JsValue::from_serde(&chart_info).unwrap()
   }
@@ -327,9 +336,10 @@ pub fn slotted_panel(
   return_value
 }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+// *********************************************************************************************************************
 // Microperforated panel
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// *********************************************************************************************************************
 #[wasm_bindgen]
 pub fn microperforated_panel(
   panel_thickness_mm    : f64
@@ -399,7 +409,7 @@ pub fn microperforated_panel(
     let absorber_info = calculate_microperforated_panel(&air_cfg, &cavity_cfg, &display_cfg, &panel_cfg, &sound_cfg);
     
     // Plot the graph
-    let chart_info = render::plot_microperforated_panel(&absorber_info, &display_cfg, &sound_cfg);
+    let chart_info = render::plot_generic_device(absorber_info, &display_cfg, &format!("Overall absorption at {}°", sound_cfg.angle));
 
     JsValue::from_serde(&chart_info).unwrap()
   }

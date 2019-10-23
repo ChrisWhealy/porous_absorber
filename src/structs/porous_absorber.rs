@@ -10,9 +10,6 @@ extern crate num_format;
 
 use std::error::Error;
 use std::fmt;
-use serde::Serialize;
-
-use crate::structs::display::PlotPoint;
 
 /***********************************************************************************************************************
  * Range check values
@@ -92,14 +89,5 @@ impl PorousAbsorberConfig {
       , sigma        : sigma_arg
       })
   }
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Absorption data for a Rigid Backed Porous Absorber
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#[derive(Debug, Serialize)]
-pub struct PorousAbsInfo {
-  pub air_gap    : Vec<PlotPoint>
-, pub no_air_gap : Vec<PlotPoint>
 }
 

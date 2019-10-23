@@ -11,9 +11,6 @@ extern crate num_format;
 use std::f64::consts::PI;
 use std::error::Error;
 use std::fmt;
-use serde::Serialize;
-
-use crate::structs::display::PlotPoint;
 
 /***********************************************************************************************************************
  * Range check values
@@ -117,12 +114,3 @@ impl PerforatedPanelConfig {
   }
 }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Absorption data for a Perforated Panel Absorber
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#[derive(Debug, Serialize)]
-pub struct PerforatedAbsInfo {
-  pub abs_against_panel   : Vec<PlotPoint>
-, pub abs_against_backing : Vec<PlotPoint>
-, pub no_air_gap          : Vec<PlotPoint>
-}
