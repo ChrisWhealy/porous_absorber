@@ -17,7 +17,7 @@ import {
 // *********************************************************************************************************************
 // Define trace functions
 import { define_trace } from "./appConfig.js"
-const { trace_boundary, trace_info } = define_trace("local_storage")
+const { traceBoundary, traceInfo } = define_trace("localStorage")
 
 // *********************************************************************************************************************
 // Check if local storage is available
@@ -53,8 +53,8 @@ const storageAvailable =
 // *********************************************************************************************************************
 const restoreFromLocalStorage =
   tabName => {
-    const trace_bnd = trace_boundary("restoreFromLocalStorage", tabName)
-    const trace     = trace_info("restoreFromLocalStorage")
+    const trace_bnd = traceBoundary("restoreFromLocalStorage", tabName)
+    const trace     = traceInfo("restoreFromLocalStorage")
     trace_bnd(true)
 
     let tabValueStr = window.localStorage.getItem(tabName)
@@ -78,8 +78,8 @@ const restoreFromLocalStorage =
 // *********************************************************************************************************************
 const writeToLocalStorage =
   tabName => {
-    const trace_bnd = trace_boundary("writeToLocalStorage", tabName)
-    const trace     = trace_info("writeToLocalStorage")
+    const trace_bnd = traceBoundary("writeToLocalStorage", tabName)
+    const trace     = traceInfo("writeToLocalStorage")
     trace_bnd(true)
 
     let cacheVals = tabConfig[tabName].map(
@@ -98,7 +98,7 @@ const writeToLocalStorage =
 // *********************************************************************************************************************
 const clearLocalStorage =
   () => {
-    const trace_bnd = trace_boundary("clearLocalStorage")
+    const trace_bnd = traceBoundary("clearLocalStorage")
     trace_bnd(true)
 
     let key_count = Object.keys(tabConfig).length

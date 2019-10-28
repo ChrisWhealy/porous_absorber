@@ -14,9 +14,9 @@ import {
 , idiot
 } from "./utils.js"
 
-import { $id, $class }         from "./dom_access.js"
+import { $id, $class }         from "./domAccess.js"
 import { tabConfig }           from "./tabConfig.js"
-import { showAndConvertUnits } from "./unit_conversion.js"
+import { showAndConvertUnits } from "./unitConversion.js"
 
 import {
   canvasMouseOverHandler
@@ -27,7 +27,7 @@ import {
 // *********************************************************************************************************************
 // Define trace functions
 import { define_trace } from "./appConfig.js"
-const { trace_boundary, trace_info } = define_trace("tab_manager")
+const { traceBoundary, traceInfo } = define_trace("tabManager")
 
 // *********************************************************************************************************************
 // UI slider range limitation
@@ -50,7 +50,7 @@ const limitMax =
 // *********************************************************************************************************************
 const openTab =
   (evt, tabName) => {
-    const trace_bnd = trace_boundary("openTab")
+    const trace_bnd = traceBoundary("openTab")
     trace_bnd(true)
 
     // Remove graph from screen when the configuration tab is selected and blank out graph overlay canvas
@@ -74,7 +74,7 @@ const openTab =
 // Cache values from the current tab into local storage
 const cacheValues =
   () => {
-    const trace_bnd = trace_boundary("cacheValues")
+    const trace_bnd = traceBoundary("cacheValues")
     trace_bnd(true)
 
     for (var tablink of $class("tabButton")) {
@@ -90,7 +90,7 @@ const cacheValues =
 // Fetch tab content from server
 const fetchTab =
   tabName => {
-    const trace_bnd = trace_boundary("fetchTab", tabName)
+    const trace_bnd = traceBoundary("fetchTab", tabName)
     trace_bnd(true)
 
     let req = new XMLHttpRequest()
@@ -107,8 +107,8 @@ const fetchTab =
 // This function must be called every time an input value is changed
 const updateScreen =
   tabName => {
-    const trace_bnd = trace_boundary("updateScreen", tabName)
-    const trace     = trace_info("updateScreen")
+    const trace_bnd = traceBoundary("updateScreen", tabName)
+    const trace     = traceInfo("updateScreen")
 
     trace_bnd(true)
     
@@ -148,7 +148,7 @@ const updateScreen =
 //  overlay must be replaced. In the last case, the canvas size has changed so the graph must be redrawn at the new size
 const updateScreenAndMouseHandler =
   tabName => {
-    const trace_bnd = trace_boundary("updateScreenAndMouseHandler", tabName)
+    const trace_bnd = traceBoundary("updateScreenAndMouseHandler", tabName)
 
     trace_bnd(true)
 
@@ -204,7 +204,7 @@ export {
 // Hide tabs and remove their content except for the configuration tab
 const hideAndEmptyAllTabs =
   () => {
-    const trace_bnd = trace_boundary("hide_all_tabs")
+    const trace_bnd = traceBoundary("hide_all_tabs")
     trace_bnd(true)
 
     for (var tab of $class("tabContent")) {
@@ -222,7 +222,7 @@ const hideAndEmptyAllTabs =
 // Cache values from the current tab into local storage, then deactivate the tab button
 const cacheValuesAndDeactivate =
   () => {
-    const trace_bnd = trace_boundary("cacheValuesAndDeactivate")
+    const trace_bnd = traceBoundary("cacheValuesAndDeactivate")
     trace_bnd(true)
 
     for (var tablink of $class("tabButton")) {
@@ -241,7 +241,7 @@ const cacheValuesAndDeactivate =
 const tabLoaded =
   (tabName, req) =>
     () => {
-      let trace_bnd = trace_boundary("tabLoaded", tabName)
+      let trace_bnd = traceBoundary("tabLoaded", tabName)
       trace_bnd(true)
 
       $id(tabName).innerHTML = ""

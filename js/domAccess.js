@@ -11,7 +11,7 @@ import { idiot } from "./utils.js"
 // *********************************************************************************************************************
 // Define trace functions
 import { define_trace } from "./appConfig.js"
-const { trace_info } = define_trace("dom_access")
+const { traceInfo } = define_trace("domAccess")
 
 // *********************************************************************************************************************
 // Fetch DOM elements by id, class name or name
@@ -34,7 +34,7 @@ const getParsedElementValue =
     elementId =>
       (el =>
          el ? parseFn(el.value)
-            : trace_info("getParsedElementValue")(`Element '${elementId}' not found`)
+            : traceInfo("getParsedElementValue")(`Element '${elementId}' not found`)
       )
       ($id(elementId))
 
@@ -63,7 +63,7 @@ const setDomElementProperty =
     (el =>
       el
       ? el[propName] = parsedVal
-      : trace_info("setDomElementProperty")(`DOM element '${elementId}' not found`)
+      : traceInfo("setDomElementProperty")(`DOM element '${elementId}' not found`)
     )
     ($id(elementId))
 

@@ -6,12 +6,12 @@
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
 
-import { $id } from "./dom_access.js"
+import { $id } from "./domAccess.js"
 
 // *********************************************************************************************************************
 // Define trace functions
 import { define_trace } from "./appConfig.js"
-const { trace_boundary, trace_info } = define_trace("unit_conversion")
+const { traceBoundary, traceInfo } = define_trace("unitConversion")
 
 // *********************************************************************************************************************
 // Convert metric units to imperial
@@ -48,8 +48,8 @@ const to_imperial = (units, val) => {
 const show_value =
   (field_suffix, fn) =>
     (val, field_config) => {
-      const trace_bnd = trace_boundary("show_value", field_config.id)
-      const trace     = trace_info("show_value")
+      const trace_bnd = traceBoundary("show_value", field_config.id)
+      const trace     = traceInfo("show_value")
 
       trace_bnd(true)
 
@@ -78,7 +78,7 @@ const convert_units = show_value("_alt_units", "imperial")
 // Display range slider value unit conversion if necessary
 const showAndConvertUnits =
   field_config => {
-    const trace_bnd = trace_boundary("showAndConvertUnits", field_config.id)
+    const trace_bnd = traceBoundary("showAndConvertUnits", field_config.id)
     trace_bnd(true)
 
     let displayValue = null

@@ -15,7 +15,7 @@ import {
 , setFloat
 , setCheckbox
 , setRadio
-} from "./dom_access.js"
+} from "./domAccess.js"
 
  /**********************************************************************************************************************
   * The tabConfig object contains one property per absorber type

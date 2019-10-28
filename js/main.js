@@ -4,11 +4,11 @@
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
 
-import * as LS from "./local_storage.js"
-import * as TM from "./tab_manager.js"
+import * as LS from "./localStorage.js"
+import * as TM from "./tabManager.js"
 
 import { no_op }       from "./utils.js"
-import { $id, $class } from "./dom_access.js"
+import { $id, $class } from "./domAccess.js"
 
 import {
   setCanvasSize
@@ -19,8 +19,9 @@ import {
 // *********************************************************************************************************************
 // JavaScript wrapper functions for the underlying WASM functions
 //
-// Other than the default function name "init", the other function names must match the names of the Rust functions
-// exposed using the #[wasm_bindgen] directive in lib.rs
+// Other than the default function name "init", the other function names are the names of the Rust functions exposed
+// using the #[wasm_bindgen] directive in lib.rs.  These names, in turn, must match the tab names listed in the 
+// tabConfig object in tabConfig.js
 import init
 , { rb_porous_absorber
   , slotted_panel
@@ -31,7 +32,7 @@ import init
 // *********************************************************************************************************************
 // Define trace functions
 import { define_trace } from "./appConfig.js"
-const { trace_boundary, trace_info } = define_trace("main")
+const { traceBoundary, traceInfo } = define_trace("main")
 
 // *********************************************************************************************************************
 // Define canvas size based on current window size
@@ -79,8 +80,8 @@ startWASM()
 // *********************************************************************************************************************
 // Define the use of local storage
 function useLocalStorage() {
-  const trace_bnd = trace_boundary("useLocalStorage")
-  const trace     = trace_info("useLocalStorage")
+  const trace_bnd = traceBoundary("useLocalStorage")
+  const trace     = traceInfo("useLocalStorage")
   trace_bnd(true)
 
   let can_i_haz_local_storage = LS.storageAvailable("localStorage")
@@ -108,7 +109,7 @@ const fetchConfigFromDom = () => [$id("air_temp").value, $id("air_pressure").val
 // *********************************************************************************************************************
 // Activate configuration and default tabs
 async function startTabs() {
-  const trace_bnd = trace_boundary("startTabs")
+  const trace_bnd = traceBoundary("startTabs")
   trace_bnd(true)
   
   // Ensure the configuration tab is always loaded
