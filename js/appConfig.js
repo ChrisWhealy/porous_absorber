@@ -6,9 +6,9 @@
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
 
-import { do_trace_boundary, do_trace_info } from "./trace.js"
+import { doTraceBoundary, doTraceInfo } from "./trace.js"
 
-const DEBUG_MODULE = {
+const JS_MODULES = {
   "domAccess"      : false
 , "localStorage"   : false
 , "main"           : false
@@ -18,8 +18,8 @@ const DEBUG_MODULE = {
 
 const define_trace =
   modName => ({
-    "traceBoundary" : do_trace_boundary(DEBUG_MODULE[modName])(modName)
-  , "traceInfo"     : do_trace_info(DEBUG_MODULE[modName])(modName)
+    "traceBoundary" : doTraceBoundary(JS_MODULES[modName])(modName)
+  , "traceInfo"     : doTraceInfo(JS_MODULES[modName])(modName)
   })
 
 

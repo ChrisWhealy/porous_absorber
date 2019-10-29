@@ -14,7 +14,7 @@ const IN_OUT_ARROW = "<-->"
 
 const arrow = mayBeBool => isNullOrUndef(mayBeBool) ? IN_OUT_ARROW : mayBeBool ? ENTRY_ARROW : EXIT_ARROW
 
-const do_trace_boundary =
+const doTraceBoundary =
   isDebug =>
     modName =>
       (fnName, argVals) =>
@@ -23,7 +23,7 @@ const do_trace_boundary =
           ? console.log(`${arrow(isEntry)} ${modName}.${fnName}(${isNullOrUndef(argVals) ? "" : argVals})`)
           : no_op()
 
-const do_trace_info =
+const doTraceInfo =
   isDebug =>
     modName =>
       fnName =>
@@ -37,6 +37,6 @@ const do_trace_info =
 // Public API
 // *********************************************************************************************************************
 export {
-  do_trace_boundary
-, do_trace_info
+  doTraceBoundary
+, doTraceInfo
 }
