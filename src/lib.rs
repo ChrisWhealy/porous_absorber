@@ -150,7 +150,7 @@ pub fn rb_porous_absorber(
     JsValue::from_serde(&error_msgs).unwrap()
   };
 
-  trace_boundary(&Some(true));
+  trace_boundary(&Some(false));
 
   // Return either the {X,Y} values of plot points or the error messages back to JavaScript
   return_value
