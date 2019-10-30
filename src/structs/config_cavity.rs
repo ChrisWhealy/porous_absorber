@@ -1,7 +1,7 @@
 // *********************************************************************************************************************
 // Porous Absorber Calculator
 //
-// Sound properties
+// Cavity properties
 // 
 // (c) Chris Whealy 2019
 // *********************************************************************************************************************
@@ -12,58 +12,62 @@ use std::fmt;
 /***********************************************************************************************************************
  * Range check values
  */
-const START_ANGLE   : u32 = 0;
-const DEFAULT_ANGLE : u32 = START_ANGLE;
-const END_ANGLE     : u32 = 89;
+const START_THICKNESS   : u16 = 0;
+const DEFAULT_THICKNESS : u16 = 100;
+const END_THICKNESS     : u16 = 500;
 
-const UNITS_ANGLE : &str = "degrees";
+const UNITS_THICKNESS : &str = "mm";
 
 /***********************************************************************************************************************
- * Possible errors when creating sound struct
+ * Possible errors when creating cavity struct
  */
 #[derive(Debug)]
-pub struct SoundError {
+pub struct CavityError {
   msg : String
 }
 
-impl SoundError {
-  fn new(property: &str, units: &str, min: u32, max:u32, err_val: u32) -> SoundError {
-    SoundError {
+impl CavityError {
+  fn new(property: &str, units: &str, min: u16, max:u16, err_val: u16) -> CavityError {
+    CavityError {
       msg : format!("{} must be a value in {} between {:?} and {:?}, not '{:?}'", property, units, min, max, err_val)
     }
   }
 }
 
-impl fmt::Display for SoundError {
+impl fmt::Display for CavityError {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     write!(f, "{}", self.msg)
   }
 }
 
-impl Error for SoundError {
+impl Error for CavityError {
   fn description(&self) -> &str {
     &self.msg
   }
 }
 
 /***********************************************************************************************************************
- * Sound configuration
+ * Cavity configuration
  */
-pub struct SoundConfig {
-  pub angle : u32
+pub struct CavityConfig {
+  pub air_gap_mm : u16
+, pub air_gap    : f64
 }
 
-impl SoundConfig {
-  pub fn default() -> SoundConfig {
-    SoundConfig::new(DEFAULT_ANGLE).unwrap()
+impl CavityConfig {
+  pub fn default() -> CavityConfig {
+    CavityConfig::new(DEFAULT_THICKNESS).unwrap()
   }
 
-  pub fn new(angle_arg: u32) -> Result<SoundConfig, SoundError> {
-    if angle_arg > 90 {
-      return Err(SoundError::new("Incident angle", UNITS_ANGLE, START_ANGLE, END_ANGLE, angle_arg));
+  pub fn new(air_gap_arg: u16) -> Result<CavityConfig, CavityError> {
+    if air_gap_arg > END_THICKNESS {
+      return Err(CavityError::new("Air gap", UNITS_THICKNESS, START_THICKNESS, END_THICKNESS, air_gap_arg));
     }
 
-    Ok(SoundConfig { angle : angle_arg })
+    return Ok(CavityConfig {
+      air_gap_mm : air_gap_arg
+    , air_gap    : air_gap_arg as f64 / 1000.0
+    })
   }
 }
 

@@ -7,8 +7,13 @@
 import * as LS from "./localStorage.js"
 import * as TM from "./tabManager.js"
 
-import { no_op }       from "./utils.js"
-import { $id, $class } from "./domAccess.js"
+import { no_op } from "./utils.js"
+
+import {
+  $id
+, $class
+, fetchConfigFromDom
+} from "./domAccess.js"
 
 import {
   setCanvasSize
@@ -61,7 +66,7 @@ window.limitMax                    = TM.limitMax
 window.half                        = TM.half
 window.double                      = TM.double
 
-// Make the WASM wrapper functions accessible
+// Make the WASM wrapper functions globally accessible
 window.rb_porous_absorber    = rb_porous_absorber
 window.slotted_panel         = slotted_panel
 window.perforated_panel      = perforated_panel
@@ -88,7 +93,7 @@ function useLocalStorage() {
 
   trace(`Local storage is${can_i_haz_local_storage ? " " : " not "}available`)
 
-  // If local storage is availabel, then we must check that it has been populated with the configuration tab values
+  // If local storage is available, then we must check that it has been populated with the configuration tab values
   if (can_i_haz_local_storage) {
     LS.writeToLocalStorage("configuration")
   }
@@ -101,10 +106,6 @@ function useLocalStorage() {
 
   trace_bnd(false)
 }
-
-// *********************************************************************************************************************
-// Fetch config values from DOM
-const fetchConfigFromDom = () => [$id("air_temp").value, $id("air_pressure").value]
 
 // *********************************************************************************************************************
 // Activate configuration and default tabs

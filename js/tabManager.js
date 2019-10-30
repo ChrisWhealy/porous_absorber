@@ -7,11 +7,11 @@
  **********************************************************************************************************************/
 
 import {
-  push
-, isArray
+  isArray
 , isNotNullOrUndef
 , invertPlotData
 , idiot
+, setProperty
 } from "./utils.js"
 
 import { $id, $class }         from "./domAccess.js"
@@ -37,8 +37,8 @@ const { traceBoundary, traceInfo } = define_trace("tabManager")
 const half   = val => val / 2.0
 const double = val => val * 2.0
 
-// Restrict the maximum value of the target UI element to the current value of the source element after adjusting it
-// with some modifier function.  Default to the idiot function if no modifier is supplied
+// Restrict the maximum value of the target UI element to the current value of the source element after applying some
+// modifier function to it.  Defaults to the idiot function if no modifier function is supplied
 const limitMax =
   (srcEl, targetEl, upperLimit, modifierFn) =>
     (modFn => $id(targetEl).max = Math.min(modFn(srcEl.value), upperLimit))
@@ -103,7 +103,7 @@ const fetchTab =
   }
 
 
-  // *********************************************************************************************************************
+// *********************************************************************************************************************
 // This function must be called every time an input value is changed
 const updateScreen =
   tabName => {
@@ -112,26 +112,28 @@ const updateScreen =
 
     trace_bnd(true)
     
-    // Perform any unit conversions that might be needed then extract the input values relevant for the WASM module
-    let current_field_values = tabConfig[tabName]
+    // Perform any unit conversions that might be needed for the UI, then extract the input values relevant for the
+    // current WASM function
+    let wasmArgObj = tabConfig[tabName]
       .reduce((acc, field) => {
           showAndConvertUnits(field)
-          return field.isWasmArg ? push(field.getter(field.id), acc) : acc
-        }, [])
+          // Force all field values to be strings otherwise Rust panics when unwrapping the results of the call to
+          // function into_serde()
+          return field.isWasmArg ? setProperty(acc, field.id, field.getter(field.id) + "") : acc
+        }, {})
 
-    trace(`Tab field values = [${current_field_values.join(", ")}]`)
-
-    // The configuration tab values are common to all calculations and must therefore be added to the list of values
-    // passed to WASM
+    // The air pressure and temperature values on the configuration tab are common to all calculations and must
+    // therefore always be merged into the argument object passed to WASM
     if (tabName !== "configuration") {
-      current_field_values = current_field_values.concat(window.getConfigTabValues())
+      wasmArgObj = {...wasmArgObj, ...(window.getConfigTabValues()) }
     }
 
     // What are we sending to WASM?
-    trace(`Passing [${current_field_values.join(", ")}] to WASM function ${tabName}`)
+    trace(`Passing ${JSON.stringify(wasmArgObj, null, 2)} to WASM function ${tabName}`)
 
-    // WASM does its magic unless the configuration tab is selected, in which case window[tabName] resolves to no_op
-    let wasm_response = window[tabName].apply(null, current_field_values)
+    // WASM does its magic unless the configuration tab is selected, in which case window[tabName] resolves to calling
+    // function no_op()
+    let wasm_response = window[tabName](wasmArgObj)
 
     trace_bnd(false)
     return wasm_response
@@ -144,8 +146,11 @@ const updateScreen =
 //  1) When a tab is selected, or
 //  2) The user changes the octave subdivisions, or
 //  3) The screen width is resized.
-//  In the first two cases, the number of plot points on the graph has changed, so the mousemove handler for the canvas
-//  overlay must be replaced. In the last case, the canvas size has changed so the graph must be redrawn at the new size
+//
+//  In all three cases, the graph is redrawn; but in the first two cases, it is due to the fact that the number of plot
+//  points on the graph has changed.  This also requires the mousemove handler for the canvas overlay to be replaced
+//
+//  In the last case, the graph must be redrawn because the canvas size has changed
 const updateScreenAndMouseHandler =
   tabName => {
     const trace_bnd = traceBoundary("updateScreenAndMouseHandler", tabName)

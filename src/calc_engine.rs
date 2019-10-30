@@ -9,17 +9,17 @@ use libm::{fabs, sin, cos, sqrt, pow, log};
 use num::complex::Complex;
 use std::f64::consts::PI;
 
-use crate::structs::air::AirConfig;
-use crate::structs::cavity::CavityConfig;
-use crate::structs::sound::SoundConfig;
-use crate::structs::display::{DisplayConfig, PlotAbsPoint, SeriesData};
+use crate::structs::config_air::{AirConfig, AIR_VISCOSITY};
+use crate::structs::config_cavity::CavityConfig;
+use crate::structs::config_sound::SoundConfig;
+use crate::structs::config_display::{DisplayConfig, PlotAbsPoint, SeriesData};
+use crate::structs::config_porous_layer::PorousLayerConfig;
 
-use crate::structs::porous_absorber::PorousAbsorberConfig;
-use crate::structs::perforated_panel::PerforatedPanelConfig;
-use crate::structs::microperforated_panel::MicroperforatedPanelConfig;
-use crate::structs::slotted_panel::SlottedPanelConfig;
+use crate::structs::panel_perforated::PerforatedPanelConfig;
+use crate::structs::panel_microperforated::MicroperforatedPanelConfig;
+use crate::structs::panel_slotted::SlottedPanelConfig;
 
-use crate::structs::generic_device_info::{DeviceType, GenericDeviceInfo};
+use crate::structs::generic_device::{DeviceType, GenericDeviceInfo};
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Trace functionality
@@ -34,7 +34,6 @@ const TRACE_ACTIVE : &bool = &false;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const PI_OVER_180    : f64 = PI / 180.0;
 const ONE_80_OVER_PI : f64 = 180.0 / PI;
-const AIR_VISCOSITY  : f64 = 0.0000185;
 
 const BESSEL_TOLERANCE : f64 = 0.000000001;
 const BESSEL_PRECISION : f64 = 0.000000000001;
@@ -63,7 +62,7 @@ pub fn calculate_porous_absorber<'a>(
 , cavity : &'a CavityConfig
 , display: &'a DisplayConfig
 , sound  : &'a SoundConfig
-, porous : &'a PorousAbsorberConfig
+, porous : &'a PorousLayerConfig
 ) -> GenericDeviceInfo<'a> {
   const FN_NAME : &str = &"calculate_porous_absorber";
 
@@ -109,7 +108,7 @@ pub fn calculate_perforated_panel<'a>(
 , cavity : &'a CavityConfig
 , display: &'a DisplayConfig
 , panel  : &'a PerforatedPanelConfig
-, porous : &'a PorousAbsorberConfig
+, porous : &'a PorousLayerConfig
 ) -> GenericDeviceInfo<'a> {
   const FN_NAME : &str = &"calculate_perforated_panel";
 
@@ -169,7 +168,7 @@ pub fn calculate_slotted_panel<'a>(
 , cavity : &'a CavityConfig
 , display: &'a DisplayConfig
 , panel  : &'a SlottedPanelConfig
-, porous : &'a PorousAbsorberConfig
+, porous : &'a PorousLayerConfig
 ) -> GenericDeviceInfo<'a> {
   const FN_NAME : &str = &"calculate_slotted_panel";
 
@@ -294,7 +293,7 @@ fn do_porous_abs_calc(
 , air_cfg    : &AirConfig
 , cavity_cfg : &CavityConfig
 , sound_cfg  : &SoundConfig
-, porous_cfg : &PorousAbsorberConfig
+, porous_cfg : &PorousLayerConfig
 ) -> (f64, f64) {
   // Frequently used intermediate values
   let minus_i: Complex<f64> = Complex::new(0.0, -1.0);
@@ -357,7 +356,7 @@ fn do_perforated_panel_calc(
 , air_cfg            : &AirConfig
 , cavity_cfg         : &CavityConfig
 , panel_cfg          : &PerforatedPanelConfig
-, porous_cfg         : &PorousAbsorberConfig
+, porous_cfg         : &PorousLayerConfig
 , ec_panel_thickness : f64
 ) -> (f64, f64, f64) {
   const FN_NAME : &str = &"do_perforated_panel_calc";
@@ -473,7 +472,7 @@ fn do_slotted_panel_calc(
   frequency             : f64
 , air_cfg               : &AirConfig
 , cavity_cfg            : &CavityConfig
-, porous_cfg            : &PorousAbsorberConfig
+, porous_cfg            : &PorousLayerConfig
 , ec_panel_thickness    : f64
 , resistance_at_panel   : f64
 , resistance_at_backing : f64
@@ -636,7 +635,7 @@ fn do_microperforated_panel_calc(
   let air_z2 = minus_i * air_cfg.impedance * cos(kd) / sin(kd);
   trace(&format!("Impedance at top of air layer = {}", air_z2));
 
-  let inter3 = sqrt(2.0 * omega * air_cfg.density * crate::structs::air::AIR_VISCOSITY) / (2.0 * panel_cfg.porosity);
+  let inter3 = sqrt(2.0 * omega * air_cfg.density * AIR_VISCOSITY) / (2.0 * panel_cfg.porosity);
   trace(&format!("sqrt(2 * omega * rho * eta) / 2 * porosity = {}", inter3));
 
   let inter4 = (1.7 * i * omega * air_cfg.density * panel_cfg.hole_radius) / panel_cfg.porosity;
@@ -674,7 +673,7 @@ fn difference_over_sum(a: Complex<f64>, b: f64) -> Complex<f64> {
 // *********************************************************************************************************************
 // Calculate characteristic absorber impedance and wave number
 // *********************************************************************************************************************
-fn absorber_props(air_cfg : &AirConfig, porous_cfg : &PorousAbsorberConfig, frequency : &f64) ->
+fn absorber_props(air_cfg : &AirConfig, porous_cfg : &PorousLayerConfig, frequency : &f64) ->
   (Complex<f64>, Complex<f64>)
 {
   let d_and_b_term_x = db_x(&air_cfg.density, frequency, &porous_cfg.sigma);

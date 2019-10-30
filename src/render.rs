@@ -10,19 +10,8 @@ use wasm_bindgen::{JsValue, JsCast};
 use std::f64::consts::PI;
 use libm::{sqrt, pow};
 
-use crate::structs::generic_device_info::{DeviceType, GenericDeviceInfo};
-use crate::structs::display::{
-  PlotPoint
-, PlotAbsPoint
-, Axis
-, AxisOrientation
-, SeriesData
-, SeriesMetadata
-, FontMetadata
-, DisplayConfig
-, ChartBox
-, ChartInfo
-};
+use crate::structs::generic_device::{DeviceType, GenericDeviceInfo};
+use crate::structs::config_display::*;
 
 
 // *********************************************************************************************************************

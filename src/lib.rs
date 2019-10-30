@@ -5,6 +5,10 @@
 // *********************************************************************************************************************
 extern crate wasm_bindgen;
 
+#[macro_use]
+extern crate serde_derive;
+
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Submodules
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -13,31 +17,22 @@ mod trace;
 mod render;
 mod calc_engine;
 
+mod device_rb_porous_absorber;
+mod device_perforated_panel;
+mod device_slotted_panel;
+mod device_microperforated_panel;
+
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Usage
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsValue;
 
-use std::error::Error;
-
-
-use structs::air::{AirConfig, AirError};
-use structs::cavity::{CavityConfig, CavityError};
-use structs::display::{DisplayConfig, DisplayError};
-use structs::sound::{SoundConfig, SoundError};
-
-use structs::porous_absorber::{PorousAbsorberConfig, PorousError};
-use structs::slotted_panel::{SlottedPanelConfig, SlottedError};
-use structs::perforated_panel::{PerforatedPanelConfig, PerforatedError};
-use structs::microperforated_panel::{MicroperforatedPanelConfig, MicroperforatedError};
-
-use calc_engine::{
-  calculate_porous_absorber
-, calculate_perforated_panel
-, calculate_microperforated_panel
-, calculate_slotted_panel
-};
+use device_rb_porous_absorber::*;
+use device_slotted_panel::*;
+use device_perforated_panel::*;
+use device_microperforated_panel::*;
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -58,10 +53,14 @@ const TRACE_ACTIVE : &bool = &false;
 // *********************************************************************************************************************
 
 // *********************************************************************************************************************
-// Default entry point
+// Default and main entry points
 //
-// This entry point must be present since it will be called automatically when the WASM module is first initialised
-// No specific functionality is needed here
+// The public function identified by #[wasm_bindgen(start)] becomes the default enrry point and must be present since it
+// will be called automatically when the WASM module is first initialised; however, we do not require any specific
+// functionality to run at this point in time, so this function simply returns "ok"
+//
+// The names of the public functions exposed by the #[wasm_bindgen] directive must exactly match the tab names listed in
+// the tabConfig JavaScript object
 // *********************************************************************************************************************
 #[wasm_bindgen(start)]
 pub fn main() -> Result<(), JsValue> {
@@ -70,180 +69,12 @@ pub fn main() -> Result<(), JsValue> {
 
 
 // *********************************************************************************************************************
-// Main entry points
-//
-// The names of the public functions exposed by the #[wasm_bindgen] directive must exactly match the tab names listed in
-// the tabConfig JavaScript object
-//
 // Rigid backed porous absorber
 // *********************************************************************************************************************
 #[wasm_bindgen]
-pub fn rb_porous_absorber(
-  absorber_thickness_mm : u32
-, flow_resistivity      : u32
-, air_gap_mm            : u32
-, angle                 : u32
-, graph_start_freq      : f64
-, smooth_curve          : bool
-, subdivisions          : u32
-, air_temp              : f64
-, air_pressure          : f64
-) -> JsValue{
-  const FN_NAME : &str = &"rb_porous_absorber";
-
-  let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
-  let trace          = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
-
-  trace_boundary(&Some(true));
-
-  // What values did we receive from JavaScript?
-  trace(&format!("absorber_thickness_mm = {}", absorber_thickness_mm));
-  trace(&format!("flow_resistivity      = {}", flow_resistivity));
-  trace(&format!("air_gap_mm            = {}", air_gap_mm));
-  trace(&format!("graph_start_freq      = {}", graph_start_freq));
-  trace(&format!("smooth_curve          = {}", smooth_curve));
-  trace(&format!("subdivisions          = {}", subdivisions));
-  trace(&format!("air_temp              = {}", air_temp));
-  trace(&format!("air_pressure          = {}", air_pressure));
-
-  // Empty return data structure
-  let mut error_msgs: Vec<String> = vec!();
-
-  // Construct configuration structs
-  let air_cfg = AirConfig::new(air_temp, air_pressure).unwrap_or_else(|err: AirError| {
-    error_msgs.push(String::from(err.description()));
-    AirConfig::default()
-  });
-
-  let cavity_cfg = CavityConfig::new(air_gap_mm).unwrap_or_else(|err: CavityError| {
-    error_msgs.push(String::from(err.description()));
-    CavityConfig::default()
-  });
-
-  let display_cfg = DisplayConfig::new(graph_start_freq, smooth_curve, subdivisions).unwrap_or_else(|err: DisplayError| {
-    error_msgs.push(String::from(err.description()));
-    DisplayConfig::default()
-  });
-
-  let sound_cfg = SoundConfig::new(angle).unwrap_or_else(|err: SoundError| {
-    error_msgs.push(String::from(err.description()));
-    SoundConfig::default()
-  });
-
-  let porous_cfg = PorousAbsorberConfig::new(absorber_thickness_mm, flow_resistivity).unwrap_or_else(|err: PorousError| {
-    error_msgs.push(String::from(err.description()));
-    PorousAbsorberConfig::default()
-  });
-
-  // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
-  // value "Ok", else return the array of error messages
-  let return_value = if error_msgs.len() == 0 {
-    let absorber_info = calculate_porous_absorber(&air_cfg, &cavity_cfg, &display_cfg, &sound_cfg, &porous_cfg);
-    
-    // Plot the graph
-    let chart_info = render::plot_generic_device(absorber_info, &display_cfg, &format!("Overall absorption at {}°", sound_cfg.angle));
-
-    JsValue::from_serde(&chart_info).unwrap()
-  }
-  else {
-    // Serialize the error message(s)
-    JsValue::from_serde(&error_msgs).unwrap()
-  };
-
-  trace_boundary(&Some(false));
-
-  // Return either the {X,Y} values of plot points or the error messages back to JavaScript
-  return_value
-}
-
-
-// *********************************************************************************************************************
-// Perforated panel
-// *********************************************************************************************************************
-#[wasm_bindgen]
-pub fn perforated_panel(
-  panel_thickness_mm    : f64
-, repeat_distance_mm    : f64
-, hole_radius_mm        : f64
-, porosity              : f64
-, absorber_thickness_mm : u32
-, flow_resistivity      : u32
-, air_gap_mm            : u32
-, graph_start_freq      : f64
-, smooth_curve          : bool
-, subdivisions          : u32
-, air_temp              : f64
-, air_pressure          : f64
-) -> JsValue{
-  const FN_NAME : &str = &"perforated_panel";
-
-  let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
-  let trace          = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
-
-  trace_boundary(&Some(true));
-
-  // What values did we receive from JavaScript?
-  trace(&format!("panel_thickness_mm    = {}", panel_thickness_mm));
-  trace(&format!("repeat_distance_mm    = {}", repeat_distance_mm));
-  trace(&format!("hole_radius_mm        = {}", hole_radius_mm));
-  trace(&format!("porosity              = {}", porosity));
-  trace(&format!("absorber_thickness_mm = {}", absorber_thickness_mm));
-  trace(&format!("flow_resistivity      = {}", flow_resistivity));
-  trace(&format!("air_gap_mm            = {}", air_gap_mm));
-  trace(&format!("graph_start_freq      = {}", graph_start_freq));
-  trace(&format!("smooth_curve          = {}", smooth_curve));
-  trace(&format!("subdivisions          = {}", subdivisions));
-  trace(&format!("air_temp              = {}", air_temp));
-  trace(&format!("air_pressure          = {}", air_pressure));
-
-  // Empty return data structure
-  let mut error_msgs: Vec<String> = vec!();
-
-  // Construct configuration structs
-  let air_cfg = AirConfig::new(air_temp, air_pressure).unwrap_or_else(|err: AirError| {
-    error_msgs.push(String::from(err.description()));
-    AirConfig::default()
-  });
-
-  let cavity_cfg = CavityConfig::new(air_gap_mm).unwrap_or_else(|err: CavityError| {
-    error_msgs.push(String::from(err.description()));
-    CavityConfig::default()
-  });
-
-  let display_cfg = DisplayConfig::new(graph_start_freq, smooth_curve, subdivisions).unwrap_or_else(|err: DisplayError| {
-    error_msgs.push(String::from(err.description()));
-    DisplayConfig::default()
-  });
-
-  let panel_cfg = PerforatedPanelConfig::new(panel_thickness_mm, repeat_distance_mm, hole_radius_mm, porosity).unwrap_or_else(|err: PerforatedError| {
-    error_msgs.push(String::from(err.description()));
-    PerforatedPanelConfig::default()
-  });
-
-  let porous_cfg = PorousAbsorberConfig::new(absorber_thickness_mm, flow_resistivity).unwrap_or_else(|err: PorousError| {
-    error_msgs.push(String::from(err.description()));
-    PorousAbsorberConfig::default()
-  });
-
-  // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
-  // value "Ok", else return the array of error messages
-  let return_value = if error_msgs.len() == 0 {
-    let absorber_info = calculate_perforated_panel(&air_cfg, &cavity_cfg, &display_cfg, &panel_cfg, &porous_cfg);
-    
-    // Plot the graph
-    let chart_info = render::plot_generic_device(absorber_info, &display_cfg, &"Normal Incidence Absorption");
-
-    JsValue::from_serde(&chart_info).unwrap()
-  }
-  else {
-    // Serialize the error message(s)
-    JsValue::from_serde(&error_msgs).unwrap()
-  };
-
-  trace_boundary(&Some(false));
-
-  // Return either the {X,Y} values of plot points or the error messages back to JavaScript
-  return_value
+pub fn rb_porous_absorber(wasm_arg_obj : &JsValue) -> JsValue {
+  (Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, &"rb_porous_absorber"))(&None);
+  return do_porous_absorber_device(wasm_arg_obj)
 }
 
 
@@ -251,89 +82,19 @@ pub fn perforated_panel(
 // Slotted panel
 // *********************************************************************************************************************
 #[wasm_bindgen]
-pub fn slotted_panel(
-  panel_thickness_mm    : f64
-, slot_distance_mm      : f64
-, slot_width_mm         : f64
-, porosity              : f64
-, absorber_thickness_mm : u32
-, flow_resistivity      : u32
-, air_gap_mm            : u32
-, graph_start_freq      : f64
-, smooth_curve          : bool
-, subdivisions          : u32
-, air_temp              : f64
-, air_pressure          : f64
-) -> JsValue{
-  const FN_NAME : &str = &"slotted_panel";
+pub fn slotted_panel(wasm_arg_obj : &JsValue) -> JsValue {
+  (Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, &"slotted_panel"))(&None);
+  return do_slotted_panel_device(wasm_arg_obj)
+}
 
-  let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
-  let trace          = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
 
-  trace_boundary(&Some(true));
-
-  // What values did we receive from JavaScript?
-  trace(&format!("panel_thickness_mm    = {}", panel_thickness_mm));
-  trace(&format!("slot_distance_mm      = {}", slot_distance_mm));
-  trace(&format!("slot_width_mm         = {}", slot_width_mm));
-  trace(&format!("porosity              = {}", porosity));
-  trace(&format!("absorber_thickness_mm = {}", absorber_thickness_mm));
-  trace(&format!("flow_resistivity      = {}", flow_resistivity));
-  trace(&format!("air_gap_mm            = {}", air_gap_mm));
-  trace(&format!("graph_start_freq      = {}", graph_start_freq));
-  trace(&format!("smooth_curve          = {}", smooth_curve));
-  trace(&format!("subdivisions          = {}", subdivisions));
-  trace(&format!("air_temp              = {}", air_temp));
-  trace(&format!("air_pressure          = {}", air_pressure));
-
-  // Empty return data structure
-  let mut error_msgs: Vec<String> = vec!();
-
-  // Construct configuration structs
-  let air_cfg = AirConfig::new(air_temp, air_pressure).unwrap_or_else(|err: AirError| {
-    error_msgs.push(String::from(err.description()));
-    AirConfig::default()
-  });
-
-  let cavity_cfg = CavityConfig::new(air_gap_mm).unwrap_or_else(|err: CavityError| {
-    error_msgs.push(String::from(err.description()));
-    CavityConfig::default()
-  });
-
-  let display_cfg = DisplayConfig::new(graph_start_freq, smooth_curve, subdivisions).unwrap_or_else(|err: DisplayError| {
-    error_msgs.push(String::from(err.description()));
-    DisplayConfig::default()
-  });
-
-  let panel_cfg = SlottedPanelConfig::new(panel_thickness_mm, slot_distance_mm, slot_width_mm, porosity).unwrap_or_else(|err: SlottedError| {
-    error_msgs.push(String::from(err.description()));
-    SlottedPanelConfig::default()
-  });
-
-  let porous_cfg = PorousAbsorberConfig::new(absorber_thickness_mm, flow_resistivity).unwrap_or_else(|err: PorousError| {
-    error_msgs.push(String::from(err.description()));
-    PorousAbsorberConfig::default()
-  });
-
-  // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
-  // value "Ok", else return the array of error messages
-  let return_value = if error_msgs.len() == 0 {
-    let absorber_info = calculate_slotted_panel(&air_cfg, &cavity_cfg, &display_cfg, &panel_cfg, &porous_cfg);
-    
-    // Plot the graph
-    let chart_info = render::plot_generic_device(absorber_info, &display_cfg, &"Normal Incidence Absorption");
-
-    JsValue::from_serde(&chart_info).unwrap()
-  }
-  else {
-    // Serialize the error message(s)
-    JsValue::from_serde(&error_msgs).unwrap()
-  };
-
-  trace_boundary(&Some(false));
-
-  // Return either the {X,Y} values of plot points or the error messages back to JavaScript
-  return_value
+// *********************************************************************************************************************
+// Perforated panel
+// *********************************************************************************************************************
+#[wasm_bindgen]
+pub fn perforated_panel(wasm_arg_obj : &JsValue) -> JsValue {
+  (Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, &"perforated_panel"))(&None);
+  return do_perforated_panel_device(wasm_arg_obj)
 }
 
 
@@ -341,86 +102,8 @@ pub fn slotted_panel(
 // Microperforated panel
 // *********************************************************************************************************************
 #[wasm_bindgen]
-pub fn microperforated_panel(
-  panel_thickness_mm    : f64
-, repeat_distance_mm    : f64
-, hole_radius_mm        : f64
-, porosity              : f64
-, air_gap_mm            : u32
-, angle                 : u32
-, graph_start_freq      : f64
-, smooth_curve          : bool
-, subdivisions          : u32
-, air_temp              : f64
-, air_pressure          : f64
-) -> JsValue{
-  const FN_NAME : &str = &"microperforated_panel";
-
-  let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
-  let trace          = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
-
-  trace_boundary(&Some(true));
-
-  // What values did we receive from JavaScript?
-  trace(&format!("panel_thickness_mm    = {}", panel_thickness_mm));
-  trace(&format!("repeat_distance_mm    = {}", repeat_distance_mm));
-  trace(&format!("hole_radius_mm        = {}", hole_radius_mm));
-  trace(&format!("porosity              = {}", porosity));
-  trace(&format!("air_gap_mm            = {}", air_gap_mm));
-  trace(&format!("angle                 = {}", angle));
-  trace(&format!("graph_start_freq      = {}", graph_start_freq));
-  trace(&format!("smooth_curve          = {}", smooth_curve));
-  trace(&format!("subdivisions          = {}", subdivisions));
-  trace(&format!("air_temp              = {}", air_temp));
-  trace(&format!("air_pressure          = {}", air_pressure));
-
-  // Empty return data structure
-  let mut error_msgs: Vec<String> = vec!();
-
-  // Construct configuration structs
-  let air_cfg = AirConfig::new(air_temp, air_pressure).unwrap_or_else(|err: AirError| {
-    error_msgs.push(String::from(err.description()));
-    AirConfig::default()
-  });
-
-  let cavity_cfg = CavityConfig::new(air_gap_mm).unwrap_or_else(|err: CavityError| {
-    error_msgs.push(String::from(err.description()));
-    CavityConfig::default()
-  });
-
-  let display_cfg = DisplayConfig::new(graph_start_freq, smooth_curve, subdivisions).unwrap_or_else(|err: DisplayError| {
-    error_msgs.push(String::from(err.description()));
-    DisplayConfig::default()
-  });
-
-  let panel_cfg = MicroperforatedPanelConfig::new(panel_thickness_mm, repeat_distance_mm, hole_radius_mm, porosity).unwrap_or_else(|err: MicroperforatedError| {
-    error_msgs.push(String::from(err.description()));
-    MicroperforatedPanelConfig::default()
-  });
-
-  let sound_cfg = SoundConfig::new(angle).unwrap_or_else(|err: SoundError| {
-    error_msgs.push(String::from(err.description()));
-    SoundConfig::default()
-  });
-
-  // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
-  // value "Ok", else return the array of error messages
-  let return_value = if error_msgs.len() == 0 {
-    let absorber_info = calculate_microperforated_panel(&air_cfg, &cavity_cfg, &display_cfg, &panel_cfg, &sound_cfg);
-    
-    // Plot the graph
-    let chart_info = render::plot_generic_device(absorber_info, &display_cfg, &format!("Overall absorption at {}°", sound_cfg.angle));
-
-    JsValue::from_serde(&chart_info).unwrap()
-  }
-  else {
-    // Serialize the error message(s)
-    JsValue::from_serde(&error_msgs).unwrap()
-  };
-
-  trace_boundary(&Some(false));
-
-  // Return either the {X,Y} values of plot points or the error messages back to JavaScript
-  return_value
+pub fn microperforated_panel(wasm_arg_obj : &JsValue) -> JsValue {
+  (Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, &"microperforated_panel"))(&None);
+  return do_microperforated_panel_device(wasm_arg_obj)
 }
 

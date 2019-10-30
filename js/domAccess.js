@@ -80,6 +80,14 @@ const setRadio = (elementId, val) => {
 }
 
 // *********************************************************************************************************************
+// Fetch air temperature and pressure config values from the DOM
+const fetchConfigFromDom = () => ({
+  "air_temp"     : $id("air_temp").value
+, "air_pressure" : $id("air_pressure").value
+})
+
+
+// *********************************************************************************************************************
 // Public API
 // *********************************************************************************************************************
 export {
@@ -99,4 +107,6 @@ export {
 , setFloat
 , setCheckbox
 , setRadio
+
+, fetchConfigFromDom
 }

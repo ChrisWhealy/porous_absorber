@@ -21,8 +21,8 @@ const KELVIN_OFFSET : f64 = 273.15;       // Zero celsius in degrees Kelvin
 
 pub const AIR_VISCOSITY : f64 = 0.0000185; // Kinemetric viscosity of air (m^2/s)
 
-pub fn air_density(pressure: f64, temp: f64) -> f64 {
-  (pressure * ONE_ATM) / (GAS_CONSTANT * (temp + KELVIN_OFFSET))
+pub fn air_density(pressure: f64, temp: i16) -> f64 {
+  (pressure * ONE_ATM) / (GAS_CONSTANT * (temp as f64 + KELVIN_OFFSET))
 }
 
 pub fn sound_velocity(temp: f64) -> f64 {
@@ -32,9 +32,9 @@ pub fn sound_velocity(temp: f64) -> f64 {
 /***********************************************************************************************************************
  * Air pressure and temperature range check values
  */
-const START_TEMP   : f64 = -20.0;
-const DEFAULT_TEMP : f64 = 20.0;
-const END_TEMP     : f64 = 100.0;
+const START_TEMP   : i16 = -20;
+const DEFAULT_TEMP : i16 = 20;
+const END_TEMP     : i16 = 100;
 
 const START_PRESSURE   : f64 = 0.8;
 const DEFAULT_PRESSURE : f64 = 1.0;
@@ -76,7 +76,7 @@ impl Error for AirError {
  */
 #[derive(Debug)]
 pub struct AirConfig {
-  pub temperature            : f64
+  pub temperature            : i16
 , pub pressure               : f64
 , pub density                : f64
 , pub velocity               : f64
@@ -91,10 +91,10 @@ impl AirConfig {
     AirConfig::new(DEFAULT_TEMP, DEFAULT_PRESSURE).unwrap()
   }
 
-  pub fn new(temp_arg: f64, pressure_arg: f64) -> Result<AirConfig, AirError> {
+  pub fn new(temp_arg: i16, pressure_arg: f64) -> Result<AirConfig, AirError> {
     if temp_arg < START_TEMP ||
        temp_arg > END_TEMP {
-      return Err(AirError::new("Air temperature", UNITS_TEMP, START_TEMP, END_TEMP, temp_arg))
+      return Err(AirError::new("Air temperature", UNITS_TEMP, START_TEMP as f64, END_TEMP as f64, temp_arg as f64))
     }
 
     if pressure_arg < START_PRESSURE ||
@@ -103,7 +103,7 @@ impl AirConfig {
     }
 
     let den = air_density(pressure_arg, temp_arg);
-    let vel = sound_velocity(temp_arg);
+    let vel = sound_velocity(temp_arg as f64);
 
     return Ok(
       AirConfig {

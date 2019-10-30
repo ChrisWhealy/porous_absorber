@@ -5,9 +5,9 @@
 // *********************************************************************************************************************
 use wasm_bindgen::prelude::*;
 
-const ENTRY_ARROW  : &str = &"--->";
-const EXIT_ARROW   : &str = &"<---";
-const IN_OUT_ARROW : &str = &"<---";
+const ENTRY_ARROW  : &str = &"WASM --->";
+const EXIT_ARROW   : &str = &"WASM <---";
+const IN_OUT_ARROW : &str = &"WASM <-->";
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -53,7 +53,7 @@ impl Trace {
     impl Fn(&str) + 'a {
       move |info| {
         if *is_active {
-          log(&format!("     {}.{}() {}", lib_name, fn_name, info));
+          log(&format!("WASM      {}.{}() {}", lib_name, fn_name, info));
         }
         else {
           ()

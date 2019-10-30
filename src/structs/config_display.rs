@@ -20,10 +20,10 @@ const END_FREQ     : f64  = 100.0;
 
 const UNITS_FREQ : &str = "Hz";
 
-const SUBDIVISIONS        : [u32; 4] = [1,2,3,6];
-const DEFAULT_SUBDIVISION : u32 = 3;
+const SUBDIVISIONS        : [u16; 4] = [1,2,3,6];
+const DEFAULT_SUBDIVISION : u16 = 3;
 
-const DISPLAY_OCTAVES : u32 = 8;
+const DISPLAY_OCTAVES : u16 = 8;
 
 /***********************************************************************************************************************
  * Possible errors when creating display struct
@@ -75,8 +75,8 @@ impl Error for DisplayError {
  * Generate the required frequencies from the number of display octaves and the subdivisions
  * The range upper bound must be included in order not to omit the 16KHz value
  */
-fn gen_frequencies(graph_start_freq : &f64, subdivisions : &u32) -> Vec<f64> {
-  let intervals: Vec<u32> = (0..=(DISPLAY_OCTAVES * subdivisions)).collect();
+fn gen_frequencies(graph_start_freq : &f64, subdivisions : &u16) -> Vec<f64> {
+  let intervals: Vec<u16> = (0..=(DISPLAY_OCTAVES * subdivisions)).collect();
 
   intervals
     .iter()
@@ -103,7 +103,7 @@ fn gen_frequencies(graph_start_freq : &f64, subdivisions : &u32) -> Vec<f64> {
 pub struct DisplayConfig {
   pub graph_start_freq : f64
 , pub smooth_curve     : bool
-, pub subdivisions     : u32
+, pub subdivisions     : u16
 , pub frequencies      : Vec<f64>
 }
 
@@ -113,7 +113,7 @@ impl DisplayConfig {
     DisplayConfig::new(DEFAULT_FREQ, false, DEFAULT_SUBDIVISION).unwrap()
   }
 
-  pub fn new(start_freq_arg: f64, smooth_curve: bool, subdivisions_arg: u32) -> Result<DisplayConfig, DisplayError> {
+  pub fn new(start_freq_arg: f64, smooth_curve: bool, subdivisions_arg: u16) -> Result<DisplayConfig, DisplayError> {
     if start_freq_arg < START_FREQ ||
        start_freq_arg > END_FREQ {
       return Err(DisplayError::new(ErrType::Graph, start_freq_arg))

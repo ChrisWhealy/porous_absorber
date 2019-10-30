@@ -5,7 +5,6 @@
 // 
 // (c) Chris Whealy 2019
 // *********************************************************************************************************************
-
 extern crate num_format;
 
 use std::error::Error;
@@ -36,25 +35,25 @@ const UNITS_WIDTH       : &str = "mm";
  * Possible errors when creating porous absorber struct
  */
 #[derive(Debug)]
-pub struct SlottedError {
-  msg : String
+pub struct SlottedPanelError {
+  pub msg : String
 }
 
-impl SlottedError {
-  fn new(property: &str, units: &str, min: f64, max: f64, err_val: f64) -> SlottedError {
-    SlottedError {
+impl SlottedPanelError {
+  pub fn new(property: &str, units: &str, min: f64, max: f64, err_val: f64) -> SlottedPanelError {
+    SlottedPanelError {
       msg : format!("{} must be a value in {} between {:?} and {:?}, not '{:?}'", property, units, min, max, err_val)
     }
   }
 }
 
-impl fmt::Display for SlottedError {
+impl fmt::Display for SlottedPanelError {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     write!(f, "{}", self.msg)
   }
 }
 
-impl Error for SlottedError {
+impl Error for SlottedPanelError {
   fn description(&self) -> &str {
     &self.msg
   }
@@ -78,25 +77,30 @@ impl SlottedPanelConfig {
     SlottedPanelConfig::new(DEFAULT_THICKNESS, DEFAULT_DISTANCE, DEFAULT_WIDTH, DEFAULT_POROSITY).unwrap()
   }
 
-  pub fn new(thickness_arg: f64, distance_arg: f64, width_arg: f64, porosity_arg: f64) -> Result<SlottedPanelConfig, SlottedError> {
+  pub fn new(
+    thickness_arg : f64
+  , distance_arg  : f64
+  , width_arg     : f64
+  , porosity_arg  : f64
+  ) -> Result<SlottedPanelConfig, SlottedPanelError> {
     if thickness_arg < START_THICKNESS ||
        thickness_arg > END_THICKNESS {
       return Err(
-        SlottedError::new("Thickness", UNITS_THICKNESS, START_THICKNESS, END_THICKNESS, thickness_arg)
+        SlottedPanelError::new("Thickness", UNITS_THICKNESS, START_THICKNESS, END_THICKNESS, thickness_arg)
       );
     }
 
     if distance_arg < START_DISTANCE ||
        distance_arg > END_DISTANCE {
       return Err(
-        SlottedError::new("Distance", UNITS_DISTANCE, START_DISTANCE, END_DISTANCE, distance_arg)
+        SlottedPanelError::new("Distance", UNITS_DISTANCE, START_DISTANCE, END_DISTANCE, distance_arg)
       );
     }
 
     if width_arg < START_WIDTH ||
        width_arg > END_WIDTH {
       return Err(
-        SlottedError::new("Width", UNITS_WIDTH, START_WIDTH, END_WIDTH, width_arg)
+        SlottedPanelError::new("Width", UNITS_WIDTH, START_WIDTH, END_WIDTH, width_arg)
       );
     }
 

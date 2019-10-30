@@ -109,15 +109,14 @@ const clearLocalStorage =
   }
 
 // *********************************************************************************************************************
-// Fetch config values from local storage
-// These values must be returned as an array where the order is "air_temp" followed by "air_pressure"
+// Fetch the air temperature and pressure config values from local storage
 const fetchConfigTabValues =
   () =>
-    (config_vals => [config_vals.air_temp, config_vals.air_pressure])
-    (JSON
+    JSON
       .parse(window.localStorage.getItem("configuration"))
-      .reduce((acc, field) => setProperty(acc, field.id, field.value), {})
-    )
+      // Force all field values to be strings otherwise Rust panics when unwrapping the results of the call to function
+      // into_serde()
+      .reduce((acc, field) => setProperty(acc, field.id, field.value + ""), {})
 
 // *********************************************************************************************************************
 // Public API

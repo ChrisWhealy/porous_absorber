@@ -85,12 +85,12 @@ import {
   // Define default value properties only for the configuration fields.
   // If these are missing, then when the app starts for the first time, it attempts to read these missing values.
   // Since they are missing, they acquire a value of NaN...
-  // If you then try to set an HTML range slider to NaN, it won't report any errors and it will take a best guess and
-  // set the slider to its mid-point value - which results in the air temperature magically becoming 40°C and the air
-  // pressure magically becoming 0.95 Bar...
+  // If you then try to set an HTML range slider to NaN, it won't report any errors.  Instead, it will take a best guess
+  // and set the slider to its mid-point value - which results in the air temperature magically becoming 40°C and the
+  // air pressure magically becoming 0.95 Bar.  Very confusing...
 , "configuration" : [
-    { id : "air_temp",     units : "°C",  isWasmArg : true, getter : getInt,   setter : setInt,   default : "20"  }
-  , { id : "air_pressure", units : "bar", isWasmArg : true, getter : getFloat, setter : setFloat, default : "1.0" }
+    { id : "air_temp",     units : "°C",  isWasmArg : true, getter : getInt,   setter : setInt,   default : 20  }
+  , { id : "air_pressure", units : "bar", isWasmArg : true, getter : getFloat, setter : setFloat, default : 1.0 }
   ]
 }
  

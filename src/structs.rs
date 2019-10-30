@@ -1,17 +1,17 @@
 // *********************************************************************************************************************
-// Porous Absorber Calculator
+// Porous Absorber Calculator - List of configuration structs
 // 
 // (c) Chris Whealy 2019
 // *********************************************************************************************************************
 
-pub mod air;
-pub mod cavity;
-pub mod sound;
-pub mod display;
+pub mod config_air;
+pub mod config_cavity;
+pub mod config_sound;
+pub mod config_display;
+pub mod config_porous_layer;
 
-pub mod porous_absorber;
-pub mod perforated_panel;
-pub mod microperforated_panel;
-pub mod slotted_panel;
+pub mod panel_microperforated;
+pub mod panel_perforated;
+pub mod panel_slotted;
 
-pub mod generic_device_info;
+pub mod generic_device;

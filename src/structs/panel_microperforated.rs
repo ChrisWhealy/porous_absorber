@@ -5,7 +5,6 @@
 // 
 // (c) Chris Whealy 2019
 // *********************************************************************************************************************
-
 extern crate num_format;
 
 use std::f64::consts::PI;
@@ -37,25 +36,25 @@ const UNITS_RADIUS    : &str = "mm";
  * Possible errors when creating porous absorber struct
  */
 #[derive(Debug)]
-pub struct MicroperforatedError {
-  msg : String
+pub struct MicroperforatedPanelError {
+  pub msg : String
 }
 
-impl MicroperforatedError {
-  fn new(property: &str, units: &str, min: f64, max: f64, err_val: f64) -> MicroperforatedError {
-    MicroperforatedError {
+impl MicroperforatedPanelError {
+  pub fn new(property: &str, units: &str, min: f64, max: f64, err_val: f64) -> MicroperforatedPanelError {
+    MicroperforatedPanelError {
       msg : format!("{} must be a value in {} between {:?} and {:?}, not '{:?}'", property, units, min, max, err_val)
     }
   }
 }
 
-impl fmt::Display for MicroperforatedError {
+impl fmt::Display for MicroperforatedPanelError {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     write!(f, "{}", self.msg)
   }
 }
 
-impl Error for MicroperforatedError {
+impl Error for MicroperforatedPanelError {
   fn description(&self) -> &str {
     &self.msg
   }
@@ -79,25 +78,30 @@ impl MicroperforatedPanelConfig {
     MicroperforatedPanelConfig::new(DEFAULT_THICKNESS, DEFAULT_CENTRES, DEFAULT_RADIUS, DEFAULT_POROSITY).unwrap()
   }
 
-  pub fn new(thickness_arg: f64, centres_arg: f64, radius_arg: f64, porosity_arg: f64) -> Result<MicroperforatedPanelConfig, MicroperforatedError> {
+  pub fn new(
+    thickness_arg : f64
+  , centres_arg   : f64
+  , radius_arg    : f64
+  , porosity_arg  : f64
+  ) -> Result<MicroperforatedPanelConfig, MicroperforatedPanelError> {
     if thickness_arg < START_THICKNESS ||
        thickness_arg > END_THICKNESS {
       return Err(
-        MicroperforatedError::new("Thickness", UNITS_THICKNESS, START_THICKNESS, END_THICKNESS, thickness_arg)
+        MicroperforatedPanelError::new("Thickness", UNITS_THICKNESS, START_THICKNESS, END_THICKNESS, thickness_arg)
       );
     }
 
     if centres_arg < START_CENTRES ||
        centres_arg > END_CENTRES {
       return Err(
-        MicroperforatedError::new("Centres", UNITS_CENTRES, START_CENTRES, END_CENTRES, centres_arg)
+        MicroperforatedPanelError::new("Centres", UNITS_CENTRES, START_CENTRES, END_CENTRES, centres_arg)
       );
     }
 
     if radius_arg < START_RADIUS ||
        radius_arg > END_RADIUS {
       return Err(
-        MicroperforatedError::new("Radius", UNITS_RADIUS, START_RADIUS, END_RADIUS, radius_arg)
+        MicroperforatedPanelError::new("Radius", UNITS_RADIUS, START_RADIUS, END_RADIUS, radius_arg)
       );
     }
 

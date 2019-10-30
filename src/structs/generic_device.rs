@@ -8,7 +8,7 @@
 
 use serde::Serialize;
 
-use crate::structs::display::SeriesData;
+use crate::structs::config_display::SeriesData;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Absorption data for a generic absorber device
