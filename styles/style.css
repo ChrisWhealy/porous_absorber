@@ -64,7 +64,7 @@ input[type=number] {
 }
 
 .instruction {
-  text-align     : leftt;
+  text-align     : left;
   padding-top    : 1em;
   font-size      : 1.25em;
 }

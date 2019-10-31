@@ -19,12 +19,12 @@ function $id(elementId) {
   return document.getElementById(elementId)
 }
 
-function $class(elementId) {
-  return document.getElementsByClassName(elementId)
+function $class(className) {
+  return document.getElementsByClassName(className)
 }
 
-function $name(elementId) {
-  return document.getElementsByName(elementId)
+function $name(elementName) {
+  return document.getElementsByName(elementName)
 }
 
 // *********************************************************************************************************************
