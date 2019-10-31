@@ -41,7 +41,7 @@ const TRACE_ACTIVE : &bool = &false;
 /***********************************************************************************************************************
  * Handle incoming arguments for calculating the absorption of a rigid backed porous absorption device
  */
-pub fn do_porous_absorber_device(wasm_arg_obj : &JsValue) -> JsValue {
+pub fn do_porous_absorber_device(wasm_arg_obj : JsValue) -> JsValue {
   const FN_NAME : &str = &"do_porous_absorber_device";
 
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
