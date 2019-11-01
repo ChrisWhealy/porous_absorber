@@ -57,17 +57,23 @@ const mousePositionViaElementHierarchy =
 // canvas elements must sit exactly on top of each other
 // *********************************************************************************************************************
 const canvasMouseOverHandler =
-  (canvas, chartBox, seriestData) =>
-    e => {
-      let mousePos = mousePositionOnCanvas(e)
-      let ctx = canvas.getContext("2d")
+  (canvas, chartBox, seriestData) => {
+    // Define a function to determine whether the mouse pointer's current location is within the chart box area
+    let boxFn = isInsideRect(chartBox.top_left.x, chartBox.top_left.y, chartBox.bottom_right.x, chartBox.bottom_right.y)
+    let ctx   = canvas.getContext("2d")
 
+    
+    return e => {
+      let mousePos = mousePositionOnCanvas(e)
+      
       // A quick, but non-intuitive way to blank out the entire canvas... :-)
       canvas.width = canvas.width
+      ctx.font = "11pt Arial"
 
-      drawCrossHairs(ctx, mousePos, chartBox)
-
-      ctx.font = "10pt Arial"
+      // Draw cross-hairs if the mouse pointer is within the chart box area
+      if (boxFn(mousePos)) {
+        drawCrossHairs(ctx, mousePos, chartBox)
+      }
     
       // For each X value in the inverted data series
       Object
@@ -96,6 +102,7 @@ const canvasMouseOverHandler =
             (parseFloat(xValStr))
         )
     }
+  }
 
 // *********************************************************************************************************************
 // Set canvas size and maintain aspect ratio of 21:9
@@ -133,24 +140,18 @@ export {
 
 const drawCrossHairs =
   (ctx, mousePos, chartBox) => {
-    // Define a function to determine whether the mouse pointer's current location falls inside the chart area
-    let boxFn = isInsideRect(chartBox.top_left.x, chartBox.top_left.y, chartBox.bottom_right.x, chartBox.bottom_right.y)
+    ctx.beginPath()
+    ctx.strokeStyle = RGB_LIGHT_GREY
 
-    // Can we haz cross hairs?
-    if (boxFn(mousePos)) {
-      ctx.beginPath()
-      ctx.strokeStyle = RGB_LIGHT_GREY
+    // Draw vertical line
+    ctx.moveTo(mousePos.x, chartBox.top_left.y)
+    ctx.lineTo(mousePos.x, chartBox.bottom_right.y)
 
-      // Draw vertical line
-      ctx.moveTo(mousePos.x, chartBox.top_left.y)
-      ctx.lineTo(mousePos.x, chartBox.bottom_right.y)
+    // Draw horizontal line
+    ctx.moveTo(chartBox.top_left.x,     mousePos.y)
+    ctx.lineTo(chartBox.bottom_right.x, mousePos.y)
 
-      // Draw horizontal line
-      ctx.moveTo(chartBox.top_left.x,     mousePos.y)
-      ctx.lineTo(chartBox.bottom_right.x, mousePos.y)
-
-      ctx.stroke()
-    }
+    ctx.stroke()
 }
 
 
