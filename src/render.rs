@@ -29,10 +29,12 @@ const PI_OVER_TWO : f64 = PI / 2.0;
 
 const CANVAS_NAME : &str = "graph_canvas";
 
-const LEFT_AXIS_INSET     : f64 = 100.0;
-const HORIZ_MARGIN_INSET  : f64 = 35.0;
-const VERT_MARGIN_INSET   : f64 = 50.0;
-const BOTTOM_AXIS_INSET   : f64 = 100.0;
+const Y_AXIS_INSET        : f64 = 100.0;    // Distance of Y axis from left side of canvas
+const X_AXIS_INSET        : f64 = 100.0;    // Distance of X axis from bottom side of canvas
+
+const LEFT_MARGIN_INSET   : f64 = 35.0;
+const RIGHT_MARGIN_INSET  : f64 = 50.0;
+const TOP_MARGIN_INSET    : f64 = 50.0;
 const BOTTOM_MARGIN_INSET : f64 = 17.5;
 
 const RGB_BLACK           : &str = &"rgb(0, 0, 0)";
@@ -49,14 +51,37 @@ const TICK_LENGTH         : f64 = 10.0;
 const TICK_LABEL_GAP      : f64 = 5.0;
 const PLOT_POINT_RADIUS   : f64 = 5.0;
 
-const METADATA_AIR_GAP             : SeriesMetadata  = SeriesMetadata { name : &"Air Gap",                  plot_colour : RGB_PINK };
-const METADATA_NO_AIR_GAP          : SeriesMetadata  = SeriesMetadata { name : &"No Air Gap",               plot_colour : RGB_GREEN };
-const METADATA_ABS_AGAINST_PANEL   : SeriesMetadata  = SeriesMetadata { name : &"Absorber Against Panel",   plot_colour : RGB_DARK_BLUE };
-const METADATA_ABS_AGAINST_BACKING : SeriesMetadata  = SeriesMetadata { name : &"Absorber Against Backing", plot_colour : RGB_PINK };
-const METADATA_MP_PANEL            : SeriesMetadata  = SeriesMetadata { name : &"Microperforated Panel",    plot_colour : RGB_DARK_BLUE };
+const METADATA_AIR_GAP : SeriesMetadata = SeriesMetadata {
+  name        : &"Air Gap"
+, plot_colour : RGB_PINK
+};
+const METADATA_NO_AIR_GAP : SeriesMetadata = SeriesMetadata {
+  name        : &"No Air Gap"
+, plot_colour : RGB_GREEN
+};
+const METADATA_ABS_AGAINST_PANEL : SeriesMetadata = SeriesMetadata {
+  name        : &"Absorber Against Panel"
+, plot_colour : RGB_DARK_BLUE
+};
+const METADATA_ABS_AGAINST_BACKING : SeriesMetadata = SeriesMetadata {
+  name        : &"Absorber Against Backing"
+, plot_colour : RGB_PINK
+};
+const METADATA_MP_PANEL : SeriesMetadata = SeriesMetadata {
+  name        : &"Microperforated Panel"
+, plot_colour : RGB_DARK_BLUE
+};
 
-const FONT_METADATA_TITLE : FontMetadata = FontMetadata { typeface : &BASE_TYPEFACE, font_size : TITLE_FONT_SIZE, stroke_style : RGB_BLACK };
-const FONT_METADATA_LABEL : FontMetadata = FontMetadata { typeface : &BASE_TYPEFACE, font_size : LABEL_FONT_SIZE, stroke_style : RGB_BLACK };
+const FONT_METADATA_TITLE : FontMetadata = FontMetadata {
+  typeface     : &BASE_TYPEFACE
+, font_size    : TITLE_FONT_SIZE
+, stroke_style : RGB_BLACK
+};
+const FONT_METADATA_LABEL : FontMetadata = FontMetadata {
+  typeface     : &BASE_TYPEFACE
+, font_size    : LABEL_FONT_SIZE
+, stroke_style : RGB_BLACK
+};
 
 
 // *********************************************************************************************************************
@@ -249,7 +274,7 @@ fn draw_title_and_key(
   let title_width = ctx.measure_text(title).unwrap().width();
 
   // Add chart title
-  ctx.fill_text(&title, HORIZ_MARGIN_INSET, VERT_MARGIN_INSET).unwrap();
+  ctx.fill_text(&title, LEFT_MARGIN_INSET, TOP_MARGIN_INSET).unwrap();
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // Key spacing
@@ -280,7 +305,7 @@ fn draw_title_and_key(
 
   // Calculate the required and available space
   let key_entry_width     = KEY_SYMBOL_LENGTH + (3.0 * SYMBOL_TEXT_GAP) + longest_key_text;
-  let available_key_width = canvas.width() as f64 - title_width - (2.0 * HORIZ_MARGIN_INSET) - TITLE_KEY_GAP;
+  let available_key_width = canvas.width() as f64 - title_width - LEFT_MARGIN_INSET - RIGHT_MARGIN_INSET - TITLE_KEY_GAP;
 
   let mut required_key_width = key_entry_width * key_columns as f64;
 
@@ -296,10 +321,10 @@ fn draw_title_and_key(
 
   trace(&format!("Key table contains {} columns and {} rows", key_columns, key_rows));
 
-  let start_x = canvas.width() as f64 - HORIZ_MARGIN_INSET - required_key_width;
+  let start_x = canvas.width() as f64 - RIGHT_MARGIN_INSET - required_key_width;
 
   let mut x = start_x;
-  let mut y = VERT_MARGIN_INSET - (title_font.font_size / 2.0);
+  let mut y = TOP_MARGIN_INSET - (title_font.font_size / 2.0);
 
   for row_idx in 0..key_rows {
     for col_idx in 0..key_columns {
@@ -340,7 +365,7 @@ fn draw_axes(canvas: &web_sys::HtmlCanvasElement, display_cfg: &DisplayConfig) -
 
   trace_boundary(&Some(true));
 
-  let chart_origin = &PlotPoint { x : LEFT_AXIS_INSET, y : canvas.height() as f64 - BOTTOM_AXIS_INSET };
+  let chart_origin = &PlotPoint { x : Y_AXIS_INSET, y : canvas.height() as f64 - (2.0 * TOP_MARGIN_INSET) };
 
   let label_font = &FontMetadata {
     typeface     : &BASE_TYPEFACE
@@ -366,7 +391,7 @@ fn draw_axes(canvas: &web_sys::HtmlCanvasElement, display_cfg: &DisplayConfig) -
   , String::from("1.0")
   );
 
-  let y_axis_end_point = PlotPoint { x : LEFT_AXIS_INSET, y : BOTTOM_AXIS_INSET };
+  let y_axis_end_point = PlotPoint { x : Y_AXIS_INSET, y : X_AXIS_INSET };
 
   draw_axis(&canvas, &Axis {
     title          : &"Absorption"
@@ -395,7 +420,8 @@ fn draw_axes(canvas: &web_sys::HtmlCanvasElement, display_cfg: &DisplayConfig) -
       }
     );
 
-  let x_axis_end_point = PlotPoint { x : canvas.width() as f64 - LEFT_AXIS_INSET, y : canvas.height() as f64 - BOTTOM_AXIS_INSET };
+  let x_axis_end_point = PlotPoint { x : canvas.width()  as f64 - RIGHT_MARGIN_INSET
+                                   , y : canvas.height() as f64 - X_AXIS_INSET };
 
   draw_axis(&canvas, &Axis {
     title          : &"Frequency (Hz)"
@@ -455,13 +481,15 @@ fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: &Axis) {
   , AxisOrientation::Vertical   => ()
   }
 
+  let mut tick_label_width : f64 = 0.0;
+
   // Draw axis ticks and labels
   for val in axis_info.values.iter() {
     let tick_label  = &format!("{}", val);
-    let label_width = ctx.measure_text(tick_label).unwrap().width();
+    tick_label_width = ctx.measure_text(tick_label).unwrap().width();
 
     // Position the label away from the tick by the tick length plus a gap
-    let label_offset = label_width + axis_info.tick_length + axis_info.tick_label_gap;
+    let label_offset = tick_label_width + axis_info.tick_length + axis_info.tick_label_gap;
 
     // Draw tick
     ctx.move_to(-axis_info.tick_length, 0.0);
@@ -493,7 +521,10 @@ fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: &Axis) {
 
   , AxisOrientation::Vertical => {
       ctx.set_transform(1.0, 0.0, 0.0, 1.0, 0.0, 0.0).unwrap();
-      ctx.translate(HORIZ_MARGIN_INSET, mid_height + (axis_label_width / 2.0)).unwrap();
+      ctx.translate(
+        Y_AXIS_INSET - axis_info.tick_length - (2.0 * axis_info.tick_label_gap) - tick_label_width - axis_info.label_font.font_size
+      , mid_height + (axis_label_width / 2.0)
+      ).unwrap();
       ctx.rotate(-PI_OVER_TWO).unwrap();
     }
   }
@@ -512,11 +543,11 @@ fn canvas_dimensions(canvas: &web_sys::HtmlCanvasElement) -> (f64, f64, f64, f64
   let h = canvas.height() as f64;
   let w = canvas.width() as f64;
 
-  ( h / 2.0                       // vertical midpoint
-  , w / 2.0                       // horizontal midpoint
-  , h - BOTTOM_MARGIN_INSET       // bottom margin position
-  , w - (2.0 * LEFT_AXIS_INSET)   // X axis length
-  , h - (2.0 * BOTTOM_AXIS_INSET) // Y axis length
+  ( h / 2.0                                // vertical midpoint
+  , w / 2.0                                // horizontal midpoint
+  , h - BOTTOM_MARGIN_INSET                // bottom margin position
+  , w - Y_AXIS_INSET - RIGHT_MARGIN_INSET  // X axis length
+  , h - (2.0 * X_AXIS_INSET)               // Y axis length
   )
 }
 
@@ -639,11 +670,11 @@ fn draw_splines<'a>(
   let ctx = get_2d_context(&canvas);
 
   let x_tick_interval = x_axis_length / (abs_points.len() - 1) as f64;
-  let y_pos           = scaled_y_pos(canvas.height() as f64 - BOTTOM_AXIS_INSET, y_axis_length);
+  let y_pos           = scaled_y_pos(canvas.height() as f64 - X_AXIS_INSET, y_axis_length);
 
   // The frequency and absorption values need to be translated into canvas coordinates
   for idx in 0..abs_points.len() {
-    abs_points[idx].x = LEFT_AXIS_INSET + x_tick_interval * idx as f64;
+    abs_points[idx].x = Y_AXIS_INSET + x_tick_interval * idx as f64;
     abs_points[idx].y = y_pos(abs_points[idx].abs);
 
     trace(&format!("PlotPoint(x: {}, y: {}, freq: {}, abs: {})", abs_points[idx].x, abs_points[idx].y, abs_points[idx].freq, abs_points[idx].abs));

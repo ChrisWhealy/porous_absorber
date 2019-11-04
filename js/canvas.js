@@ -90,7 +90,7 @@ const canvasMouseOverHandler =
                       // Does the mouse pointer's current Y position also fall within the height of a plot point?
                       isBetween(yVal + PLOT_POINT_RADIUS, yVal - PLOT_POINT_RADIUS, mousePos.y)
                       // Yup, so display the absorption information
-                      ? showAbsInfo(ctx, mousePos, plotPoint)
+                      ? showAbsInfo(ctx, mousePos, canvas.width, plotPoint)
                       // Nope...
                       : null
                     )
@@ -158,6 +158,18 @@ const drawCrossHairs =
 // *********************************************************************************************************************
 // Add "absorption @ frequency" text to canvas
 // Before calling this function, you should have at least already set the canvas font
-const showAbsInfo = (ctx, mousePos, plotPoint) => {
-  ctx.fillText(`${plotPoint.abs} @ ${plotPoint.freq.toFixed(0)}Hz`, mousePos.x + ABS_INFO_OFFSET, mousePos.y - ABS_INFO_OFFSET)
+const showAbsInfo = (ctx, mousePos, canvasWidth, plotPoint) => {
+  // Build the text then find out how wide it is
+  let txt      = `${plotPoint.abs} @ ${plotPoint.freq.toFixed(0)}Hz`
+  let txtWidth = ctx.measureText(txt).width
+
+  // Add the absorption text to the canvas
+  ctx.fillText(
+    txt
+    // On which side of the plot point should the text be positioned?
+  , txtWidth + mousePos.x + ABS_INFO_OFFSET < canvasWidth
+    ? mousePos.x + ABS_INFO_OFFSET
+    : mousePos.x - ABS_INFO_OFFSET - txtWidth
+  , mousePos.y - ABS_INFO_OFFSET)
 }
+
