@@ -104,16 +104,22 @@ pub struct DisplayConfig {
   pub graph_start_freq : f64
 , pub smooth_curve     : bool
 , pub subdivisions     : u16
+, pub show_diagram     : bool
 , pub frequencies      : Vec<f64>
 }
 
 
 impl DisplayConfig {
   pub fn default() -> DisplayConfig {
-    DisplayConfig::new(DEFAULT_FREQ, false, DEFAULT_SUBDIVISION).unwrap()
+    DisplayConfig::new(DEFAULT_FREQ, false, DEFAULT_SUBDIVISION, false).unwrap()
   }
 
-  pub fn new(start_freq_arg: f64, smooth_curve: bool, subdivisions_arg: u16) -> Result<DisplayConfig, DisplayError> {
+  pub fn new(
+    start_freq_arg   : f64
+  , smooth_curve     : bool
+  , subdivisions_arg : u16
+  , show_diagram     : bool
+  ) -> Result<DisplayConfig, DisplayError> {
     if start_freq_arg < START_FREQ ||
        start_freq_arg > END_FREQ {
       return Err(DisplayError::new(ErrType::Graph, start_freq_arg))
@@ -128,6 +134,7 @@ impl DisplayConfig {
           graph_start_freq : start_freq_arg
         , subdivisions     : subdivisions_arg
         , smooth_curve     : smooth_curve
+        , show_diagram     : show_diagram
         , frequencies      : gen_frequencies(&start_freq_arg, &subdivisions_arg)
         })
   }
@@ -198,14 +205,12 @@ pub enum AxisOrientation {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #[derive(Debug)]
 pub struct Axis<'a> {
-  pub title          : &'static str
-, pub start_point    : &'a PlotPoint
-, pub end_point      : &'a PlotPoint
-, pub values         : Vec<String>
-, pub orientation    : AxisOrientation
-, pub label_font     : &'a FontMetadata<'a>
-, pub tick_length    : f64
-, pub tick_label_gap : f64
+  pub title       : &'static str
+, pub start_point : &'a PlotPoint
+, pub end_point   : &'a PlotPoint
+, pub values      : Vec<String>
+, pub orientation : AxisOrientation
+, pub label_font  : &'a FontMetadata<'a>
 }
 
 impl<'a> Axis<'a> {

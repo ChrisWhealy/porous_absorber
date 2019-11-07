@@ -1,9 +1,9 @@
 <a name="top"></a>
 # Porous Absorber Calculator
 
-Calculates the acoustic absorption curve of a variety of porous absorber devices mounted against a rigid backing such as a brick wall.
+This app is designed to assist acousticians when designing environments such as home cinemas.  It calculates the acoustic absorption curve of a variety of absorption devices mounted against a rigid backing such as a brick wall.
 
-The porous absorber is typically made from some material such as Rockwool or glass fibre insulation.  You need to know the flow resistivity of this material in order to get the best results from these calculations.
+The porous absorber is typically made from some material such as Rockwool or glass fibre insulation.  You need to know the flow resistivity of this material in order to get the best results from this tool.
 
 
 
@@ -13,13 +13,14 @@ The porous absorber is typically made from some material such as Rockwool or gla
 
 When the app starts, the "Rigid Backed Porous Absorber" tab will be selected by default.
 
-![Screen shot](./img/rb_porous_absorber_screen.png)
+![Screen shot](./img/rb_porous_absorber_screen1.png)
 
 If this is the first time you have run this calculator, then all calculations will be performed using default values.
 
 If you have used this calculator before, then each of the curves will be plotted using your previous values.
 
-As you move the mouse pointer over the chart, cross hairs will appear and the absorption value will be displayed when the mouse hovers over a plot point.
+As you move the mouse pointer over the chart, cross hairs will appear and the absorption value at a particular frequency will be displayed when the mouse hovers over a plot point.
+
 
 
 <!--------------------------------------------------------------------------------------------------------------------->
@@ -48,11 +49,26 @@ An online version of this tool is available [here](http://whealy.com/acoustics/P
 <a name="graph"></a>
 ## Graph
 
-The graph maintains an aspect ratio of 21:9 as the browser screen resizes down to a minimum width of 1000 pixels.
+The graph maintains an aspect ratio of 21:9 as the browser screen resizes and has an arbitrary minimum width of 1000 pixels.
+
+### Show Diagram
+
+When switched on, a graphical representation of the absorption device will be displayed on the left of the chart.
+
+![Show diagram](./img/rb_porous_absorber_screen2.png)
+
+As you change the dimensions of the air gap and porous absorber layer, the diagram changes to show the device dimensions in proportion to each other.
+
+For devices using both a panel and a porous absorption layer, the diagram is split in half.  The top half shows the absorber against the panel, and the bottom half shows the absorber against the rigid backing.
+
+![Split diagram](./img/slotted_panel_screen2.png)
+
 
 ### Smooth Curve
 
 If desired, the "Smooth curve" checkbox can be switched on.  This will connect each plot point using Bézier curves; however, it should be noted that this feature was added for its aesthetic appeal and does ***not*** imply that the actual absorption between the plot points follows the line drawn on the screen
+
+![Smooth curve](./img/smooth_curve.png)
 
 
 ### Start frequency
@@ -74,7 +90,7 @@ I decided to use sliders as the input UI element instead of simple input fields 
 <a name="local-storage"></a>
 ## Local Storage
 
-This app uses the browser's local storage to remember your absorber device parameters.  If at anytime you wish to clear these cached values, select the "Configuration" tab and press the "Clear Cache" button.  Only the values pertaining to this application are cleared from local storage.
+This app uses the browser's local storage to remember your device parameters.  If at anytime you wish to clear these cached values, select the "Configuration" tab and press the "Clear Cache" button.  Only the values pertaining to this application are cleared from local storage.
 
 ![Configuration](./img/configuration_screen.png)
 
@@ -123,9 +139,9 @@ The author has taken every reasonable step to ensure that the calculations are a
 <a name="known-issues"></a>
 ## Known Issues
 
-For best results, view this app using Google Chrome or Firefox Quantum browsers from a desktop machine.
+For best results, view this app use Brave, Google Chrome or Firefox Quantum browsers from a desktop machine.
 
-This app has not been optimized for display on mobile devices.
+This app has ***not*** been optimized for display on mobile devices.
 
 ### iOS Safari Issues
 
@@ -139,7 +155,7 @@ Range slider values ***can*** be selected by tabbing whilst holding down the Opt
 
 ### Brave Useability Issues
 
-When this app is viewed using the Brave browser, the spacing of the axis ticks and labels is not correct
+During develpment, when testing this app in the Brave browser against a local Python 3 web server, the spacing of the axis ticks and labels is not correct
 
 
 
@@ -147,7 +163,7 @@ When this app is viewed using the Brave browser, the spacing of the axis ticks a
 <a name="support"></a>
 ## Support
 
-Support *can* be provided but I cannot guarantee a prompt response...
+Support *can* be provided; however, I cannot guarantee a prompt response...
 
 
 

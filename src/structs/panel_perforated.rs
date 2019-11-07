@@ -63,6 +63,7 @@ impl Error for PerforatedPanelError {
 /***********************************************************************************************************************
  * Perforated panel configuration
  */
+#[derive(Serialize, Deserialize, Debug)]
 pub struct PerforatedPanelConfig {
   pub thickness_mm    : f64
 , pub thickness       : f64

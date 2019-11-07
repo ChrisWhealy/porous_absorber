@@ -14,7 +14,9 @@ Three absorption curves are calculated:
 
 ## Default Graph
 
-![Perforated Panel Screen](../img/perforated_panel_screen.png)
+![Perforated Panel Screen](../img/perforated_panel_screen1.png)
+
+![Perforated Panel Screen](../img/perforated_panel_screen2.png)
 
 ## Value Ranges
 

@@ -10,7 +10,9 @@ Two absorption curves are calculated:
 
 ## Default Graph
 
-![Rigid Backed Porous Absorber Screen](../img/rb_porous_absorber_screen.png)
+![Rigid Backed Porous Absorber Screen](../img/rb_porous_absorber_screen1.png)
+
+![Rigid Backed Porous Absorber Screen](../img/rb_porous_absorber_screen2.png)
 
 ## Value Ranges
 

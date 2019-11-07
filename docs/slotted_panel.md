@@ -14,7 +14,9 @@ Three absorption curves are calculated:
 
 ## Default Graph
 
-![Slotted Panel Screen](../img/slotted_panel_screen.png)
+![Slotted Panel Screen](../img/slotted_panel_screen1.png)
+
+![Slotted Panel Screen](../img/slotted_panel_screen2.png)
 
 ## Value Ranges
 

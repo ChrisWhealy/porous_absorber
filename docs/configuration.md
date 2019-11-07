@@ -2,6 +2,8 @@
 
 This screen allows you to change less frequently altered values such as air temperature and pressure.
 
+You can also clear any configuration values held in the browser's local storage.  This will reset the app back to its default values.
+
 ## Screen
 
 ![Configuration](../img/configuration_screen.png)

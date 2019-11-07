@@ -16,7 +16,7 @@ use std::fmt;
  */
 const START_THICKNESS   : f64 = 0.5;
 const DEFAULT_THICKNESS : f64 = 1.0;
-const END_THICKNESS     : f64 = 5.0;
+const END_THICKNESS     : f64 = 10.0;
 
 const START_CENTRES   : f64 = 0.5;
 const DEFAULT_CENTRES : f64 = 5.0;
@@ -63,6 +63,7 @@ impl Error for MicroperforatedPanelError {
 /***********************************************************************************************************************
  * Perforated panel configuration
  */
+#[derive(Serialize, Deserialize, Debug)]
 pub struct MicroperforatedPanelConfig {
   pub thickness_mm    : f64
 , pub thickness       : f64

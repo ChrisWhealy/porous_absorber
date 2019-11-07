@@ -1,6 +1,6 @@
 [package]
 name = "porous_absorber_calculator"
-version = "0.6.0"
+version = "1.0.0"
 authors = ["Chris Whealy <chris@whealy.com>"]
 edition = "2018"
 description = "Calculates the acoustic absorption curve of various porous absorber devices"
@@ -24,11 +24,11 @@ features = ["serde-serialize"]
 [dependencies.web-sys]
 version = "^0.3.4"
 features = [
-  'ImageData'
-, 'CanvasRenderingContext2d'
-, 'TextMetrics'
+  'CanvasRenderingContext2d'
 , 'Document'
 , 'Element'
 , 'HtmlCanvasElement'
+, 'HtmlImageElement'
+, 'TextMetrics'
 , 'Window'
 ]

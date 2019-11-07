@@ -80,6 +80,11 @@ pub fn calculate_porous_absorber<'a>(
           SeriesData { name : STR_AIR_GAP,    plot_points : vec!() }
         , SeriesData { name : STR_NO_AIR_GAP, plot_points : vec!() }
         )
+      , sl_panel     : None
+      , pf_panel     : None
+      , mp_panel     : None
+      , porous_layer : Some(porous)
+      , cavity       : Some(cavity)
       }
     , | mut acc, frequency | {
         let (abs_no_air_gap, abs_air_gap) = do_porous_abs_calc(*frequency, &air, &cavity, &sound, &porous);
@@ -135,6 +140,11 @@ pub fn calculate_perforated_panel<'a>(
         , SeriesData { name : STR_ABS_AGAINST_PANEL,   plot_points : vec!() }
         , SeriesData { name : STR_ABS_AGAINST_BACKING, plot_points : vec!() }
         )
+      , sl_panel     : None
+      , pf_panel     : Some(panel)
+      , mp_panel     : None
+      , porous_layer : Some(porous)
+      , cavity       : Some(cavity)
       }
     , | mut acc, frequency | {
         let (
@@ -204,6 +214,11 @@ pub fn calculate_slotted_panel<'a>(
         , SeriesData { name : STR_ABS_AGAINST_PANEL,   plot_points : vec!() }
         , SeriesData { name : STR_ABS_AGAINST_BACKING, plot_points : vec!() }
         )
+      , sl_panel     : Some(panel)
+      , pf_panel     : None
+      , mp_panel     : None
+      , porous_layer : Some(porous)
+      , cavity       : Some(cavity)
       }
     , | mut acc, frequency | {
         let (
@@ -261,8 +276,13 @@ pub fn calculate_microperforated_panel<'a>(
     .iter()
     .fold(
       GenericDeviceInfo {
-        device_type : DeviceType::MicroperforatedPanelAbsorber
-      , abs_series  : vec!(SeriesData { name : STR_MP_PANEL, plot_points : vec!() })
+        device_type  : DeviceType::MicroperforatedPanelAbsorber
+      , abs_series   : vec!(SeriesData { name : STR_MP_PANEL, plot_points : vec!() })
+      , sl_panel     : None
+      , pf_panel     : None
+      , mp_panel     : Some(panel)
+      , porous_layer : None
+      , cavity       : Some(cavity)
       }
     , | mut acc, frequency | {
         let abs_data = do_microperforated_panel_calc(*frequency, &air, &cavity, &panel, cos_angle);

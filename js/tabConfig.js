@@ -44,6 +44,7 @@ import {
   , { id : "graph_start_freq",      units : "Hz",      isWasmArg : true, getter : getFloat,    setter : setFloat    }
   , { id : "smooth_curve",          units : "each",    isWasmArg : true, getter : getCheckbox, setter : setCheckbox }
   , { id : "subdivision",           units : "each",    isWasmArg : true, getter : getRadio,    setter : setRadio    }
+  , { id : "show_diagram",          units : "each",    isWasmArg : true, getter : getCheckbox, setter : setCheckbox }
   ]
 , "slotted_panel" : [
     { id : "panel_thickness_mm",    units : "mm",      isWasmArg : true,  getter : getFloat,     setter : setFloat    }
@@ -57,6 +58,7 @@ import {
   , { id : "graph_start_freq",      units : "Hz",      isWasmArg : true,  getter : getFloat,     setter : setFloat    }
   , { id : "smooth_curve",          units : "each",    isWasmArg : true,  getter : getCheckbox,  setter : setCheckbox }
   , { id : "subdivision",           units : "each",    isWasmArg : true,  getter : getRadio,     setter : setRadio    }
+  , { id : "show_diagram",          units : "each",    isWasmArg : true,  getter : getCheckbox,  setter : setCheckbox }
   ]
 , "perforated_panel" : [
     { id : "panel_thickness_mm",    units : "mm",      isWasmArg : true,  getter : getFloat,     setter : setFloat    }
@@ -70,6 +72,7 @@ import {
   , { id : "graph_start_freq",      units : "Hz",      isWasmArg : true,  getter : getFloat,     setter : setFloat    }
   , { id : "smooth_curve",          units : "each",    isWasmArg : true,  getter : getCheckbox,  setter : setCheckbox }
   , { id : "subdivision",           units : "each",    isWasmArg : true,  getter : getRadio,     setter : setRadio    }
+  , { id : "show_diagram",          units : "each",    isWasmArg : true,  getter : getCheckbox,  setter : setCheckbox }
   ]
 , "microperforated_panel" : [
     { id : "panel_thickness_mm", units : "mm",      isWasmArg : true, getter : getFloat,     setter : setFloat    }
@@ -81,6 +84,7 @@ import {
   , { id : "graph_start_freq",   units : "Hz",      isWasmArg : true, getter : getFloat,     setter : setFloat    }
   , { id : "smooth_curve",       units : "each",    isWasmArg : true, getter : getCheckbox,  setter : setCheckbox }
   , { id : "subdivision",        units : "each",    isWasmArg : true, getter : getRadio,     setter : setRadio    }
+  , { id : "show_diagram",       units : "each",    isWasmArg : true, getter : getCheckbox,  setter : setCheckbox }
   ]
   // Define default value properties only for the configuration fields.
   // If these are missing, then when the app starts for the first time, it attempts to read these missing values.

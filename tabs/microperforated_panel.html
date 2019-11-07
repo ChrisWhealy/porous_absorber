@@ -9,7 +9,7 @@
 
           <tr>
             <td class="param_cell desc">Panel thickness (t<sub>p</sub>)</td>
-            <td class="param_cell"><input   id="panel_thickness_mm" type="range" min="0.5" max="5.0" step="0.01" value="1.0" oninput="updateScreen('microperforated_panel')"></td>
+            <td class="param_cell"><input   id="panel_thickness_mm" type="range" min="0.5" max="10.0" step="0.01" value="1.0" oninput="updateScreen('microperforated_panel')"></td>
             <td class="param_cell unit"     id="panel_thickness_mm_value"></td>
             <td class="param_cell alt_unit" id="panel_thickness_mm_alt_units"></td>
           </tr>
@@ -66,6 +66,11 @@
           </tr>
   
           <tr>
+            <td class="param_cell desc">Show diagram</td>
+            <td class="param_cell"><input id="show_diagram" type="checkbox" oninput="updateScreenAndMouseHandler('microperforated_panel')"></td>
+          </tr>
+  
+          <tr>
             <td class="param_cell desc">Start graph at</td>
             <td class="param_cell"><input   id="graph_start_freq" type="range" min="20" max="100" step="0.5" value="62.5" oninput="updateScreen('microperforated_panel')"></td>
             <td class="param_cell unit"     id="graph_start_freq_value"></td>
@@ -78,7 +83,7 @@
           </tr>
   
           <tr>
-            <td class="param_cell desc">Show</td>
+            <td class="param_cell desc">Subdivisions</td>
             <td class="param_cell">
               <input type="radio" id="subdivision1" name="subdivision" value="1" onchange="updateScreenAndMouseHandler('microperforated_panel')" checked>
               <label for="subdivision1">Whole octaves</label><br>

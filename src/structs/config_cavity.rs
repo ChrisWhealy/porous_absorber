@@ -49,6 +49,7 @@ impl Error for CavityError {
 /***********************************************************************************************************************
  * Cavity configuration
  */
+#[derive(Serialize, Deserialize, Debug)]
 pub struct CavityConfig {
   pub air_gap_mm : u16
 , pub air_gap    : f64

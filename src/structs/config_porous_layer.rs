@@ -57,6 +57,7 @@ impl Error for PorousLayerError {
 /***********************************************************************************************************************
  * Porous absorber configuration
  */
+#[derive(Serialize, Deserialize, Debug)]
 pub struct PorousLayerConfig {
   pub thickness_mm : u16
 , pub thickness    : f64

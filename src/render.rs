@@ -27,10 +27,17 @@ const TRACE_ACTIVE : &bool = &false;
 // *********************************************************************************************************************
 const PI_OVER_TWO : f64 = PI / 2.0;
 
-const CANVAS_NAME : &str = "graph_canvas";
+// These names must correspond to the element ids used in index.html
+const GRAPH_CANVAS_ID : &str = "graph_canvas";
+const WALL_IMG_ID     : &str = "wall_img";
+const ABSORBER_IMG_ID : &str = "absorber_img";
+const PANEL_IMG_ID    : &str = "panel_img";
 
-const Y_AXIS_INSET        : f64 = 100.0;    // Distance of Y axis from left side of canvas
-const X_AXIS_INSET        : f64 = 100.0;    // Distance of X axis from bottom side of canvas
+const WALL_IMG_WIDTH : f64 = 20.0;
+
+const Y_AXIS_INSET_DIAGRAM    : f64 = 300.0; // Distance of Y axis from left edge if diagram is displayed
+const Y_AXIS_INSET_NO_DIAGRAM : f64 = 100.0; // Distance of Y axis from left edge if diagram is not displayed
+const X_AXIS_INSET            : f64 = 100.0; // Distance of X axis from bottom edge
 
 const LEFT_MARGIN_INSET   : f64 = 35.0;
 const RIGHT_MARGIN_INSET  : f64 = 50.0;
@@ -42,6 +49,7 @@ const RGB_PINK            : &str = &"rgb(234, 51, 247)";
 const RGB_LIGHT_PINK      : &str = &"rgb(246, 195, 203)";
 const RGB_DARK_BLUE       : &str = &"rgb(6, 1, 123)";
 const RGB_GREEN           : &str = &"rgb(20, 255, 20)";
+const RGB_OFF_WHITE       : &str = &"rgb(255, 255, 238)";
 
 const BASE_TYPEFACE       : &str = &"Arial";
 const TITLE_FONT_SIZE     : f64  = 36.0;
@@ -102,9 +110,13 @@ pub fn plot_generic_device<'a> (
 , chart_title : &str
 ) -> ChartInfo<'a> {
   let document  = web_sys::window().unwrap().document().unwrap();
-  let canvas_el = document.get_element_by_id(CANVAS_NAME).unwrap();
+  let canvas_el = document.get_element_by_id(GRAPH_CANVAS_ID).unwrap();
   let canvas    = canvas_el.dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
 
+  let y_axis_inset : f64 = if display_cfg.show_diagram { Y_AXIS_INSET_DIAGRAM } else { Y_AXIS_INSET_NO_DIAGRAM };
+  
+  let (_, _, _, x_axis_length, y_axis_length) = canvas_dimensions( &canvas, &y_axis_inset);
+  
   clear(&canvas);
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -116,7 +128,14 @@ pub fn plot_generic_device<'a> (
   , DeviceType::MicroperforatedPanelAbsorber => vec!(&METADATA_MP_PANEL)
   };
 
+  let (chart_box, widest_y_tick_label) = draw_axes(&canvas, &display_cfg, &y_axis_inset);
+
   draw_title_and_key(&canvas, chart_title, &FONT_METADATA_TITLE, &FONT_METADATA_LABEL, series_metadata);
+
+  // Draw the device diagram if necessary
+  if display_cfg.show_diagram {
+    draw_device_diagram(&device_info, widest_y_tick_label, &y_axis_length, &Y_AXIS_INSET_DIAGRAM);
+  }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // Define series data
@@ -135,6 +154,9 @@ pub fn plot_generic_device<'a> (
                       , device_info.abs_series[0].plot_points.to_vec()
                       , &JsValue::from(METADATA_AIR_GAP.plot_colour)
                       , &display_cfg.smooth_curve
+                      , &x_axis_length
+                      , &y_axis_length
+                      , &y_axis_inset
                       )
       }
     , SeriesData {
@@ -144,6 +166,9 @@ pub fn plot_generic_device<'a> (
                       , device_info.abs_series[1].plot_points.to_vec()
                       , &JsValue::from(METADATA_NO_AIR_GAP.plot_colour)
                       , &display_cfg.smooth_curve
+                      , &x_axis_length
+                      , &y_axis_length
+                      , &y_axis_inset
                       )
       })
 
@@ -157,6 +182,9 @@ pub fn plot_generic_device<'a> (
                       , device_info.abs_series[0].plot_points.to_vec()
                       , &JsValue::from(METADATA_NO_AIR_GAP.plot_colour)
                       , &display_cfg.smooth_curve
+                      , &x_axis_length
+                      , &y_axis_length
+                      , &y_axis_inset
                       )
       }
     , SeriesData {
@@ -166,6 +194,9 @@ pub fn plot_generic_device<'a> (
                       , device_info.abs_series[1].plot_points.to_vec()
                       , &JsValue::from(METADATA_ABS_AGAINST_PANEL.plot_colour)
                       , &display_cfg.smooth_curve
+                      , &x_axis_length
+                      , &y_axis_length
+                      , &y_axis_inset
                       )
       }
     , SeriesData {
@@ -175,7 +206,10 @@ pub fn plot_generic_device<'a> (
                       , device_info.abs_series[2].plot_points.to_vec()
                       , &JsValue::from(METADATA_ABS_AGAINST_BACKING.plot_colour)
                       , &display_cfg.smooth_curve
-                      )
+                      , &x_axis_length
+                      , &y_axis_length
+                      , &y_axis_inset
+                     )
       })
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -188,6 +222,9 @@ pub fn plot_generic_device<'a> (
                       , device_info.abs_series[0].plot_points.to_vec()
                       , &JsValue::from(METADATA_NO_AIR_GAP.plot_colour)
                       , &display_cfg.smooth_curve
+                      , &x_axis_length
+                      , &y_axis_length
+                      , &y_axis_inset
                       )
       }
     , SeriesData {
@@ -197,6 +234,9 @@ pub fn plot_generic_device<'a> (
                       , device_info.abs_series[1].plot_points.to_vec()
                       , &JsValue::from(METADATA_ABS_AGAINST_PANEL.plot_colour)
                       , &display_cfg.smooth_curve
+                      , &x_axis_length
+                      , &y_axis_length
+                      , &y_axis_inset
                       )
       }
     , SeriesData {
@@ -206,6 +246,9 @@ pub fn plot_generic_device<'a> (
                       , device_info.abs_series[2].plot_points.to_vec()
                       , &JsValue::from(METADATA_ABS_AGAINST_BACKING.plot_colour)
                       , &display_cfg.smooth_curve
+                      , &x_axis_length
+                      , &y_axis_length
+                      , &y_axis_inset
                       )
       })
 
@@ -219,12 +262,15 @@ pub fn plot_generic_device<'a> (
                       , device_info.abs_series[0].plot_points.to_vec()
                       , &JsValue::from(METADATA_MP_PANEL.plot_colour)
                       , &display_cfg.smooth_curve
+                      , &x_axis_length
+                      , &y_axis_length
+                      , &y_axis_inset
                       )
       })
   };
 
   return ChartInfo {
-    chart_box   : draw_axes(&canvas, &display_cfg)
+    chart_box   : chart_box
   , series_data : series_data
   };
 }
@@ -240,6 +286,10 @@ pub fn plot_generic_device<'a> (
 
 fn get_2d_context(canvas: &web_sys::HtmlCanvasElement) -> web_sys::CanvasRenderingContext2d {
   canvas.get_context("2d").unwrap().unwrap().dyn_into::<web_sys::CanvasRenderingContext2d>().unwrap()
+}
+
+fn fetch_image(document : &web_sys::Document, img_name : &str) -> web_sys::HtmlImageElement {
+  document.get_element_by_id(img_name).unwrap().dyn_into::<web_sys::HtmlImageElement>().unwrap()
 }
 
 
@@ -356,8 +406,13 @@ fn draw_title_and_key(
 
 // *********************************************************************************************************************
 // Draw graph axes
+// This function returns a tuple containing firstly, the chart box dimensions within which the cross-hairs are drawn and
+// secondly, the width of the widest Y axis tick label
+//
+// The widest tick label value is needed as part of the calculation to determine the available width within which to
+// draw the device diagram
 // *********************************************************************************************************************
-fn draw_axes(canvas: &web_sys::HtmlCanvasElement, display_cfg: &DisplayConfig) -> ChartBox {
+fn draw_axes(canvas: &web_sys::HtmlCanvasElement, display_cfg: &DisplayConfig, y_axis_inset : &f64) -> (ChartBox, f64) {
   const FN_NAME : &str = &"draw_axes";
 
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
@@ -365,7 +420,10 @@ fn draw_axes(canvas: &web_sys::HtmlCanvasElement, display_cfg: &DisplayConfig) -
 
   trace_boundary(&Some(true));
 
-  let chart_origin = &PlotPoint { x : Y_AXIS_INSET, y : canvas.height() as f64 - (2.0 * TOP_MARGIN_INSET) };
+  let chart_origin = &PlotPoint {
+    x : *y_axis_inset
+  , y : canvas.height() as f64 - (2.0 * TOP_MARGIN_INSET)
+  };
 
   let label_font = &FontMetadata {
     typeface     : &BASE_TYPEFACE
@@ -391,17 +449,15 @@ fn draw_axes(canvas: &web_sys::HtmlCanvasElement, display_cfg: &DisplayConfig) -
   , String::from("1.0")
   );
 
-  let y_axis_end_point = PlotPoint { x : Y_AXIS_INSET, y : X_AXIS_INSET };
+  let y_axis_end_point = PlotPoint { x : *y_axis_inset, y : X_AXIS_INSET };
 
-  draw_axis(&canvas, &Axis {
-    title          : &"Absorption"
-  , start_point    : &chart_origin
-  , end_point      : &y_axis_end_point
-  , values         : abs_strs
-  , orientation    : AxisOrientation::Vertical
-  , label_font     : label_font.clone()
-  , tick_length    : TICK_LENGTH
-  , tick_label_gap : TICK_LABEL_GAP
+  let widest_tick_label = draw_axis(&canvas, &Axis {
+    title       : &"Absorption"
+  , start_point : &chart_origin
+  , end_point   : &y_axis_end_point
+  , values      : abs_strs
+  , orientation : AxisOrientation::Vertical
+  , label_font  : label_font.clone()
   });
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -424,29 +480,30 @@ fn draw_axes(canvas: &web_sys::HtmlCanvasElement, display_cfg: &DisplayConfig) -
                                    , y : canvas.height() as f64 - X_AXIS_INSET };
 
   draw_axis(&canvas, &Axis {
-    title          : &"Frequency (Hz)"
-  , start_point    : &chart_origin
-  , end_point      : &x_axis_end_point
-  , values         : freq_strs
-  , orientation    : AxisOrientation::Horizontal
-  , label_font     : label_font.clone()
-  , tick_length    : TICK_LENGTH
-  , tick_label_gap : TICK_LABEL_GAP
+    title       : &"Frequency (Hz)"
+  , start_point : &chart_origin
+  , end_point   : &x_axis_end_point
+  , values      : freq_strs
+  , orientation : AxisOrientation::Horizontal
+  , label_font  : label_font.clone()
   });
 
   trace_boundary(&Some(false));
 
-  return ChartBox {
-    top_left     : y_axis_end_point
-  , bottom_right : x_axis_end_point
-  }
+  return (
+    ChartBox {
+      top_left     : y_axis_end_point
+    , bottom_right : x_axis_end_point
+    }
+  , widest_tick_label
+  )
 }
 
 
 // *********************************************************************************************************************
 // Draw a single axis
 // *********************************************************************************************************************
-fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: &Axis) {
+fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: &Axis) -> f64 {
   const FN_NAME : &str = &"draw_axis";
 
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
@@ -458,7 +515,7 @@ fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: &Axis) {
   let ctx = get_2d_context(&canvas);
 
   // Define context values
-  let (mid_height, mid_width, bottom_margin_pos, _, _) = canvas_dimensions(&canvas);
+  let (mid_height, mid_width, bottom_margin_pos, _, _) = canvas_dimensions(&canvas, &axis_info.start_point.x);
   let tick_interval : f64 = axis_info.tick_interval();
 
   ctx.save();
@@ -470,7 +527,7 @@ fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: &Axis) {
   // Draw the axis line
   ctx.begin_path();
   ctx.move_to(axis_info.start_point.x, axis_info.start_point.y);
-  ctx.line_to(axis_info.end_point.x, axis_info.end_point.y);
+  ctx.line_to(axis_info.end_point.x,   axis_info.end_point.y);
 
   // Relocate origin to axis start point
   ctx.translate(axis_info.start_point.x, axis_info.start_point.y).unwrap();
@@ -481,24 +538,27 @@ fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: &Axis) {
   , AxisOrientation::Vertical   => ()
   }
 
-  let mut tick_label_width : f64 = 0.0;
+  let mut widest_tick_label : f64 = 0.0;
+  let mut tick_label_width  : f64 = 0.0;
 
   // Draw axis ticks and labels
   for val in axis_info.values.iter() {
     let tick_label  = &format!("{}", val);
-    tick_label_width = ctx.measure_text(tick_label).unwrap().width();
+
+    tick_label_width  = ctx.measure_text(tick_label).unwrap().width();
+    widest_tick_label = max(widest_tick_label, tick_label_width);
 
     // Position the label away from the tick by the tick length plus a gap
-    let label_offset = tick_label_width + axis_info.tick_length + axis_info.tick_label_gap;
+    let label_offset = tick_label_width + TICK_LENGTH + TICK_LABEL_GAP;
 
     // Draw tick
-    ctx.move_to(-axis_info.tick_length, 0.0);
+    ctx.move_to(-TICK_LENGTH, 0.0);
     ctx.line_to(0.0, 0.0);
 
     // Add label text then move origin to next tick location
     match axis_info.orientation {
-      AxisOrientation::Vertical   => {
-        ctx.fill_text(tick_label, -label_offset, axis_info.tick_label_gap).unwrap();
+      AxisOrientation::Vertical => {
+        ctx.fill_text(tick_label, -label_offset, TICK_LABEL_GAP).unwrap();
         ctx.translate(0.0, -tick_interval).unwrap();
       }
 
@@ -522,7 +582,7 @@ fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: &Axis) {
   , AxisOrientation::Vertical => {
       ctx.set_transform(1.0, 0.0, 0.0, 1.0, 0.0, 0.0).unwrap();
       ctx.translate(
-        Y_AXIS_INSET - axis_info.tick_length - (2.0 * axis_info.tick_label_gap) - tick_label_width - axis_info.label_font.font_size
+        y_axis_name_x_pos(tick_label_width, &axis_info.start_point.x)
       , mid_height + (axis_label_width / 2.0)
       ).unwrap();
       ctx.rotate(-PI_OVER_TWO).unwrap();
@@ -533,20 +593,194 @@ fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: &Axis) {
   ctx.fill_text(axis_info.title, 0.0, 0.0).unwrap();
   ctx.restore();
   trace_boundary(&Some(false));
+
+  return widest_tick_label;
 }
 
 
 // *********************************************************************************************************************
+// Draw the device diagram
+// *********************************************************************************************************************
+fn draw_device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_axis_length : &f64, y_axis_inset : &f64) {
+  const FN_NAME : &str  = &"draw_device_diagram";
+  const LOCAL_TRACE_ACTIVE : &bool = &false;
+
+  let trace_boundary = Trace::make_boundary_trace_fn(LOCAL_TRACE_ACTIVE, LIB_NAME, FN_NAME);
+  let trace          = Trace::make_trace_fn(LOCAL_TRACE_ACTIVE, LIB_NAME, FN_NAME);
+
+  trace_boundary(&Some(true));
+
+  let document  = web_sys::window().unwrap().document().unwrap();
+  let canvas_el = document.get_element_by_id(GRAPH_CANVAS_ID).unwrap();
+  let canvas    = canvas_el.dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
+  let ctx       = get_2d_context(&canvas);
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // Calculate the overall depth of the device in mm
+  // One millimetre of device depth will be rendered as one pixel on the canvas up until the point that the device depth
+  // exceeds the number of pixels.  After this, the images will be scaled down to fit the available space
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  let air_gap_mm = device.cavity.unwrap().air_gap_mm as f64;
+
+  let absorber_thickness_mm = match device.porous_layer {
+      Some(p) => p.thickness_mm as f64
+    , None    => 0.0
+    };
+
+  let (panel_thickness_mm, between_voids_mm, void_mm) = match device.device_type {
+      DeviceType::SlottedPanelAbsorber => {
+        let panel = device.sl_panel.unwrap();
+        (panel.thickness_mm, panel.slot_distance_mm, panel.slot_width_mm)
+        }
+    , DeviceType::PerforatedPanelAbsorber => {
+        let panel = device.pf_panel.unwrap();
+        (panel.thickness_mm, panel.hole_centres_mm - (2.0 * panel.hole_radius_mm), 2.0 * panel.hole_radius_mm)
+      }
+    , DeviceType::MicroperforatedPanelAbsorber => {
+        let panel = device.mp_panel.unwrap();
+        (panel.thickness_mm, panel.hole_centres_mm - (2.0 * panel.hole_radius_mm), 2.0 * panel.hole_radius_mm)
+      }
+    , DeviceType::RigidBackedPorousAbsorber => {
+        (0.0, 0.0, 0.0)
+      }
+    };
+
+  let dev_depth_mm   = air_gap_mm + absorber_thickness_mm + panel_thickness_mm;
+  let available_pxls = y_axis_name_x_pos(widest_y_tick_label, y_axis_inset)
+                       - LEFT_MARGIN_INSET
+                       - WALL_IMG_WIDTH
+                       - LABEL_FONT_SIZE;
+  
+  let horiz_pixels_per_mm = if dev_depth_mm > available_pxls { available_pxls / dev_depth_mm } else { 1.0 };
+
+  trace(&format!("Overall device depth = {} mm", dev_depth_mm));
+  trace(&format!("Available space for diagram = {} px", available_pxls));
+  trace(&format!("Pixels per mm = {}", horiz_pixels_per_mm));
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // Fetch image elements from the DOM
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  let wall_img     = fetch_image(&document, WALL_IMG_ID);
+  let panel_img    = fetch_image(&document, PANEL_IMG_ID);
+  let absorber_img = fetch_image(&document, ABSORBER_IMG_ID);
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // Draw wall image
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  let wall_pos_x = LEFT_MARGIN_INSET - WALL_IMG_WIDTH;
+  let wall_pos_y = X_AXIS_INSET;
+
+  trace(&format!("Drawing wall at location ({},{})", wall_pos_x, wall_pos_y));
+
+  draw_image(&ctx, &wall_img, wall_pos_x, wall_pos_y, WALL_IMG_WIDTH, *y_axis_length);
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // Draw absorber layer - this layer is absent for the microperforated panel device
+  // Firefox crashes if you attempt to draw a zero-width image, but Chrome and Brave are fine
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  let half_height = *y_axis_length / 2.0;
+
+  let abs_pos_x    = LEFT_MARGIN_INSET + (air_gap_mm * horiz_pixels_per_mm);
+  let abs_pos_y    = X_AXIS_INSET;
+  let abs_width_px = absorber_thickness_mm * horiz_pixels_per_mm;
+
+  if absorber_thickness_mm > 0.0 {
+    trace(&format!("Drawing absorber at location ({},{})", abs_pos_x, abs_pos_y));
+
+    if panel_thickness_mm > 0.0 {
+      // Draw half height absorber against panel
+      draw_partial_image(
+        &ctx, &absorber_img
+      , 0.0, 0.0
+      , abs_width_px, half_height
+      , abs_pos_x,    abs_pos_y
+      , abs_width_px, half_height
+      );
+
+      // Draw half height absorber against backing
+      draw_partial_image(
+        &ctx, &absorber_img
+      , 0.0, 0.0
+      , abs_width_px,      half_height
+      , LEFT_MARGIN_INSET, abs_pos_y + half_height
+      , abs_width_px,      half_height
+      );
+    }
+    else {
+      // Draw absorber full height when there is no panel
+      draw_partial_image(
+        &ctx, &absorber_img
+      , 0.0, 0.0
+      , abs_width_px, *y_axis_length
+      , abs_pos_x,    abs_pos_y
+      , abs_width_px, *y_axis_length
+      );
+    }
+  }
+  else {
+    trace(&"Not drawing absorber - zero thickness");
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // Draw optional panel - this layer is absent for the rigid backed porous absorber device
+  // Firefox crashes if you attempt to draw a zero-width image, but Chrome and Brave are fine
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  let panel_width_px = panel_thickness_mm * horiz_pixels_per_mm;
+  let panel_pos_x    = abs_pos_x + abs_width_px;
+  let panel_pos_y    = X_AXIS_INSET;
+
+  if panel_thickness_mm > 0.0 {
+    trace(&format!("Drawing panel at location ({},{})", panel_pos_x, panel_pos_y));
+
+    draw_partial_image(
+      &ctx, &panel_img
+    , 0.0, 0.0
+    , panel_width_px, *y_axis_length
+    , panel_pos_x,    panel_pos_y
+    , panel_width_px, *y_axis_length
+    );
+
+    let colour = JsValue::from(RGB_OFF_WHITE);
+
+    // Since on the microperforated panel, the hole diameter is so small, use a scale factor to magnify the holes so
+    // that they become visible
+    let scale_factor = match device.device_type {
+      DeviceType::MicroperforatedPanelAbsorber => 20.0
+    , _                                        => 1.0
+    };
+
+    let     scaled_void          = void_mm * scale_factor;
+    let     scaled_between_voids = between_voids_mm * scale_factor;
+    let     interval             = scaled_between_voids + scaled_void;
+    let mut gap_pos              = panel_pos_y + scaled_between_voids;
+
+    trace(&format!("Void spacing = {} mm", interval));
+
+    // Draw gaps over the panel to indicate the position and width of the slots/holes
+    while gap_pos < (panel_pos_y + *y_axis_length) {
+      trace(&format!("Drawing gap {} mm high at {}", scaled_void, gap_pos));
+      draw_box(&ctx, &panel_pos_x, &gap_pos, &panel_width_px, &scaled_void, &colour);
+      gap_pos += interval;
+    }
+  }
+  else {
+    trace(&"Not drawing panel - zero thickness");
+  }
+
+  trace_boundary(&Some(false));
+}
+
+// *********************************************************************************************************************
 // Return a tuple of various frequently used canvas dimensions
 // *********************************************************************************************************************
-fn canvas_dimensions(canvas: &web_sys::HtmlCanvasElement) -> (f64, f64, f64, f64, f64) {
+fn canvas_dimensions(canvas: &web_sys::HtmlCanvasElement, y_axis_inset : &f64) -> (f64, f64, f64, f64, f64) {
   let h = canvas.height() as f64;
   let w = canvas.width() as f64;
 
   ( h / 2.0                                // vertical midpoint
   , w / 2.0                                // horizontal midpoint
   , h - BOTTOM_MARGIN_INSET                // bottom margin position
-  , w - Y_AXIS_INSET - RIGHT_MARGIN_INSET  // X axis length
+  , w - y_axis_inset - RIGHT_MARGIN_INSET  // X axis length
   , h - (2.0 * X_AXIS_INSET)               // Y axis length
   )
 }
@@ -632,6 +866,25 @@ fn draw_line(ctx : &web_sys::CanvasRenderingContext2d, start : &PlotPoint, end :
 
 
 // *********************************************************************************************************************
+// Draw a rectangular box
+// *********************************************************************************************************************
+fn draw_box(
+  ctx        : &web_sys::CanvasRenderingContext2d
+, x          : &f64
+, y          : &f64
+, width      : &f64
+, height     : &f64
+, fill_style : &JsValue
+) {
+  ctx.begin_path();
+  ctx.save();
+  ctx.set_fill_style(fill_style);
+  ctx.fill_rect(*x, *y, *width, *height);
+  ctx.restore();
+}
+
+
+// *********************************************************************************************************************
 // Draw a circular plot point
 // *********************************************************************************************************************
 fn draw_point(
@@ -657,6 +910,9 @@ fn draw_splines<'a>(
 , mut abs_points    : Vec<PlotAbsPoint>
 ,     stroke_colour : &JsValue
 ,     smooth_curve  : &bool
+,     x_axis_length : &f64
+,     y_axis_length : &f64
+,     y_axis_inset  : &f64
 ) -> Vec<PlotAbsPoint> {
   const FN_NAME : &str = &"draw_splines";
 
@@ -665,16 +921,14 @@ fn draw_splines<'a>(
 
   trace_boundary(&Some(true));
 
-  let (_, _, _, x_axis_length, y_axis_length) = canvas_dimensions(&canvas);
-
   let ctx = get_2d_context(&canvas);
 
   let x_tick_interval = x_axis_length / (abs_points.len() - 1) as f64;
-  let y_pos           = scaled_y_pos(canvas.height() as f64 - X_AXIS_INSET, y_axis_length);
+  let y_pos           = scaled_y_pos(canvas.height() as f64 - X_AXIS_INSET, *y_axis_length);
 
   // The frequency and absorption values need to be translated into canvas coordinates
   for idx in 0..abs_points.len() {
-    abs_points[idx].x = Y_AXIS_INSET + x_tick_interval * idx as f64;
+    abs_points[idx].x = y_axis_inset + x_tick_interval * idx as f64;
     abs_points[idx].y = y_pos(abs_points[idx].abs);
 
     trace(&format!("PlotPoint(x: {}, y: {}, freq: {}, abs: {})", abs_points[idx].x, abs_points[idx].y, abs_points[idx].freq, abs_points[idx].abs));
@@ -720,10 +974,10 @@ fn draw_splines<'a>(
 // Draw a smooth curve between the plot points
 // *********************************************************************************************************************
 fn draw_curved_path(
-  ctx: &web_sys::CanvasRenderingContext2d
-, cps: &Vec<PlotPoint>
-, points: &Vec<PlotAbsPoint>
-, stroke_style: &JsValue
+  ctx          : &web_sys::CanvasRenderingContext2d
+, cps          : &Vec<PlotPoint>
+, points       : &Vec<PlotAbsPoint>
+, stroke_style : &JsValue
 ) {
   // As long as we have at least two points...
   if points.len() >= 2 {
@@ -770,3 +1024,44 @@ fn scaled_y_pos(start: f64, axis_length: f64) ->
   impl Fn(f64) -> f64 {
     move | this_y: f64 | start - (this_y * axis_length)
   }
+
+// *********************************************************************************************************************
+// X coordinate of Y axis name
+// *********************************************************************************************************************
+fn y_axis_name_x_pos(tick_label_width: f64, y_axis_inset : &f64) -> f64 {
+  y_axis_inset - TICK_LENGTH - (2.0 * TICK_LABEL_GAP) - tick_label_width - LABEL_FONT_SIZE
+}
+
+// *********************************************************************************************************************
+// Max is not implemented for f64s...
+// *********************************************************************************************************************
+fn max(a: f64, b: f64) -> f64 {
+  if a < b { b } else { a }
+}
+
+// *********************************************************************************************************************
+// Draw an image at the specified location
+// *********************************************************************************************************************
+fn draw_image(
+  ctx : &web_sys::CanvasRenderingContext2d
+, img : &web_sys::HtmlImageElement
+, top_left_x : f64, top_left_y : f64, width : f64, height : f64
+) {
+  draw_partial_image(ctx, img, 0.0, 0.0, *&img.width() as f64, *&img.height() as f64, top_left_x, top_left_y, width, height);
+}
+
+// *********************************************************************************************************************
+// Draw some subsection of an image at the specified location
+// *********************************************************************************************************************
+fn draw_partial_image(
+  ctx : &web_sys::CanvasRenderingContext2d
+, img : &web_sys::HtmlImageElement
+, sub_top_left_x : f64, sub_top_left_y : f64, sub_width : f64, sub_height : f64
+,     top_left_x : f64,     top_left_y : f64,     width : f64,     height : f64
+) {
+  ctx.draw_image_with_html_image_element_and_sw_and_sh_and_dx_and_dy_and_dw_and_dh(
+    img
+  , sub_top_left_x, sub_top_left_y, sub_width, sub_height
+  ,     top_left_x,     top_left_y,     width,     height
+  ).unwrap();
+}

@@ -62,6 +62,7 @@ impl Error for SlottedPanelError {
 /***********************************************************************************************************************
  * Slotted panel configuration
  */
+#[derive(Serialize, Deserialize, Debug)]
 pub struct SlottedPanelConfig {
   pub thickness_mm     : f64
 , pub thickness        : f64

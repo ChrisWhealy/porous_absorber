@@ -60,6 +60,7 @@ pub fn do_porous_absorber_device(wasm_arg_obj : JsValue) -> JsValue {
   trace(&format!("graph_start_freq      = {}", arg_obj.graph_start_freq));
   trace(&format!("smooth_curve          = {}", arg_obj.smooth_curve));
   trace(&format!("subdivision           = {}", arg_obj.subdivision));
+  trace(&format!("show_diagram          = {}", arg_obj.show_diagram));
   trace(&format!("air_temp              = {}", arg_obj.air_temp));
   trace(&format!("air_pressure          = {}", arg_obj.air_pressure));
 
@@ -71,6 +72,7 @@ pub fn do_porous_absorber_device(wasm_arg_obj : JsValue) -> JsValue {
   let graph_start_freq      : f64  = arg_obj.graph_start_freq.parse().unwrap();
   let smooth_curve          : bool = arg_obj.smooth_curve.parse().unwrap();
   let subdivision           : u16  = arg_obj.subdivision.parse().unwrap();
+  let show_diagram          : bool = arg_obj.show_diagram.parse().unwrap();
   let air_temp              : i16  = arg_obj.air_temp.parse().unwrap();
   let air_pressure          : f64  = arg_obj.air_pressure.parse().unwrap();
 
@@ -78,30 +80,35 @@ pub fn do_porous_absorber_device(wasm_arg_obj : JsValue) -> JsValue {
   let mut error_msgs: Vec<String> = vec!();
 
   // Construct configuration structs
-  let air_cfg = AirConfig::new(air_temp, air_pressure).unwrap_or_else(|err: AirError| {
-    error_msgs.push(String::from(err.description()));
-    AirConfig::default()
-  });
+  let air_cfg = AirConfig::new(air_temp, air_pressure)
+    .unwrap_or_else(|err: AirError| {
+      error_msgs.push(String::from(err.description()));
+      AirConfig::default()
+    });
 
-  let cavity_cfg = CavityConfig::new(air_gap_mm).unwrap_or_else(|err: CavityError| {
-    error_msgs.push(String::from(err.description()));
-    CavityConfig::default()
-  });
+  let cavity_cfg = CavityConfig::new(air_gap_mm)
+    .unwrap_or_else(|err: CavityError| {
+      error_msgs.push(String::from(err.description()));
+      CavityConfig::default()
+    });
 
-  let display_cfg = DisplayConfig::new(graph_start_freq, smooth_curve, subdivision).unwrap_or_else(|err: DisplayError| {
-    error_msgs.push(String::from(err.description()));
-    DisplayConfig::default()
-  });
+  let display_cfg = DisplayConfig::new(graph_start_freq, smooth_curve, subdivision, show_diagram)
+    .unwrap_or_else(|err: DisplayError| {
+      error_msgs.push(String::from(err.description()));
+      DisplayConfig::default()
+    });
 
-  let sound_cfg = SoundConfig::new(angle).unwrap_or_else(|err: SoundError| {
-    error_msgs.push(String::from(err.description()));
-    SoundConfig::default()
-  });
+  let sound_cfg = SoundConfig::new(angle)
+    .unwrap_or_else(|err: SoundError| {
+      error_msgs.push(String::from(err.description()));
+      SoundConfig::default()
+    });
 
-  let porous_cfg = PorousLayerConfig::new(absorber_thickness_mm, flow_resistivity).unwrap_or_else(|err: PorousLayerError| {
-    error_msgs.push(String::from(err.description()));
-    PorousLayerConfig::default()
-  });
+  let porous_cfg = PorousLayerConfig::new(absorber_thickness_mm, flow_resistivity)
+    .unwrap_or_else(|err: PorousLayerError| {
+      error_msgs.push(String::from(err.description()));
+      PorousLayerConfig::default()
+    });
 
   // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
   // value "Ok", else return the array of error messages
@@ -147,6 +154,7 @@ struct PorousAbsorberArgs {
 , graph_start_freq      : String     // Internally treated as f64
 , smooth_curve          : String     // Internally treated as bool 
 , subdivision           : String     // Internally treated as u16
+, show_diagram          : String     // Internally treated as bool
 , air_temp              : String     // Internally treated as i16
 , air_pressure          : String     // Internally treated as f64
 }
