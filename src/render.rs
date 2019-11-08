@@ -914,9 +914,17 @@ fn draw_point(
 ) {
   ctx.begin_path();
   ctx.save();
+
+  // Draw filled circle
   ctx.set_fill_style(fill_style);
   ctx.arc(*x, *y, PLOT_POINT_RADIUS, 0.0, 2.0 * PI).unwrap();
   ctx.fill();
+
+  // Draw black edge
+  ctx.set_line_width(0.5);
+  ctx.set_stroke_style(&JsValue::from(RGB_BLACK));
+  ctx.stroke();
+
   ctx.restore();
 }
 
