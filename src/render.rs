@@ -59,26 +59,29 @@ const TICK_LENGTH         : f64 = 10.0;
 const TICK_LABEL_GAP      : f64 = 5.0;
 const PLOT_POINT_RADIUS   : f64 = 5.0;
 
-const METADATA_AIR_GAP : SeriesMetadata = SeriesMetadata {
-  name        : &"Air Gap"
-, plot_colour : RGB_PINK
-};
-const METADATA_NO_AIR_GAP : SeriesMetadata = SeriesMetadata {
-  name        : &"No Air Gap"
-, plot_colour : RGB_GREEN
-};
-const METADATA_ABS_AGAINST_PANEL : SeriesMetadata = SeriesMetadata {
-  name        : &"Absorber Against Panel"
-, plot_colour : RGB_DARK_BLUE
-};
-const METADATA_ABS_AGAINST_BACKING : SeriesMetadata = SeriesMetadata {
-  name        : &"Absorber Against Backing"
-, plot_colour : RGB_PINK
-};
-const METADATA_MP_PANEL : SeriesMetadata = SeriesMetadata {
-  name        : &"Microperforated Panel"
-, plot_colour : RGB_DARK_BLUE
-};
+// Scale factor for magnifying the holes in a microperforated panel
+const MP_SCALE_FACTOR : f64 = 20.0;
+
+// *********************************************************************************************************************
+// Text constants
+// *********************************************************************************************************************
+const TXT_AIR_GAP     : &str = &"Air Gap";
+const TXT_NO_AIR_GAP  : &str = &"No Air Gap";
+const TXT_ABS_PANEL   : &str = &"Absorber Against Panel";
+const TXT_ABS_BACKING : &str = &"Absorber Against Backing";
+const TXT_MP_PANEL    : &str = &"Microperforated Panel";
+
+const TXT_Y_AXIS_TITLE : &str = &"Absorption";
+const TXT_X_AXIS_TITLE : &str = &"Frequency (Hz)";
+
+// *********************************************************************************************************************
+// Chart series and font metadata
+// *********************************************************************************************************************
+const METADATA_AIR_GAP     : SeriesMetadata = SeriesMetadata { name : TXT_AIR_GAP,     plot_colour : RGB_PINK };
+const METADATA_NO_AIR_GAP  : SeriesMetadata = SeriesMetadata { name : TXT_NO_AIR_GAP,  plot_colour : RGB_GREEN };
+const METADATA_ABS_PANEL   : SeriesMetadata = SeriesMetadata { name : TXT_ABS_PANEL,   plot_colour : RGB_DARK_BLUE };
+const METADATA_ABS_BACKING : SeriesMetadata = SeriesMetadata { name : TXT_ABS_BACKING, plot_colour : RGB_PINK };
+const METADATA_MP_PANEL    : SeriesMetadata = SeriesMetadata { name : TXT_MP_PANEL,    plot_colour : RGB_DARK_BLUE };
 
 const FONT_METADATA_TITLE : FontMetadata = FontMetadata {
   typeface     : &BASE_TYPEFACE
@@ -123,8 +126,8 @@ pub fn plot_generic_device<'a> (
   // Define metadata for series name and plot colour
   let series_metadata = match device_info.device_type {
     DeviceType::RigidBackedPorousAbsorber    => vec!(&METADATA_NO_AIR_GAP, &METADATA_AIR_GAP)
-  , DeviceType::PerforatedPanelAbsorber      => vec!(&METADATA_NO_AIR_GAP, &METADATA_ABS_AGAINST_PANEL, &METADATA_ABS_AGAINST_BACKING)
-  , DeviceType::SlottedPanelAbsorber         => vec!(&METADATA_NO_AIR_GAP, &METADATA_ABS_AGAINST_PANEL, &METADATA_ABS_AGAINST_BACKING)
+  , DeviceType::PerforatedPanelAbsorber      => vec!(&METADATA_NO_AIR_GAP, &METADATA_ABS_PANEL, &METADATA_ABS_BACKING)
+  , DeviceType::SlottedPanelAbsorber         => vec!(&METADATA_NO_AIR_GAP, &METADATA_ABS_PANEL, &METADATA_ABS_BACKING)
   , DeviceType::MicroperforatedPanelAbsorber => vec!(&METADATA_MP_PANEL)
   };
 
@@ -188,11 +191,11 @@ pub fn plot_generic_device<'a> (
                       )
       }
     , SeriesData {
-        name        : METADATA_ABS_AGAINST_PANEL.name
+        name        : METADATA_ABS_PANEL.name
       , plot_points : draw_splines(
                         &canvas
                       , device_info.abs_series[1].plot_points.to_vec()
-                      , &JsValue::from(METADATA_ABS_AGAINST_PANEL.plot_colour)
+                      , &JsValue::from(METADATA_ABS_PANEL.plot_colour)
                       , &display_cfg.smooth_curve
                       , &x_axis_length
                       , &y_axis_length
@@ -200,11 +203,11 @@ pub fn plot_generic_device<'a> (
                       )
       }
     , SeriesData {
-        name        : METADATA_ABS_AGAINST_BACKING.name
+        name        : METADATA_ABS_BACKING.name
       , plot_points : draw_splines(
                         &canvas
                       , device_info.abs_series[2].plot_points.to_vec()
-                      , &JsValue::from(METADATA_ABS_AGAINST_BACKING.plot_colour)
+                      , &JsValue::from(METADATA_ABS_BACKING.plot_colour)
                       , &display_cfg.smooth_curve
                       , &x_axis_length
                       , &y_axis_length
@@ -228,11 +231,11 @@ pub fn plot_generic_device<'a> (
                       )
       }
     , SeriesData {
-        name        : METADATA_ABS_AGAINST_PANEL.name
+        name        : METADATA_ABS_PANEL.name
       , plot_points : draw_splines(
                         &canvas
                       , device_info.abs_series[1].plot_points.to_vec()
-                      , &JsValue::from(METADATA_ABS_AGAINST_PANEL.plot_colour)
+                      , &JsValue::from(METADATA_ABS_PANEL.plot_colour)
                       , &display_cfg.smooth_curve
                       , &x_axis_length
                       , &y_axis_length
@@ -240,11 +243,11 @@ pub fn plot_generic_device<'a> (
                       )
       }
     , SeriesData {
-        name        : METADATA_ABS_AGAINST_BACKING.name
+        name        : METADATA_ABS_BACKING.name
       , plot_points : draw_splines(
                         &canvas
                       , device_info.abs_series[2].plot_points.to_vec()
-                      , &JsValue::from(METADATA_ABS_AGAINST_BACKING.plot_colour)
+                      , &JsValue::from(METADATA_ABS_BACKING.plot_colour)
                       , &display_cfg.smooth_curve
                       , &x_axis_length
                       , &y_axis_length
@@ -452,7 +455,7 @@ fn draw_axes(canvas: &web_sys::HtmlCanvasElement, display_cfg: &DisplayConfig, y
   let y_axis_end_point = PlotPoint { x : *y_axis_inset, y : X_AXIS_INSET };
 
   let widest_tick_label = draw_axis(&canvas, &Axis {
-    title       : &"Absorption"
+    title       : TXT_Y_AXIS_TITLE
   , start_point : &chart_origin
   , end_point   : &y_axis_end_point
   , values      : abs_strs
@@ -480,7 +483,7 @@ fn draw_axes(canvas: &web_sys::HtmlCanvasElement, display_cfg: &DisplayConfig, y
                                    , y : canvas.height() as f64 - X_AXIS_INSET };
 
   draw_axis(&canvas, &Axis {
-    title       : &"Frequency (Hz)"
+    title       : TXT_X_AXIS_TITLE
   , start_point : &chart_origin
   , end_point   : &x_axis_end_point
   , values      : freq_strs
@@ -510,7 +513,6 @@ fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: &Axis) -> f64 {
   let trace          = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
 
   trace_boundary(&Some(true));
-  trace(&"Plotting axis");
 
   let ctx = get_2d_context(&canvas);
 
@@ -525,6 +527,12 @@ fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: &Axis) -> f64 {
   let axis_label_width = ctx.measure_text(axis_info.title).unwrap().width();
 
   // Draw the axis line
+  trace(&format!( "Plotting axis from ({},{}) to ({},{})"
+                , axis_info.start_point.x
+                , axis_info.start_point.y
+                , axis_info.end_point.x
+                , axis_info.end_point.y
+                ));
   ctx.begin_path();
   ctx.move_to(axis_info.start_point.x, axis_info.start_point.y);
   ctx.line_to(axis_info.end_point.x,   axis_info.end_point.y);
@@ -603,10 +611,9 @@ fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: &Axis) -> f64 {
 // *********************************************************************************************************************
 fn draw_device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_axis_length : &f64, y_axis_inset : &f64) {
   const FN_NAME : &str  = &"draw_device_diagram";
-  const LOCAL_TRACE_ACTIVE : &bool = &false;
 
-  let trace_boundary = Trace::make_boundary_trace_fn(LOCAL_TRACE_ACTIVE, LIB_NAME, FN_NAME);
-  let trace          = Trace::make_trace_fn(LOCAL_TRACE_ACTIVE, LIB_NAME, FN_NAME);
+  let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
+  let trace          = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
 
   trace_boundary(&Some(true));
 
@@ -645,7 +652,9 @@ fn draw_device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_a
       }
     };
 
-  let dev_depth_mm   = air_gap_mm + absorber_thickness_mm + panel_thickness_mm;
+  let dev_depth_mm = air_gap_mm + absorber_thickness_mm + panel_thickness_mm;
+
+  // Calculate the amount of space available for the diagram
   let available_pxls = y_axis_name_x_pos(widest_y_tick_label, y_axis_inset)
                        - LEFT_MARGIN_INSET
                        - WALL_IMG_WIDTH
@@ -665,7 +674,7 @@ fn draw_device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_a
   let absorber_img = fetch_image(&document, ABSORBER_IMG_ID);
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  // Draw wall image
+  // Draw fixed wall image
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   let wall_pos_x = LEFT_MARGIN_INSET - WALL_IMG_WIDTH;
   let wall_pos_y = X_AXIS_INSET;
@@ -675,8 +684,8 @@ fn draw_device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_a
   draw_image(&ctx, &wall_img, wall_pos_x, wall_pos_y, WALL_IMG_WIDTH, *y_axis_length);
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  // Draw absorber layer - this layer is absent for the microperforated panel device
-  // Firefox crashes if you attempt to draw a zero-width image, but Chrome and Brave are fine
+  // Draw an optional absorber layer - this layer is absent for the microperforated panel device
+  // Firefox crashes if you attempt to draw a zero-width image, but Chrome and Brave are fine with this
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   let half_height = *y_axis_length / 2.0;
 
@@ -684,11 +693,14 @@ fn draw_device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_a
   let abs_pos_y    = X_AXIS_INSET;
   let abs_width_px = absorber_thickness_mm * horiz_pixels_per_mm;
 
+  // Do we need to draw an absorber?
   if absorber_thickness_mm > 0.0 {
+    // Yup
     trace(&format!("Drawing absorber at location ({},{})", abs_pos_x, abs_pos_y));
 
+    // Do we also need to draw a panel?
     if panel_thickness_mm > 0.0 {
-      // Draw half height absorber against panel
+      // Yup, so draw a half height absorber against the panel
       draw_partial_image(
         &ctx, &absorber_img
       , 0.0, 0.0
@@ -697,7 +709,7 @@ fn draw_device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_a
       , abs_width_px, half_height
       );
 
-      // Draw half height absorber against backing
+      // Then below, draw another half height absorber against the backing
       draw_partial_image(
         &ctx, &absorber_img
       , 0.0, 0.0
@@ -707,7 +719,7 @@ fn draw_device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_a
       );
     }
     else {
-      // Draw absorber full height when there is no panel
+      // Nope, so draw a full height absorber
       draw_partial_image(
         &ctx, &absorber_img
       , 0.0, 0.0
@@ -718,18 +730,21 @@ fn draw_device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_a
     }
   }
   else {
+    // Nope, no absorbent layer here...
     trace(&"Not drawing absorber - zero thickness");
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  // Draw optional panel - this layer is absent for the rigid backed porous absorber device
-  // Firefox crashes if you attempt to draw a zero-width image, but Chrome and Brave are fine
+  // Draw an optional panel - this layer is absent for the rigid backed porous absorber device
+  // Firefox crashes if you attempt to draw a zero-width image, but Chrome and Brave are fine with this
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   let panel_width_px = panel_thickness_mm * horiz_pixels_per_mm;
   let panel_pos_x    = abs_pos_x + abs_width_px;
   let panel_pos_y    = X_AXIS_INSET;
 
+  // Do we need to draw a panel?
   if panel_thickness_mm > 0.0 {
+    // Yup...
     trace(&format!("Drawing panel at location ({},{})", panel_pos_x, panel_pos_y));
 
     draw_partial_image(
@@ -740,30 +755,30 @@ fn draw_device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_a
     , panel_width_px, *y_axis_length
     );
 
-    let colour = JsValue::from(RGB_OFF_WHITE);
-
-    // Since on the microperforated panel, the hole diameter is so small, use a scale factor to magnify the holes so
-    // that they become visible
+    // On the microperforated panel, the hole diameter is so small that without the use of a scale factor to magnify
+    // them, the holes would be almost invisible
     let scale_factor = match device.device_type {
-      DeviceType::MicroperforatedPanelAbsorber => 20.0
+      DeviceType::MicroperforatedPanelAbsorber => MP_SCALE_FACTOR
     , _                                        => 1.0
     };
 
-    let     scaled_void          = void_mm * scale_factor;
-    let     scaled_between_voids = between_voids_mm * scale_factor;
+    // "void" represents the size of either the hole or the slot in the panel
+    let     bg_colour            = JsValue::from(RGB_OFF_WHITE);
+    let     scaled_void          = scale_factor * void_mm;
+    let     scaled_between_voids = scale_factor * between_voids_mm;
     let     interval             = scaled_between_voids + scaled_void;
     let mut gap_pos              = panel_pos_y + scaled_between_voids;
 
-    trace(&format!("Void spacing = {} mm", interval));
+    trace(&format!("Voids centred every = {} mm", interval));
 
-    // Draw gaps over the panel to indicate the position and width of the slots/holes
+    // Draw background-coloured blocks over the panel to indicate the position and width of the voids
     while gap_pos < (panel_pos_y + *y_axis_length) {
-      trace(&format!("Drawing gap {} mm high at {}", scaled_void, gap_pos));
-      draw_box(&ctx, &panel_pos_x, &gap_pos, &panel_width_px, &scaled_void, &colour);
+      draw_box(&ctx, &panel_pos_x, &gap_pos, &panel_width_px, &scaled_void, &bg_colour);
       gap_pos += interval;
     }
   }
   else {
+    // Nope, no panels here...
     trace(&"Not drawing panel - zero thickness");
   }
 
@@ -798,8 +813,8 @@ fn clear(canvas: &web_sys::HtmlCanvasElement) {
 // *********************************************************************************************************************
 // Return the distance between two points
 // *********************************************************************************************************************
-fn distance(pt1_x: f64, pt1_y: f64, pt2_x: f64, pt2_y: f64, ) -> f64 {
-  sqrt(pow(pt1_x - pt2_x, 2.0) + pow(pt1_y - pt2_y, 2.0))
+fn distance(pt1: &PlotAbsPoint, pt2: &PlotAbsPoint) -> f64 {
+  sqrt(pow(pt1.x - pt2.x, 2.0) + pow(pt1.y - pt2.y, 2.0))
 }
 
 
@@ -809,26 +824,30 @@ fn distance(pt1_x: f64, pt1_y: f64, pt2_x: f64, pt2_y: f64, ) -> f64 {
 // Setting the tension to zero results in straight lines
 // *********************************************************************************************************************
 fn gen_control_points(pt1: &PlotAbsPoint, pt2: &PlotAbsPoint, pt3: &PlotAbsPoint, tension : f64) -> Vec<PlotPoint> {
-  // Vector from start point to finish point
-  // This is used to determine the gradient of the lines through the control points
+  // Calculate the length of the two line segments
+  let seg_1_len   = distance(pt1, pt2);
+  let seg_2_len   = distance(pt2, pt3);
+  let total_len   = seg_1_len + seg_2_len;
+  let seg_1_ratio = seg_1_len / total_len;
+  let seg_2_ratio = seg_2_len / total_len;
+
+  // Calculate the gradient between the start and finish points.  The control points then live on a line that has this
+  // gradient and passes through the middle point
   let x_vec = pt3.x - pt1.x;
   let y_vec = pt3.y - pt1.y;
 
-  let d01  = distance(pt1.x, pt1.y, pt2.x, pt2.y);
-  let d12  = distance(pt2.x, pt2.y, pt3.x, pt3.y);
-  let d012 = d01 + d12;
-
   // Return the coordinates of the two control points between the three current points
   return vec![
-    PlotPoint { x : pt2.x - x_vec * tension * d01 / d012, y : pt2.y - y_vec * tension * d01 / d012 }
-  , PlotPoint { x : pt2.x + x_vec * tension * d12 / d012, y : pt2.y + y_vec * tension * d12 / d012 }
-  ]
+    PlotPoint { x : pt2.x - x_vec * tension * seg_1_ratio, y : pt2.y - y_vec * tension * seg_1_ratio }
+  , PlotPoint { x : pt2.x + x_vec * tension * seg_2_ratio, y : pt2.y + y_vec * tension * seg_2_ratio }
+  ];
+
 }
 
 
 // *********************************************************************************************************************
 // Draw the control points
-// This function is only called if TRACE_ACTIVE is switched on
+// This function is only called if the TRACE_ACTIVE flag is switched on
 // *********************************************************************************************************************
 fn draw_control_points(ctx : &web_sys::CanvasRenderingContext2d, cps : &Vec<PlotPoint>) {
   for i in 0..(cps.len() / 2) {

@@ -27,7 +27,7 @@ use crate::Trace;
 const LIB_NAME     : &str  = &"device_perforated_panel";
 const TRACE_ACTIVE : &bool = &false;
 
-
+const CHART_TITLE : &str = &"Normal Incidence Absorption";
 
 // *********************************************************************************************************************
 // *********************************************************************************************************************
@@ -120,10 +120,16 @@ pub fn do_perforated_panel_device(wasm_arg_obj : JsValue) -> JsValue {
   // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
   // value "Ok", else return the array of error messages
   let return_value = if error_msgs.len() == 0 {
-    let absorber_info = calc_engine::calculate_perforated_panel(&air_cfg, &cavity_cfg, &display_cfg, &panel_cfg, &porous_cfg);
+    let absorber_info = calc_engine::calculate_perforated_panel(
+      &air_cfg
+    , &cavity_cfg
+    , &display_cfg
+    , &panel_cfg
+    , &porous_cfg
+    );
     
     // Plot the graph
-    let chart_info = render::plot_generic_device(absorber_info, &display_cfg, &"Normal Incidence Absorption");
+    let chart_info = render::plot_generic_device(absorber_info, &display_cfg, CHART_TITLE);
 
     JsValue::from_serde(&chart_info).unwrap()
   }

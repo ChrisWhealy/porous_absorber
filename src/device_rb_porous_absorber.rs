@@ -113,10 +113,20 @@ pub fn do_porous_absorber_device(wasm_arg_obj : JsValue) -> JsValue {
   // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
   // value "Ok", else return the array of error messages
   let return_value = if error_msgs.len() == 0 {
-    let absorber_info = calc_engine::calculate_porous_absorber(&air_cfg, &cavity_cfg, &display_cfg, &sound_cfg, &porous_cfg);
+    let absorber_info = calc_engine::calculate_porous_absorber(
+      &air_cfg
+    , &cavity_cfg
+    , &display_cfg
+    , &sound_cfg
+    , &porous_cfg
+    );
     
     // Plot the graph
-    let chart_info = render::plot_generic_device(absorber_info, &display_cfg, &format!("Overall absorption at {}°", sound_cfg.angle));
+    let chart_info = render::plot_generic_device(
+      absorber_info
+    , &display_cfg
+    , &format!("Overall absorption at {}°", sound_cfg.angle)
+    );
 
     JsValue::from_serde(&chart_info).unwrap()
   }

@@ -130,8 +130,7 @@ pub fn do_microperforated_panel_device(wasm_arg_obj : JsValue) -> JsValue {
     let chart_info = render::plot_generic_device(
       absorber_info
     , &display_cfg
-    , &format!("Overall absorption at {}°"
-    , sound_cfg.angle)
+    , &format!("Overall absorption at {}°", sound_cfg.angle)
     );
 
     JsValue::from_serde(&chart_info).unwrap()
