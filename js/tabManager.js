@@ -14,8 +14,9 @@ import {
 , setProperty
 } from "./utils.js"
 
+import tabConfig from "./tabConfig.js"
+
 import { $id, $class }         from "./domAccess.js"
-import { tabConfig }           from "./tabConfig.js"
 import { showAndConvertUnits } from "./unitConversion.js"
 
 import {
@@ -26,33 +27,26 @@ import {
 
 // *********************************************************************************************************************
 // Define trace functions
-import { define_trace } from "./appConfig.js"
-const { traceBoundary, traceInfo } = define_trace("tabManager")
+import defineTrace from "./appConfig.js"
+const { traceFnBoundary, traceInfo } = defineTrace("tabManager")
+
+
 
 // *********************************************************************************************************************
-// UI slider range limitation
+// *********************************************************************************************************************
+//
+//                                                 P R I V A T E   A P I
+//
+// *********************************************************************************************************************
 // *********************************************************************************************************************
 
-// Modifier functions for use with the limitMax() function
-const half   = val => val / 2.0
-const double = val => val * 2.0
-
-// Restrict the maximum value of the target UI element to the current value of the source element after applying some
-// modifier function to it.  Defaults to the idiot function if no modifier function is supplied
-const limitMax =
-  (srcEl, targetEl, upperLimit, modifierFn) =>
-    (modFn => $id(targetEl).max = Math.min(modFn(srcEl.value), upperLimit))
-    (modifierFn || idiot)
 
 
 // *********************************************************************************************************************
 // Tab management
 // *********************************************************************************************************************
-const openTab =
+const openTabFn =
   (evt, tabName) => {
-    const trace_bnd = traceBoundary("openTab")
-    trace_bnd(true)
-
     // Remove graph from screen when the configuration tab is selected and blank out graph overlay canvas
     $id(CANVAS_CONTAINER).className = tabName === "configuration" ? "fadeOut" : "fadeIn"
     $id(GRAPH_OVERLAY).width        = $id(GRAPH_OVERLAY).width     
@@ -64,54 +58,87 @@ const openTab =
     // Make the selected tab button active
     evt.currentTarget.className += " active"
     $id(tabName).style.display = "block"
-
     fetchTab(tabName)
-
-    trace_bnd(false)
   }
+
+
+// *********************************************************************************************************************
+// Hide tabs and remove their content except for the configuration tab
+const hideAndEmptyAllTabsFn =
+  () => {
+    for (var tab of $class("tabContent")) {
+      tab.style.display = "none"
+
+      if (tab.id !== "configuration") {
+        tab.innerHTML = ""
+      }
+    }
+  }
+
+const hideAndEmptyAllTabs = traceFnBoundary("hideAndEmptyAllTabs", null, hideAndEmptyAllTabsFn)
+
+// *********************************************************************************************************************
+// Cache values from the current tab into local storage, then deactivate the tab button
+const cacheValuesAndDeactivateFn =
+  () => {
+    for (var tablink of $class("tabButton")) {
+      if (tablink.className.indexOf("active") > -1) {
+        tablink.className = tablink.className.replace(" active", "")
+        window.store_tab_values(tablink.id.replace("tab_button_", ""))
+      }
+    }
+  }
+
+const cacheValuesAndDeactivate = traceFnBoundary("cacheValuesAndDeactivate", null, cacheValuesAndDeactivateFn)
+
+// *********************************************************************************************************************
+// Partial function that generates another function to respond to the onload event after tab HTML data is returned to
+// the client
+const tabLoadedFn =
+  (tabName, req) =>
+    () => {
+      $id(tabName).innerHTML = ""
+      $id(tabName).insertAdjacentHTML('afterbegin', req.response)
+      
+      // Restore the current tab's values using the function defined in main.js that in turn, is based on the
+      // availability of local storage.  If local storage is not available, then this function evaluates to no_op
+      window.restoreTabValues(tabName)
+      
+      // Call WASM to update the screen and then replace the mousemove handler for the canvas overlay
+      updateScreenAndMouseHandler(tabName)
+    }
+
+const tabLoaded = traceFnBoundary("tabLoaded", null, tabLoadedFn)
+
 
 // *********************************************************************************************************************
 // Cache values from the current tab into local storage
-const cacheValues =
+const cacheValuesFn =
   () => {
-    const trace_bnd = traceBoundary("cacheValues")
-    trace_bnd(true)
-
     for (var tablink of $class("tabButton")) {
       if (tablink.className.indexOf("active") > -1) {
         window.store_tab_values(tablink.id.replace("tab_button_", ""))
       }
     }
-
-    trace_bnd(false)
   }
 
 // *********************************************************************************************************************
 // Fetch tab content from server
-const fetchTab =
-  tabName => {
-    const trace_bnd = traceBoundary("fetchTab", tabName)
-    trace_bnd(true)
-
-    let req = new XMLHttpRequest()
-    
-    req.open('GET',`./tabs/${tabName}.html`)
-    req.onload = tabLoaded(tabName, req)
-    req.send()
-
-    trace_bnd(false)
-  }
-
+const fetchTabFn =
+  tabName =>
+    (req => {
+      req.open('GET',`./tabs/${tabName}.html`)
+      req.onload = tabLoaded(tabName, req)
+      req.send()
+    })
+    (new XMLHttpRequest())
 
 // *********************************************************************************************************************
 // This function must be called every time an input value is changed
-const updateScreen =
+const updateScreenFn =
   tabName => {
-    const trace_bnd = traceBoundary("updateScreen", tabName)
-    const trace     = traceInfo("updateScreen")
+    const trace = traceInfo("updateScreenFn")
 
-    trace_bnd(true)
-    
     // Perform any unit conversions that might be needed for the UI, then extract the input values relevant for the
     // current WASM function
     let wasmArgObj = tabConfig[tabName]
@@ -133,30 +160,23 @@ const updateScreen =
 
     // WASM does its magic unless the configuration tab is selected, in which case window[tabName] resolves to calling
     // function no_op()
-    let wasm_response = window[tabName](wasmArgObj)
-
-    trace_bnd(false)
-    return wasm_response
+    return window[tabName](wasmArgObj)
 }
-
 
 // *********************************************************************************************************************
 // Update the graph by calling the required WASM function.
 // This function is called either:
 //  1) When a tab is selected, or
-//  2) The user changes the octave subdivisions, or
-//  3) The screen width is resized.
+//  2) The user changes the octave subdivisions
+//  3) The screen width is resized, or
+//  4) The device diagram is hidden/revealed
 //
 //  In all three cases, the graph is redrawn; but in the first two cases, it is due to the fact that the number of plot
 //  points on the graph has changed.  This also requires the mousemove handler for the canvas overlay to be replaced
 //
 //  In the last case, the graph must be redrawn because the canvas size has changed
-const updateScreenAndMouseHandler =
+const updateScreenAndMouseHandlerFn =
   tabName => {
-    const trace_bnd = traceBoundary("updateScreenAndMouseHandler", tabName)
-
-    trace_bnd(true)
-
     // Call WASM to update the graph
     let wasm_response = updateScreen(tabName)
 
@@ -182,13 +202,45 @@ const updateScreenAndMouseHandler =
       if (isNotNullOrUndef(wasm_response))
         console.warn(`That's weird - got the unexpected value "${wasm_response}" back from WASM`)
     }
-
-    trace_bnd(false)
   }
 
+
+
 // *********************************************************************************************************************
-// Public API
 // *********************************************************************************************************************
+//
+//                                                  P U B L I C   A P I
+//
+// *********************************************************************************************************************
+// *********************************************************************************************************************
+
+
+
+// *********************************************************************************************************************
+// UI slider range limitation
+// *********************************************************************************************************************
+
+// Modifier functions for use with the limitMax() function
+const half   = val => val / 2.0
+const double = val => val * 2.0
+
+// Restrict the maximum value of the target UI element to the current value of the source element after applying some
+// modifier function to it.  Defaults to the idiot function if no modifier function is supplied
+const limitMax =
+  (srcEl, targetEl, upperLimit, modifierFn) =>
+    (modFn => $id(targetEl).max = Math.min(modFn(srcEl.value), upperLimit))
+    (modifierFn || idiot)
+
+
+// *********************************************************************************************************************
+// Wrap private API functions in boundary trace functionality then expose as public API
+// *********************************************************************************************************************
+const openTab                     = traceFnBoundary("openTab", null, openTabFn)
+const cacheValues                 = traceFnBoundary("cacheValues", null, cacheValuesFn)
+const fetchTab                    = traceFnBoundary("fetchTab", null, fetchTabFn)
+const updateScreen                = traceFnBoundary("updateScreen", null, updateScreenFn)
+const updateScreenAndMouseHandler = traceFnBoundary("updateScreenAndMouseHandler", null, updateScreenAndMouseHandlerFn)
+
 export {
   limitMax
 , half
@@ -199,67 +251,4 @@ export {
 , updateScreen
 , updateScreenAndMouseHandler
 }
-
-
-// *********************************************************************************************************************
-// Private API
-// *********************************************************************************************************************
-
-// *********************************************************************************************************************
-// Hide tabs and remove their content except for the configuration tab
-const hideAndEmptyAllTabs =
-  () => {
-    const trace_bnd = traceBoundary("hide_all_tabs")
-    trace_bnd(true)
-
-    for (var tab of $class("tabContent")) {
-      tab.style.display = "none"
-
-      if (tab.id !== "configuration") {
-        tab.innerHTML = ""
-      }
-    }
-
-    trace_bnd(false)
-  }
-
-// *********************************************************************************************************************
-// Cache values from the current tab into local storage, then deactivate the tab button
-const cacheValuesAndDeactivate =
-  () => {
-    const trace_bnd = traceBoundary("cacheValuesAndDeactivate")
-    trace_bnd(true)
-
-    for (var tablink of $class("tabButton")) {
-      if (tablink.className.indexOf("active") > -1) {
-        tablink.className = tablink.className.replace(" active", "")
-        window.store_tab_values(tablink.id.replace("tab_button_", ""))
-      }
-    }
-
-    trace_bnd(false)
-  }
-
-// *********************************************************************************************************************
-// Partial function that generates another function to respond to the onload event after tab HTML data is returned to
-// the client
-const tabLoaded =
-  (tabName, req) =>
-    () => {
-      let trace_bnd = traceBoundary("tabLoaded", tabName)
-      trace_bnd(true)
-
-      $id(tabName).innerHTML = ""
-      $id(tabName).insertAdjacentHTML('afterbegin', req.response)
-      
-      // Restore the current tab's values using the function defined in main.js that in turn, is based on the
-      // availability of local storage.  If local storage is not available, then this function evaluates to no_op
-      window.restoreTabValues(tabName)
-      
-      // Call WASM to update the screen and then replace the mousemove handler for the canvas overlay
-      updateScreenAndMouseHandler(tabName)
-
-      trace_bnd(false)
-    }
-
 

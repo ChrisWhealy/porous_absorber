@@ -7,8 +7,8 @@
  **********************************************************************************************************************/
 
 import { isBetween, isInsideRect } from "./utils.js"
+import { MIN_CANVAS_WIDTH }        from "./appConfig.js"
 
-const MIN_CANVAS_WIDTH  = 1000
 const PLOT_POINT_RADIUS = 5
 const RGB_LIGHT_GREY    = "rgb(223, 223, 223)"
 
@@ -17,6 +17,58 @@ const ABS_INFO_OFFSET = 10
 const CANVAS_CONTAINER = "canvas_container"
 const GRAPH            = "graph_canvas"
 const GRAPH_OVERLAY    = "graph_canvas_overlay"
+
+// *********************************************************************************************************************
+// *********************************************************************************************************************
+//
+//                                                 P R I V A T E   A P I
+//
+// *********************************************************************************************************************
+// *********************************************************************************************************************
+
+const drawCrossHairs =
+  (ctx, mousePos, chartBox) => {
+    ctx.beginPath()
+    ctx.strokeStyle = RGB_LIGHT_GREY
+
+    // Draw vertical line
+    ctx.moveTo(mousePos.x, chartBox.top_left.y)
+    ctx.lineTo(mousePos.x, chartBox.bottom_right.y)
+
+    // Draw horizontal line
+    ctx.moveTo(chartBox.top_left.x,     mousePos.y)
+    ctx.lineTo(chartBox.bottom_right.x, mousePos.y)
+
+    ctx.stroke()
+}
+
+// *********************************************************************************************************************
+// Add "absorption @ frequency" text to canvas
+// Before calling this function, you should have at least already set the canvas font
+const showAbsInfo = (ctx, mousePos, canvasWidth, plotPoint) => {
+  // Build the text then find out how wide it is
+  let txt      = `${plotPoint.abs} @ ${plotPoint.freq.toFixed(0)}Hz`
+  let txtWidth = ctx.measureText(txt).width
+
+  // Add the absorption text to the canvas
+  ctx.fillText(
+    txt
+    // On which side of the plot point should the text be positioned?
+  , txtWidth + mousePos.x + ABS_INFO_OFFSET < canvasWidth
+    ? mousePos.x + ABS_INFO_OFFSET
+    : mousePos.x - ABS_INFO_OFFSET - txtWidth
+  , mousePos.y - ABS_INFO_OFFSET)
+}
+
+
+
+// *********************************************************************************************************************
+// *********************************************************************************************************************
+//
+//                                                  P U B L I C   A P I
+//
+// *********************************************************************************************************************
+// *********************************************************************************************************************
 
 // *********************************************************************************************************************
 // Calculate mouse position when over a canvas element
@@ -118,9 +170,9 @@ const setCanvasSize =
     )
     (Math.max(MIN_CANVAS_WIDTH, parseInt(window.getComputedStyle(document.body).width) - 2))
 
-// *********************************************************************************************************************
-// Public API
-// *********************************************************************************************************************
+
+
+
 export {
   mousePositionOnCanvas
 , mousePositionViaElementHierarchy
@@ -133,43 +185,4 @@ export {
 }
 
 
-
-// *********************************************************************************************************************
-// Private API
-// *********************************************************************************************************************
-
-const drawCrossHairs =
-  (ctx, mousePos, chartBox) => {
-    ctx.beginPath()
-    ctx.strokeStyle = RGB_LIGHT_GREY
-
-    // Draw vertical line
-    ctx.moveTo(mousePos.x, chartBox.top_left.y)
-    ctx.lineTo(mousePos.x, chartBox.bottom_right.y)
-
-    // Draw horizontal line
-    ctx.moveTo(chartBox.top_left.x,     mousePos.y)
-    ctx.lineTo(chartBox.bottom_right.x, mousePos.y)
-
-    ctx.stroke()
-}
-
-
-// *********************************************************************************************************************
-// Add "absorption @ frequency" text to canvas
-// Before calling this function, you should have at least already set the canvas font
-const showAbsInfo = (ctx, mousePos, canvasWidth, plotPoint) => {
-  // Build the text then find out how wide it is
-  let txt      = `${plotPoint.abs} @ ${plotPoint.freq.toFixed(0)}Hz`
-  let txtWidth = ctx.measureText(txt).width
-
-  // Add the absorption text to the canvas
-  ctx.fillText(
-    txt
-    // On which side of the plot point should the text be positioned?
-  , txtWidth + mousePos.x + ABS_INFO_OFFSET < canvasWidth
-    ? mousePos.x + ABS_INFO_OFFSET
-    : mousePos.x - ABS_INFO_OFFSET - txtWidth
-  , mousePos.y - ABS_INFO_OFFSET)
-}
 

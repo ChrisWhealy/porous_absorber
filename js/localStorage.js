@@ -6,7 +6,7 @@
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
 
-import { tabConfig } from "./tabConfig.js"
+import tabConfig from "./tabConfig.js"
 
 import {
   setProperty
@@ -16,12 +16,79 @@ import {
 
 // *********************************************************************************************************************
 // Define trace functions
-import { define_trace } from "./appConfig.js"
-const { traceBoundary, traceInfo } = define_trace("localStorage")
+import defineTrace from "./appConfig.js"
+const { traceFnBoundary, traceInfo } = defineTrace("localStorage")
+
+
+// *********************************************************************************************************************
+// *********************************************************************************************************************
+//
+//                                                 P R I V A T E   A P I
+//
+// *********************************************************************************************************************
+// *********************************************************************************************************************
+
+
+// *********************************************************************************************************************
+const restoreFromLocalStorageFn =
+  tabName => {
+    const trace = traceInfo("restoreFromLocalStorage")
+
+    let tabValueStr = window.localStorage.getItem(tabName)
+
+    if (isNull(tabValueStr)) {
+      trace(`No values for ${tabName} found in local storage`)
+    }
+    else {
+      trace(`Cached values for tab "${tabName}" found in local storage`)
+      let thisConfig = tabConfig[tabName]
+  
+      JSON.parse(tabValueStr).map((field, idx) => {
+        trace(`     ${field.id}=${field.value}`)
+        thisConfig[idx].setter(field.id, field.value)
+      })
+    }
+  }
+
+  
+// *********************************************************************************************************************
+const writeToLocalStorageFn =
+  tabName => {
+    let cacheVals = tabConfig[tabName].map(
+      field =>
+      isNullOrUndef(field.getter(field.id))
+      ? { "id" : field.id, "value" : field.default }
+      : { "id" : field.id, "value" : field.getter(field.id) }
+      )
+      
+      traceInfo("writeToLocalStorage")(`Writing ${JSON.stringify(cacheVals)} to local storage`)
+      window.localStorage.setItem(tabName, JSON.stringify(cacheVals))
+    }
+    
+// *********************************************************************************************************************
+const clearLocalStorageFn =
+  () => {
+    let keyCount = Object.keys(tabConfig).length
+    Object.keys(tabConfig).map(tab => window.localStorage.removeItem(tab))
+    alert(`All cached data for ${keyCount} tabs has been removed from local storage`)
+  }
+
+
+
+// *********************************************************************************************************************
+// *********************************************************************************************************************
+//
+//                                                  P U B L I C   A P I
+//
+// *********************************************************************************************************************
+// *********************************************************************************************************************
+
+
 
 // *********************************************************************************************************************
 // Check if local storage is available
 // Warning: This function cannot be run before the HTML page has fully initialised!
+// *********************************************************************************************************************
 const storageAvailable =
   type => {
     let storage
@@ -51,76 +118,24 @@ const storageAvailable =
   }
 
 // *********************************************************************************************************************
-const restoreFromLocalStorage =
-  tabName => {
-    const trace_bnd = traceBoundary("restoreFromLocalStorage", tabName)
-    const trace     = traceInfo("restoreFromLocalStorage")
-    trace_bnd(true)
-
-    let tabValueStr = window.localStorage.getItem(tabName)
-
-    if (isNull(tabValueStr)) {
-      trace(`No values for ${tabName} found in local storage`)
-    }
-    else {
-      trace(`Cached values for tab "${tabName}" found in local storage`)
-      let thisConfig = tabConfig[tabName]
-  
-      JSON.parse(tabValueStr).map((field, idx) => {
-        trace(`     ${field.id}=${field.value}`)
-        thisConfig[idx].setter(field.id, field.value)
-      })
-    }
-
-    trace_bnd(false)
-  }
-
-// *********************************************************************************************************************
-const writeToLocalStorage =
-  tabName => {
-    const trace_bnd = traceBoundary("writeToLocalStorage", tabName)
-    const trace     = traceInfo("writeToLocalStorage")
-    trace_bnd(true)
-
-    let cacheVals = tabConfig[tabName].map(
-      field =>
-        isNullOrUndef(field.getter(field.id))
-        ? { "id" : field.id, "value" : field.default }
-        : { "id" : field.id, "value" : field.getter(field.id) }
-      )
-
-    trace(`Writing ${JSON.stringify(cacheVals)} to local storage`)
-    window.localStorage.setItem(tabName, JSON.stringify(cacheVals))
-
-    trace_bnd(false)
-  }
-
-// *********************************************************************************************************************
-const clearLocalStorage =
-  () => {
-    const trace_bnd = traceBoundary("clearLocalStorage")
-    trace_bnd(true)
-
-    let key_count = Object.keys(tabConfig).length
-    Object.keys(tabConfig).map(tab => window.localStorage.removeItem(tab))
-    alert(`All cached data for ${key_count} tabs has been removed from local storage`)
-
-    trace_bnd(false)
-  }
-
-// *********************************************************************************************************************
 // Fetch the air temperature and pressure config values from local storage
+// *********************************************************************************************************************
 const fetchConfigTabValues =
   () =>
     JSON
       .parse(window.localStorage.getItem("configuration"))
-      // Force all field values to be strings otherwise Rust panics when unwrapping the results of the call to function
-      // into_serde()
+      // Force all field values to be strings otherwise Rust panics when tries to unwrap the results of the call to
+      // function into_serde()
       .reduce((acc, field) => setProperty(acc, field.id, field.value + ""), {})
 
+
 // *********************************************************************************************************************
-// Public API
+// Wrap private API functions in boundary trace functionality then expose as public API
 // *********************************************************************************************************************
+const restoreFromLocalStorage = traceFnBoundary("restoreFromLocalStorage", null, restoreFromLocalStorageFn)
+const writeToLocalStorage     = traceFnBoundary("writeToLocalStorage",     null, writeToLocalStorageFn)
+const clearLocalStorage       = traceFnBoundary("clearLocalStorage",       null, clearLocalStorageFn)
+
 export {
   storageAvailable
 , restoreFromLocalStorage

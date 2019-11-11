@@ -36,11 +36,14 @@ import init
 
 // *********************************************************************************************************************
 // Define trace functions
-import { define_trace } from "./appConfig.js"
-const { traceBoundary, traceInfo } = define_trace("main")
+// *********************************************************************************************************************
+import defineTrace from "./appConfig.js"
+const { traceFnBoundary, traceInfo } = defineTrace("main")
+
 
 // *********************************************************************************************************************
 // Define canvas size based on current window size
+// *********************************************************************************************************************
 window.onload = () => [GRAPH, GRAPH_OVERLAY].map(elName => setCanvasSize($id(elName)))
 
 window.onresize = () => {
@@ -59,6 +62,7 @@ window.onresize = () => {
 
 // *********************************************************************************************************************
 // Make the tab's various onclick and oninput functions available at the window level
+// *********************************************************************************************************************
 window.openTab                     = TM.openTab
 window.updateScreen                = TM.updateScreen
 window.updateScreenAndMouseHandler = TM.updateScreenAndMouseHandler
@@ -78,20 +82,12 @@ startWASM()
 
 
 // *********************************************************************************************************************
-// Private API
-// *********************************************************************************************************************
-
-
-// *********************************************************************************************************************
 // Define the use of local storage
-function useLocalStorage() {
-  const trace_bnd = traceBoundary("useLocalStorage")
-  const trace     = traceInfo("useLocalStorage")
-  trace_bnd(true)
-
+// *********************************************************************************************************************
+function useLocalStorageFn() {
   let can_i_haz_local_storage = LS.storageAvailable("localStorage")
 
-  trace(`Local storage is${can_i_haz_local_storage ? " " : " not "}available`)
+  traceInfo("useLocalStorage")(`Local storage is${can_i_haz_local_storage ? " " : " not "}available`)
 
   // If local storage is available, then we must check that it has been populated with the configuration tab values
   if (can_i_haz_local_storage) {
@@ -103,16 +99,14 @@ function useLocalStorage() {
   window.store_tab_values   = can_i_haz_local_storage ? LS.writeToLocalStorage     : no_op
   window.clearLocalStorage  = can_i_haz_local_storage ? LS.clearLocalStorage       : no_op
   window.getConfigTabValues = can_i_haz_local_storage ? LS.fetchConfigTabValues    : fetchConfigFromDom
-
-  trace_bnd(false)
 }
+
+const useLocalStorage = traceFnBoundary("useLocalStorage", null, useLocalStorageFn)
 
 // *********************************************************************************************************************
 // Activate configuration and default tabs
-async function startTabs() {
-  const trace_bnd = traceBoundary("startTabs")
-  trace_bnd(true)
-  
+// *********************************************************************************************************************
+async function startTabsFn() {
   // Ensure the configuration tab is always loaded
   await TM.fetchTab("configuration")
 
@@ -120,12 +114,13 @@ async function startTabs() {
   for (var tablink of $class("tabButton")) {
     if (tablink.getAttribute("default") === "true") tablink.click()
   }
-
-  trace_bnd(false)
 }
+
+const startTabs = traceFnBoundary("startTabs", null, startTabsFn)
 
 // *********************************************************************************************************************
 // Initialise the Web Assembly module, then start the tabs containing each absorber device type
+// *********************************************************************************************************************
 async function startWASM() {
   await init()
   console.log("WASM module initialisation complete...")

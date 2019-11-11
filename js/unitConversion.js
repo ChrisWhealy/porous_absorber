@@ -6,16 +6,27 @@
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
 
-import { $id } from "./domAccess.js"
+import { $id }           from "./domAccess.js"
+import { isNullOrUndef } from "./utils.js"
 
 // *********************************************************************************************************************
 // Define trace functions
-import { define_trace } from "./appConfig.js"
-const { traceBoundary, traceInfo } = define_trace("unitConversion")
+import defineTrace from "./appConfig.js"
+const { traceFnBoundary, traceInfo } = defineTrace("unitConversion")
+
+
+// *********************************************************************************************************************
+// *********************************************************************************************************************
+//
+//                                                 P R I V A T E   A P I
+//
+// *********************************************************************************************************************
+// *********************************************************************************************************************
+
 
 // *********************************************************************************************************************
 // Convert metric units to imperial
-const to_imperial = (units, val) => {
+const toImperial = (units, val) => {
   let result = null
 
   switch(units) {
@@ -45,42 +56,32 @@ const to_imperial = (units, val) => {
 
 // *********************************************************************************************************************
 // Partial function to display a value in a DOM element after being formatted by the supplied function
-const show_value =
+const showValueFn =
   (field_suffix, fn) =>
-    (val, field_config) => {
-      const trace_bnd = traceBoundary("show_value", field_config.id)
-      const trace     = traceInfo("show_value")
+    (val, field_config) =>
+      (el =>
+        isNullOrUndef(el)
+        ? traceInfo("showValue")(`DOM element ${field_config.id}${field_suffix} not found`)
+        : el.innerHTML =
+          fn === "imperial"
+          ? toImperial(field_config.units, val)
+          : field_config.units === "each"
+            ? `${val.toLocaleString('en')}`
+            : `${val.toLocaleString('en')} ${field_config.units}`
+      )
+      ($id(`${field_config.id}${field_suffix}`))
 
-      trace_bnd(true)
-
-      let el = $id(`${field_config.id}${field_suffix}`)
-
-      if (el) {
-        el.innerHTML = (fn === "imperial")
-                       ? to_imperial(field_config.units, val)
-                       : field_config.units === "each"
-                         ? `${val.toLocaleString('en')}`
-                         : `${val.toLocaleString('en')} ${field_config.units}`
-      }
-      else {
-        trace(`DOM element ${field_config.id}${field_suffix} not found`)
-      }
-
-      trace_bnd(false)
-    }
+const showValue = traceFnBoundary("showValue", null, showValueFn)
 
 // *********************************************************************************************************************
 // Display range slider value in separate DOM element
-const show_units    = show_value("_value",     "default")
-const convert_units = show_value("_alt_units", "imperial")
+const showUnits    = showValue("_value",     "default")
+const convertUnits = showValue("_alt_units", "imperial")
 
 // *********************************************************************************************************************
 // Display range slider value unit conversion if necessary
-const showAndConvertUnits =
+const showAndConvertUnitsFn =
   field_config => {
-    const trace_bnd = traceBoundary("showAndConvertUnits", field_config.id)
-    trace_bnd(true)
-
     let displayValue = null
 
     switch(field_config.id) {
@@ -107,16 +108,26 @@ const showAndConvertUnits =
         displayValue = field_config.getter(field_config.id)
     }
 
-    show_units(displayValue, field_config)
-    convert_units(displayValue, field_config)
-
-    trace_bnd(false)
+    showUnits(displayValue, field_config)
+    convertUnits(displayValue, field_config)
   }
 
 
 // *********************************************************************************************************************
-// Public API
 // *********************************************************************************************************************
+//
+//                                                  P U B L I C   A P I
+//
+// *********************************************************************************************************************
+// *********************************************************************************************************************
+
+
+// *********************************************************************************************************************
+// Wrap private API functions in boundary trace functionality then expose as public API
+// *********************************************************************************************************************
+const showAndConvertUnits = traceFnBoundary("showAndConvertUnits", null, showAndConvertUnitsFn)
+
+
 export {
   showAndConvertUnits
 }

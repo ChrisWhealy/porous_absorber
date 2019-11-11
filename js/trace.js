@@ -12,31 +12,48 @@ const ENTRY_ARROW  = "--->"
 const EXIT_ARROW   = "<---"
 const IN_OUT_ARROW = "<-->"
 
+// If arrow() is called with no arguments, then the in/out "<--->" arrow is displayed to indicate that the function
+// being called is either just a single expression or contains very simple functionality
 const arrow = mayBeBool => isNullOrUndef(mayBeBool) ? IN_OUT_ARROW : mayBeBool ? ENTRY_ARROW : EXIT_ARROW
 
-const doTraceBoundary =
-  isDebug =>
-    modName =>
-      (fnName, argVals) =>
-        isEntry =>
-          isDebug
-          ? console.log(`${arrow(isEntry)} ${modName}.${fnName}(${isNullOrUndef(argVals) ? "" : argVals})`)
-          : no_op()
-
 const doTraceInfo =
-  isDebug =>
-    modName =>
-      fnName =>
-        txt =>
-          isDebug
-          ? console.log(`     ${modName}.${fnName}() : ${txt}`)
-          : no_op()
+  (isDebug, modName) =>
+    fnName =>
+      txt => isDebug ? writeTraceText("     ", modName, fnName, null, txt)
+                      : no_op()
 
+const doTraceFnBoundary =
+  (traceActive, modName) =>
+    (fnName, argVals, fn) =>
+      traceActive
+      ? (...args) => {
+          writeTraceText(arrow(true), modName, fnName, argVals)
+          let retVal = fn.apply(null, args)
+          writeTraceText(arrow(false), modName, fnName, argVals)
+          return retVal
+        }
+      : (...args) => fn.apply(null, args)
 
 // *********************************************************************************************************************
 // Public API
 // *********************************************************************************************************************
 export {
-  doTraceBoundary
+  doTraceFnBoundary
 , doTraceInfo
 }
+
+
+
+// *********************************************************************************************************************
+// Private API
+// *********************************************************************************************************************
+
+const writeTraceText =
+  (prefix, modName, fnName, argVals, txt) =>
+    ((args, text) =>
+      console.log(`${prefix} ${modName}.${fnName}(${args})${text}`)
+    )
+    ( isNullOrUndef(argVals) ? "" : argVals
+    , isNullOrUndef(txt)     ? "" : ` : ${txt}`
+    )
+

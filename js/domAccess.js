@@ -10,11 +10,57 @@ import { idiot } from "./utils.js"
 
 // *********************************************************************************************************************
 // Define trace functions
-import { define_trace } from "./appConfig.js"
-const { traceInfo } = define_trace("domAccess")
+import defineTrace from "./appConfig.js"
+const { traceInfo } = defineTrace("domAccess")
+
+
+// *********************************************************************************************************************
+// *********************************************************************************************************************
+//
+//                                                 P R I V A T E   A P I
+//
+// *********************************************************************************************************************
+// *********************************************************************************************************************
+
+
+// *********************************************************************************************************************
+// Partial function to fetch, then parse a DOM element value
+// *********************************************************************************************************************
+const getParsedElementValue =
+  parseFn =>
+    elementId =>
+      (el =>
+         el ? parseFn(el.value)
+            : traceInfo("getParsedElementValue")(`Element '${elementId}' not found`)
+      )
+      ($id(elementId))
+
+
+// *********************************************************************************************************************
+// Write values to DOM elements
+// *********************************************************************************************************************
+const setDomElementProperty =
+  (elementId, propName, parsedVal) => 
+    (el =>
+      el ? el[propName] = parsedVal
+         : traceInfo("setDomElementProperty")(`DOM element '${elementId}' not found`)
+    )
+    ($id(elementId))
+
+
+
+// *********************************************************************************************************************
+// *********************************************************************************************************************
+//
+//                                                  P U B L I C   A P I
+//
+// *********************************************************************************************************************
+// *********************************************************************************************************************
+
 
 // *********************************************************************************************************************
 // Fetch DOM elements by id, class name or name
+// *********************************************************************************************************************
 function $id(elementId) {
   return document.getElementById(elementId)
 }
@@ -28,16 +74,8 @@ function $name(elementName) {
 }
 
 // *********************************************************************************************************************
-// Partial function to fetch, then parse a DOM element value
-const getParsedElementValue =
-  parseFn =>
-    elementId =>
-      (el =>
-         el ? parseFn(el.value)
-            : traceInfo("getParsedElementValue")(`Element '${elementId}' not found`)
-      )
-      ($id(elementId))
-
+// Getter functions for DOM elements of various data types
+// *********************************************************************************************************************
 const getFloat     = getParsedElementValue(parseFloat)
 const getInt       = getParsedElementValue(parseInt)
 const getText      = getParsedElementValue(idiot)
@@ -57,16 +95,8 @@ const getRadio =
   }
 
 // *********************************************************************************************************************
-// Write values to DOM elements
-const setDomElementProperty =
-  (elementId, propName, parsedVal) => 
-    (el =>
-      el
-      ? el[propName] = parsedVal
-      : traceInfo("setDomElementProperty")(`DOM element '${elementId}' not found`)
-    )
-    ($id(elementId))
-
+// Setter functions for DOM element of various data types
+// *********************************************************************************************************************
 const setString   = (elementId, val) => setDomElementProperty(elementId, "value", val)
 const setInt      = (elementId, val) => setDomElementProperty(elementId, "value", parseInt(val))
 const setFloat    = (elementId, val) => setDomElementProperty(elementId, "value", parseFloat(val))
@@ -81,15 +111,15 @@ const setRadio = (elementId, val) => {
 
 // *********************************************************************************************************************
 // Fetch air temperature and pressure config values from the DOM
+// *********************************************************************************************************************
 const fetchConfigFromDom = () => ({
   "air_temp"     : $id("air_temp").value
 , "air_pressure" : $id("air_pressure").value
 })
 
 
-// *********************************************************************************************************************
-// Public API
-// *********************************************************************************************************************
+
+
 export {
   $id
 , $class
