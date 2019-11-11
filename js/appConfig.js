@@ -1,7 +1,10 @@
 /***********************************************************************************************************************
  * Porous Absorber Calculator App Configuration
  * 
- * All module debug flags are defined here
+ * Provide a single location for all application configuration:
+ * 
+ * 1) All module debug flags
+ * 2) Minimum canvas width in pixels
  * 
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
@@ -9,11 +12,11 @@
 import { doTraceFnBoundary, doTraceInfo } from "./trace.js"
 
 const JS_MODULE_DEBUG_FLAGS = {
-  "domAccess"      : false
-, "localStorage"   : false
-, "main"           : false
-, "tabManager"     : false
-, "unitConversion" : false
+  "domAccess"      : true
+, "localStorage"   : true
+, "main"           : true
+, "tabManager"     : true
+, "unitConversion" : true
 }
 
 const MIN_CANVAS_WIDTH = 1000

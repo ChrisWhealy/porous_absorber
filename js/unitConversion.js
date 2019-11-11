@@ -71,7 +71,7 @@ const showValueFn =
       )
       ($id(`${field_config.id}${field_suffix}`))
 
-const showValue = traceFnBoundary("showValue", null, showValueFn)
+const showValue = traceFnBoundary("showValue", showValueFn)
 
 // *********************************************************************************************************************
 // Display range slider value in separate DOM element
@@ -125,7 +125,7 @@ const showAndConvertUnitsFn =
 // *********************************************************************************************************************
 // Wrap private API functions in boundary trace functionality then expose as public API
 // *********************************************************************************************************************
-const showAndConvertUnits = traceFnBoundary("showAndConvertUnits", null, showAndConvertUnitsFn)
+const showAndConvertUnits = traceFnBoundary("showAndConvertUnits", showAndConvertUnitsFn)
 
 
 export {

@@ -44,7 +44,7 @@ const restoreFromLocalStorageFn =
       let thisConfig = tabConfig[tabName]
   
       JSON.parse(tabValueStr).map((field, idx) => {
-        trace(`     ${field.id}=${field.value}`)
+        trace(`${field.id} = ${field.value}`)
         thisConfig[idx].setter(field.id, field.value)
       })
     }
@@ -132,9 +132,9 @@ const fetchConfigTabValues =
 // *********************************************************************************************************************
 // Wrap private API functions in boundary trace functionality then expose as public API
 // *********************************************************************************************************************
-const restoreFromLocalStorage = traceFnBoundary("restoreFromLocalStorage", null, restoreFromLocalStorageFn)
-const writeToLocalStorage     = traceFnBoundary("writeToLocalStorage",     null, writeToLocalStorageFn)
-const clearLocalStorage       = traceFnBoundary("clearLocalStorage",       null, clearLocalStorageFn)
+const restoreFromLocalStorage = traceFnBoundary("restoreFromLocalStorage", restoreFromLocalStorageFn)
+const writeToLocalStorage     = traceFnBoundary("writeToLocalStorage",     writeToLocalStorageFn)
+const clearLocalStorage       = traceFnBoundary("clearLocalStorage",       clearLocalStorageFn)
 
 export {
   storageAvailable

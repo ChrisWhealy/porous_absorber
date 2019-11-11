@@ -101,7 +101,7 @@ function useLocalStorageFn() {
   window.getConfigTabValues = can_i_haz_local_storage ? LS.fetchConfigTabValues    : fetchConfigFromDom
 }
 
-const useLocalStorage = traceFnBoundary("useLocalStorage", null, useLocalStorageFn)
+const useLocalStorage = traceFnBoundary("useLocalStorage", useLocalStorageFn)
 
 // *********************************************************************************************************************
 // Activate configuration and default tabs
@@ -116,7 +116,7 @@ async function startTabsFn() {
   }
 }
 
-const startTabs = traceFnBoundary("startTabs", null, startTabsFn)
+const startTabs = traceFnBoundary("startTabs", startTabsFn)
 
 // *********************************************************************************************************************
 // Initialise the Web Assembly module, then start the tabs containing each absorber device type

@@ -64,6 +64,7 @@ const openTabFn =
 
 // *********************************************************************************************************************
 // Hide tabs and remove their content except for the configuration tab
+// *********************************************************************************************************************
 const hideAndEmptyAllTabsFn =
   () => {
     for (var tab of $class("tabContent")) {
@@ -75,10 +76,11 @@ const hideAndEmptyAllTabsFn =
     }
   }
 
-const hideAndEmptyAllTabs = traceFnBoundary("hideAndEmptyAllTabs", null, hideAndEmptyAllTabsFn)
+const hideAndEmptyAllTabs = traceFnBoundary("hideAndEmptyAllTabs", hideAndEmptyAllTabsFn)
 
 // *********************************************************************************************************************
 // Cache values from the current tab into local storage, then deactivate the tab button
+// *********************************************************************************************************************
 const cacheValuesAndDeactivateFn =
   () => {
     for (var tablink of $class("tabButton")) {
@@ -89,11 +91,12 @@ const cacheValuesAndDeactivateFn =
     }
   }
 
-const cacheValuesAndDeactivate = traceFnBoundary("cacheValuesAndDeactivate", null, cacheValuesAndDeactivateFn)
+const cacheValuesAndDeactivate = traceFnBoundary("cacheValuesAndDeactivate", cacheValuesAndDeactivateFn)
 
 // *********************************************************************************************************************
 // Partial function that generates another function to respond to the onload event after tab HTML data is returned to
 // the client
+// *********************************************************************************************************************
 const tabLoadedFn =
   (tabName, req) =>
     () => {
@@ -108,11 +111,12 @@ const tabLoadedFn =
       updateScreenAndMouseHandler(tabName)
     }
 
-const tabLoaded = traceFnBoundary("tabLoaded", null, tabLoadedFn)
+const tabLoaded = traceFnBoundary("tabLoaded", tabLoadedFn)
 
 
 // *********************************************************************************************************************
 // Cache values from the current tab into local storage
+// *********************************************************************************************************************
 const cacheValuesFn =
   () => {
     for (var tablink of $class("tabButton")) {
@@ -124,6 +128,7 @@ const cacheValuesFn =
 
 // *********************************************************************************************************************
 // Fetch tab content from server
+// *********************************************************************************************************************
 const fetchTabFn =
   tabName =>
     (req => {
@@ -135,6 +140,7 @@ const fetchTabFn =
 
 // *********************************************************************************************************************
 // This function must be called every time an input value is changed
+// *********************************************************************************************************************
 const updateScreenFn =
   tabName => {
     const trace = traceInfo("updateScreenFn")
@@ -156,7 +162,7 @@ const updateScreenFn =
     }
 
     // What are we sending to WASM?
-    trace(`Passing ${JSON.stringify(wasmArgObj, null, 2)} to WASM function ${tabName}`)
+    trace(`Passing ${JSON.stringify(wasmArgObj)} to WASM function ${tabName}`)
 
     // WASM does its magic unless the configuration tab is selected, in which case window[tabName] resolves to calling
     // function no_op()
@@ -175,6 +181,7 @@ const updateScreenFn =
 //  points on the graph has changed.  This also requires the mousemove handler for the canvas overlay to be replaced
 //
 //  In the last case, the graph must be redrawn because the canvas size has changed
+// *********************************************************************************************************************
 const updateScreenAndMouseHandlerFn =
   tabName => {
     // Call WASM to update the graph
@@ -235,11 +242,11 @@ const limitMax =
 // *********************************************************************************************************************
 // Wrap private API functions in boundary trace functionality then expose as public API
 // *********************************************************************************************************************
-const openTab                     = traceFnBoundary("openTab", null, openTabFn)
-const cacheValues                 = traceFnBoundary("cacheValues", null, cacheValuesFn)
-const fetchTab                    = traceFnBoundary("fetchTab", null, fetchTabFn)
-const updateScreen                = traceFnBoundary("updateScreen", null, updateScreenFn)
-const updateScreenAndMouseHandler = traceFnBoundary("updateScreenAndMouseHandler", null, updateScreenAndMouseHandlerFn)
+const openTab                     = traceFnBoundary("openTab",                     openTabFn)
+const cacheValues                 = traceFnBoundary("cacheValues",                 cacheValuesFn)
+const fetchTab                    = traceFnBoundary("fetchTab",                    fetchTabFn)
+const updateScreen                = traceFnBoundary("updateScreen",                updateScreenFn)
+const updateScreenAndMouseHandler = traceFnBoundary("updateScreenAndMouseHandler", updateScreenAndMouseHandlerFn)
 
 export {
   limitMax
