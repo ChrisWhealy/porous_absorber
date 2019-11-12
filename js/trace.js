@@ -45,22 +45,21 @@ const arrow = mayBeBool => isNullOrUndef(mayBeBool) ? IN_OUT_ARROW : mayBeBool ?
 // *********************************************************************************************************************
 const doTraceInfo =
   (traceActive, modName) =>
-    fnName =>
-      traceActive
-      ? (...args) => writeTraceText("    ", modName, fnName, args.join(","))
-      : no_op
+    traceActive
+    ? fnName => (...args) => writeTraceText("    ", modName, fnName, args.join(","))
+    : ()     => ()        => no_op()
 
 const doTraceFnBoundary =
   (traceActive, modName) =>
-    (fnName, fn) =>
-      traceActive
-      ? (...args) => {
+    traceActive
+    ? (fnName, fn) =>
+        (...args) => {
           writeTraceText(arrow(true), modName, fnName)
           let retVal = fn.apply(null, args)
           writeTraceText(arrow(false), modName, fnName)
           return retVal
         }
-      : (...args) => fn.apply(null, args)
+    : (_, fn) => (...args) => fn.apply(null, args)
 
 
 
