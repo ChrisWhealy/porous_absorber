@@ -12,11 +12,11 @@
 import { doTraceFnBoundary, doTraceInfo } from "./trace.js"
 
 const JS_MODULE_DEBUG_FLAGS = {
-  "domAccess"      : true
-, "localStorage"   : true
-, "main"           : true
-, "tabManager"     : true
-, "unitConversion" : true
+  "domAccess"      : false
+, "localStorage"   : false
+, "main"           : false
+, "tabManager"     : false
+, "unitConversion" : false
 }
 
 const MIN_CANVAS_WIDTH = 1000
