@@ -124,13 +124,13 @@ const MIN_CANVAS_WIDTH = 1000
 //
 //          const doSomethingFn = traceFnBoundary("doSomething", doSomethingFn)
 //
-// 6) Now, a call to doSomething() will produce the following in the browser console
+//    4.2) Now, a call to doSomething() will produce the following in the browser console
 //
-//   doSomething("First arg value", "Second arg value")
+//         doSomething("First arg value", "Second arg value")
 //
-//    ---> main.doSomething()
-//         main.doSomething() : arg1 = "First arg value", arg2 = "Second arg value"
-//    <--- main.doSomething()
+//          ---> main.doSomething()
+//               main.doSomething() : arg1 = "First arg value", arg2 = "Second arg value"
+//          <--- main.doSomething()
 //
 // *********************************************************************************************************************
 const defineTrace =
