@@ -143,19 +143,9 @@ For best results, view this app use Brave, Google Chrome or Firefox Quantum brow
 
 This app has ***not*** been optimized for display on mobile devices.
 
-### iOS Safari Issues
-
-According to [CanIUse](https://caniuse.com/#feat=wasm), WebAssembly should work on Safari for iOS, but I haven't had any success here yet...
-
-### MacOS Safari Useability Issues
-
-In Apple Safari for MacOS, clicking directly on a range slider does not select or highlight it.  This means that you cannot increment or decrement the slider value using the arrow keys simply by clicking on it first.
-
-Range slider values ***can*** be selected by tabbing whilst holding down the Option Key ⌥.  Unfortunately once selected, the range slider will still not be highlighted, thus there is no visible indication that the slider is selected... DOH!
-
 ### Brave Useability Issues
 
-During develpment, when testing this app in the Brave browser against a local Python 3 web server, the spacing of the axis ticks and labels is not correct
+When testing this app in the Brave browser against a local Python 3 web server, the spacing of the axis ticks and labels is not correct.  This problem only occurs during testing.
 
 
 

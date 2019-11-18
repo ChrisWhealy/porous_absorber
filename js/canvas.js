@@ -45,6 +45,7 @@ const drawCrossHairs =
 // *********************************************************************************************************************
 // Add "absorption @ frequency" text to canvas
 // Before calling this function, you should have at least already set the canvas font
+// *********************************************************************************************************************
 const showAbsInfo = (ctx, mousePos, canvasWidth, plotPoint) => {
   // Build the text then find out how wide it is
   let txt      = `${plotPoint.abs} @ ${plotPoint.freq.toFixed(0)}Hz`
@@ -109,52 +110,53 @@ const mousePositionViaElementHierarchy =
 // canvas elements must sit exactly on top of each other
 // *********************************************************************************************************************
 const canvasMouseOverHandler =
-  (canvas, chartBox, seriestData) => {
-    // Define a function to determine whether the mouse pointer's current location is within the chart box area
-    let boxFn = isInsideRect(chartBox.top_left.x, chartBox.top_left.y, chartBox.bottom_right.x, chartBox.bottom_right.y)
-    let ctx   = canvas.getContext("2d")
+  (canvas, chartBox, seriestData) =>
+    ((boxFn, ctx) =>
+       e => {
+        let mousePos = mousePositionOnCanvas(e)
+        
+        // A quick, but non-intuitive way to blank out the entire canvas... :-)
+        canvas.width = canvas.width
+        ctx.font = "11pt Arial"
 
-    
-    return e => {
-      let mousePos = mousePositionOnCanvas(e)
+        // Draw cross-hairs if the mouse pointer is within the chart box area
+        if (boxFn(mousePos)) {
+          drawCrossHairs(ctx, mousePos, chartBox)
+        }
       
-      // A quick, but non-intuitive way to blank out the entire canvas... :-)
-      canvas.width = canvas.width
-      ctx.font = "11pt Arial"
-
-      // Draw cross-hairs if the mouse pointer is within the chart box area
-      if (boxFn(mousePos)) {
-        drawCrossHairs(ctx, mousePos, chartBox)
+        // For each X value in the inverted data series
+        Object
+          .keys(seriestData)
+          .map(
+            xValStr => 
+              (xVal =>
+                // Does the mouse pointer's current X position fall within the width of a plot point?
+                (isBetween(xVal + PLOT_POINT_RADIUS, xVal - PLOT_POINT_RADIUS, mousePos.x))
+                // Yup, so check mouse pointer Y position
+                ? seriestData[xValStr].map(
+                    plotPoint => 
+                      (yVal =>
+                        // Does the mouse pointer's current Y position also fall within the height of a plot point?
+                        isBetween(yVal + PLOT_POINT_RADIUS, yVal - PLOT_POINT_RADIUS, mousePos.y)
+                        // Yup, so display the absorption information
+                        ? showAbsInfo(ctx, mousePos, canvas.width, plotPoint)
+                        // Nope...
+                        : null
+                      )
+                      (parseFloat(plotPoint.y))
+                  )
+                // Nope...
+                : null
+              )
+              (parseFloat(xValStr))
+          )
       }
-    
-      // For each X value in the inverted data series
-      Object
-        .keys(seriestData)
-        .map(
-          xValStr => 
-            (xVal =>
-              // Does the mouse pointer's current X position fall within the width of a plot point?
-              (isBetween(xVal + PLOT_POINT_RADIUS, xVal - PLOT_POINT_RADIUS, mousePos.x))
-              // Yup, so check mouse pointer Y position
-              ? seriestData[xValStr].map(
-                  plotPoint => 
-                    (yVal =>
-                      // Does the mouse pointer's current Y position also fall within the height of a plot point?
-                      isBetween(yVal + PLOT_POINT_RADIUS, yVal - PLOT_POINT_RADIUS, mousePos.y)
-                      // Yup, so display the absorption information
-                      ? showAbsInfo(ctx, mousePos, canvas.width, plotPoint)
-                      // Nope...
-                      : null
-                    )
-                    (parseFloat(plotPoint.y))
-                )
-              // Nope...
-              : null
-            )
-            (parseFloat(xValStr))
-        )
-    }
-  }
+    )
+    // Pass a function to determine whether the mouse pointer's current location is within the chart box area
+    ( isInsideRect(chartBox.top_left.x, chartBox.top_left.y, chartBox.bottom_right.x, chartBox.bottom_right.y)
+    // Pass the canvas' 2D context
+    , canvas.getContext("2d")
+    )
 
 // *********************************************************************************************************************
 // Set canvas size and maintain aspect ratio of 21:9

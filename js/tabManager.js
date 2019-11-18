@@ -27,6 +27,7 @@ import {
 
 // *********************************************************************************************************************
 // Define trace functions
+// *********************************************************************************************************************
 import defineTrace from "./appConfig.js"
 const { traceFnBoundary, traceInfo } = defineTrace("tabManager")
 
@@ -143,8 +144,6 @@ const fetchTabFn =
 // *********************************************************************************************************************
 const updateScreenFn =
   tabName => {
-    const trace = traceInfo("updateScreenFn")
-
     // Perform any unit conversions that might be needed for the UI, then extract the input values relevant for the
     // current WASM function
     let wasmArgObj = tabConfig[tabName]
@@ -162,7 +161,7 @@ const updateScreenFn =
     }
 
     // What are we sending to WASM?
-    trace(`Passing ${JSON.stringify(wasmArgObj)} to WASM function ${tabName}`)
+    traceInfo("updateScreenFn")(`Passing ${JSON.stringify(wasmArgObj)} to WASM function ${tabName}`)
 
     // WASM does its magic unless the configuration tab is selected, in which case window[tabName] resolves to calling
     // function no_op()
@@ -183,33 +182,33 @@ const updateScreenFn =
 //  In the last case, the graph must be redrawn because the canvas size has changed
 // *********************************************************************************************************************
 const updateScreenAndMouseHandlerFn =
-  tabName => {
-    // Call WASM to update the graph
-    let wasm_response = updateScreen(tabName)
-
-    // If the WASM function returns an array, then there has been a validation error with one or more of the arguments
-    if (isArray(wasm_response)) {
-      console.error(JSON.stringify(wasm_response, null, 2))
-    }
-    // If the non-null wasm_response is an object containing the property "series_data", then a graph has been plotted
-    // and we are getting the chart data back 
-    else if (isNotNullOrUndef(wasm_response) && wasm_response.series_data) {
-      // For all tabs except configuration, invert the structure of the wasm_response.series_data array and pass the
-      // result to the canvas overlay mousemove handler
-      // The chart_box property defines the bounding box within which the cross hairs should appear
-      if (tabName !== "configuration") {
-        $id(GRAPH_OVERLAY).onmousemove = canvasMouseOverHandler(
-          $id(GRAPH_OVERLAY)
-        , wasm_response.chart_box
-        , invertPlotData(wasm_response.series_data)
-        )
+  tabName =>
+    (wasm_response => {
+      // If the WASM function returns an array, then there has been a validation error with one or more of the arguments
+      if (isArray(wasm_response)) {
+        console.error(JSON.stringify(wasm_response, null, 2))
       }
-    }
-    else {
-      if (isNotNullOrUndef(wasm_response))
-        console.warn(`That's weird - got the unexpected value "${wasm_response}" back from WASM`)
-    }
-  }
+      // If the non-null wasm_response is an object containing the property "series_data", then a graph has been plotted
+      // and we are getting the chart data back 
+      else if (isNotNullOrUndef(wasm_response) && wasm_response.series_data) {
+        // For all tabs except configuration, invert the structure of the wasm_response.series_data array and pass the
+        // result to the canvas overlay mousemove handler
+        // The chart_box property defines the bounding box within which the cross hairs should appear
+        if (tabName !== "configuration") {
+          $id(GRAPH_OVERLAY).onmousemove = canvasMouseOverHandler(
+            $id(GRAPH_OVERLAY)
+          , wasm_response.chart_box
+          , invertPlotData(wasm_response.series_data)
+          )
+        }
+      }
+      else {
+        if (isNotNullOrUndef(wasm_response))
+          console.warn(`That's weird - got the unexpected value "${wasm_response}" back from WASM`)
+      }
+    })
+    // Call WASM to update the graph
+    (updateScreen(tabName))
 
 
 

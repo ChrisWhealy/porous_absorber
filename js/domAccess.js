@@ -60,6 +60,7 @@ const setDomElementProperty =
 
 // *********************************************************************************************************************
 // Fetch DOM elements by id, class name or name
+// Functions with "$" in the name cannot be defined using the fat arrow syntax
 // *********************************************************************************************************************
 function $id(elementId) {
   return document.getElementById(elementId)

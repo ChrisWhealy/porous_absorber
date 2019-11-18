@@ -11,6 +11,7 @@ import { isNullOrUndef } from "./utils.js"
 
 // *********************************************************************************************************************
 // Define trace functions
+// *********************************************************************************************************************
 import defineTrace from "./appConfig.js"
 const { traceFnBoundary, traceInfo } = defineTrace("unitConversion")
 
@@ -26,6 +27,7 @@ const { traceFnBoundary, traceInfo } = defineTrace("unitConversion")
 
 // *********************************************************************************************************************
 // Convert metric units to imperial
+// *********************************************************************************************************************
 const toImperial = (units, val) => {
   let result = null
 
@@ -38,14 +40,12 @@ const toImperial = (units, val) => {
 
     // Milliemetres to inches
     case "mm":
-      let mm_as_inches = val / 25.4
-      result = `(${Number.parseFloat(mm_as_inches).toFixed(3)} in)`
+      result = `(${Number.parseFloat(val / 25.4).toFixed(3)} in)`
       break
 
     // Degrees Centigrade to degrees Fahrenheit
     case "°C":
-      let c_as_f = (val * 9.0 / 5.0) + 32.0
-      result = `(${Number.parseFloat(c_as_f).toFixed(1)}°F)`
+      result = `(${Number.parseFloat((val * 9.0 / 5.0) + 32.0).toFixed(1)}°F)`
       break
 
     default:
@@ -56,6 +56,7 @@ const toImperial = (units, val) => {
 
 // *********************************************************************************************************************
 // Partial function to display a value in a DOM element after being formatted by the supplied function
+// *********************************************************************************************************************
 const showValueFn =
   (field_suffix, fn) =>
     (val, field_config) =>
@@ -75,11 +76,13 @@ const showValue = traceFnBoundary("showValue", showValueFn)
 
 // *********************************************************************************************************************
 // Display range slider value in separate DOM element
+// *********************************************************************************************************************
 const showUnits    = showValue("_value",     "default")
 const convertUnits = showValue("_alt_units", "imperial")
 
 // *********************************************************************************************************************
 // Display range slider value unit conversion if necessary
+// *********************************************************************************************************************
 const showAndConvertUnitsFn =
   field_config => {
     let displayValue = null

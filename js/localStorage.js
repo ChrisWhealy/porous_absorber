@@ -16,6 +16,7 @@ import {
 
 // *********************************************************************************************************************
 // Define trace functions
+// *********************************************************************************************************************
 import defineTrace from "./appConfig.js"
 const { traceFnBoundary, traceInfo } = defineTrace("localStorage")
 
@@ -40,7 +41,6 @@ const restoreFromLocalStorageFn =
       trace(`No values for ${tabName} found in local storage`)
     }
     else {
-      trace(`Cached values for tab "${tabName}" found in local storage`)
       let thisConfig = tabConfig[tabName]
   
       JSON.parse(tabValueStr).map((field, idx) => {
@@ -54,12 +54,11 @@ const restoreFromLocalStorageFn =
 // *********************************************************************************************************************
 const writeToLocalStorageFn =
   tabName => {
-    let cacheVals = tabConfig[tabName].map(
-      field =>
-      isNullOrUndef(field.getter(field.id))
-      ? { "id" : field.id, "value" : field.default }
-      : { "id" : field.id, "value" : field.getter(field.id) }
-      )
+    let cacheVals = tabConfig[tabName].map(field => ({
+        "id"    : field.id
+      , "value" : isNullOrUndef(field.getter(field.id)) ? field.default : field.getter(field.id)
+      })
+    )
       
       traceInfo("writeToLocalStorage")(`Writing ${JSON.stringify(cacheVals)} to local storage`)
       window.localStorage.setItem(tabName, JSON.stringify(cacheVals))
@@ -67,11 +66,12 @@ const writeToLocalStorageFn =
     
 // *********************************************************************************************************************
 const clearLocalStorageFn =
-  () => {
-    let keyCount = Object.keys(tabConfig).length
-    Object.keys(tabConfig).map(tab => window.localStorage.removeItem(tab))
-    alert(`All cached data for ${keyCount} tabs has been removed from local storage`)
-  }
+  () =>
+    (keyCount => {
+      Object.keys(tabConfig).map(tab => window.localStorage.removeItem(tab))
+      alert(`Cached data for ${keyCount} tabs has been removed from local storage`)
+    })
+    (Object.keys(tabConfig).length)
 
 
 
@@ -102,17 +102,13 @@ const storageAvailable =
     }
     catch(e) {
       return e instanceof DOMException &&
-        // everything except Firefox
-      ( e.code === 22 ||
-        // Firefox
-        e.code === 1014 ||
-        // test name field too, because code might not be present
-        // everything except Firefox
-        e.name === 'QuotaExceededError' ||
-        // Firefox
-        e.name === 'NS_ERROR_DOM_QUOTA_REACHED'
+      ( // Firefox returns error code 1014, everyone else returns 22
+        e.code === 1014 || e.code === 22 ||
+        // The "code" property can sometimes be is missing, so also test "name"
+        // Firefox use 'NS_ERROR_DOM_QUOTA_REACHED', everyone else uses 'QuotaExceededError'
+        e.name === 'NS_ERROR_DOM_QUOTA_REACHED' || e.name === 'QuotaExceededError'
       ) &&
-      // acknowledge QuotaExceededError only if there's something already stored
+      // Acknowledge QuotaExceededError only if there's something already stored
       (storage && storage.length !== 0)
     }
   }
@@ -124,7 +120,7 @@ const fetchConfigTabValues =
   () =>
     JSON
       .parse(window.localStorage.getItem("configuration"))
-      // Force all field values to be strings otherwise Rust panics when tries to unwrap the results of the call to
+      // Force all field values to be strings otherwise Rust panics when it tries to unwrap the results of the call to
       // function into_serde()
       .reduce((acc, field) => setProperty(acc, field.id, field.value + ""), {})
 
