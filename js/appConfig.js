@@ -135,8 +135,8 @@ const MIN_CANVAS_WIDTH = 1000
 // *********************************************************************************************************************
 const defineTrace =
   modName => ({
-    "traceFnBoundary" : doTraceFnBoundary(JS_MODULE_TRACE_FLAGS[modName], modName)
-  , "traceInfo"       :       doTraceInfo(JS_MODULE_TRACE_FLAGS[modName], modName)
+    "traceFnBoundary" : doTraceFnBoundary(JS_MODULE_TRACE_FLAGS[modName])(modName)
+  , "traceInfo"       :       doTraceInfo(JS_MODULE_TRACE_FLAGS[modName])(modName)
   })
 
 export {
