@@ -7,7 +7,6 @@
 // *********************************************************************************************************************
 extern crate num_format;
 
-use std::error::Error;
 use std::fmt;
 
 
@@ -45,12 +44,6 @@ impl PorousLayerError {
 impl fmt::Display for PorousLayerError {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     write!(f, "{}", self.msg)
-  }
-}
-
-impl Error for PorousLayerError {
-  fn description(&self) -> &str {
-    &self.msg
   }
 }
 

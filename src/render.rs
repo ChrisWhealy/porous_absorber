@@ -348,13 +348,7 @@ fn draw_title_and_key(
   // Find the length of the longest key text
   let longest_key_text = series_list
     .iter()
-    .fold(
-      0.0
-    , | acc, s | {
-        let text_length = ctx.measure_text(s.name).unwrap().width();
-        if text_length > acc { text_length } else { acc }
-      }
-    );
+    .fold(0.0, | acc : f64, s | acc.max(ctx.measure_text(s.name).unwrap().width()));
 
   // Calculate the required and available space
   let key_entry_width     = KEY_SYMBOL_LENGTH + (3.0 * SYMBOL_TEXT_GAP) + longest_key_text;
@@ -554,7 +548,7 @@ fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: &Axis) -> f64 {
     let tick_label  = &format!("{}", val);
 
     tick_label_width  = ctx.measure_text(tick_label).unwrap().width();
-    widest_tick_label = max(widest_tick_label, tick_label_width);
+    widest_tick_label = widest_tick_label.max(tick_label_width);
 
     // Position the label away from the tick by the tick length plus a gap
     let label_offset = tick_label_width + TICK_LENGTH + TICK_LABEL_GAP;
@@ -1057,13 +1051,6 @@ fn scaled_y_pos(start: f64, axis_length: f64) ->
 // *********************************************************************************************************************
 fn y_axis_name_x_pos(tick_label_width: f64, y_axis_inset : &f64) -> f64 {
   y_axis_inset - TICK_LENGTH - (2.0 * TICK_LABEL_GAP) - tick_label_width - LABEL_FONT_SIZE
-}
-
-// *********************************************************************************************************************
-// Max is not implemented for f64s...
-// *********************************************************************************************************************
-fn max(a: f64, b: f64) -> f64 {
-  if a < b { b } else { a }
 }
 
 // *********************************************************************************************************************

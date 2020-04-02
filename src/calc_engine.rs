@@ -9,17 +9,17 @@ use libm::{fabs, sin, cos, sqrt, pow, log};
 use num::complex::Complex;
 use std::f64::consts::PI;
 
-use crate::structs::config_air::{AirConfig, AIR_VISCOSITY};
-use crate::structs::config_cavity::CavityConfig;
-use crate::structs::config_sound::SoundConfig;
-use crate::structs::config_display::{DisplayConfig, PlotAbsPoint, SeriesData};
-use crate::structs::config_porous_layer::PorousLayerConfig;
-
-use crate::structs::panel_perforated::PerforatedPanelConfig;
-use crate::structs::panel_microperforated::MicroperforatedPanelConfig;
-use crate::structs::panel_slotted::SlottedPanelConfig;
-
-use crate::structs::generic_device::{DeviceType, GenericDeviceInfo};
+use crate::structs::{
+  config_air::{AirConfig, AIR_VISCOSITY}
+, config_cavity::CavityConfig
+, config_sound::SoundConfig
+, config_display::{DisplayConfig, PlotAbsPoint, SeriesData}
+, config_porous_layer::PorousLayerConfig
+, panel_perforated::PerforatedPanelConfig
+, panel_microperforated::MicroperforatedPanelConfig
+, panel_slotted::SlottedPanelConfig
+, generic_device::{DeviceType, GenericDeviceInfo}
+};
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Trace functionality

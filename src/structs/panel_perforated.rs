@@ -8,7 +8,6 @@
 extern crate num_format;
 
 use std::f64::consts::PI;
-use std::error::Error;
 use std::fmt;
 
 /***********************************************************************************************************************
@@ -51,12 +50,6 @@ impl PerforatedPanelError {
 impl fmt::Display for PerforatedPanelError {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     write!(f, "{}", self.msg)
-  }
-}
-
-impl Error for PerforatedPanelError {
-  fn description(&self) -> &str {
-    &self.msg
   }
 }
 

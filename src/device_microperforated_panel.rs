@@ -5,8 +5,6 @@
 // 
 // (c) Chris Whealy 2019
 // *********************************************************************************************************************
-use std::error::Error;
-
 use wasm_bindgen::JsValue;
 
 use crate::structs::config_air::{AirConfig, AirError};
@@ -87,31 +85,31 @@ pub fn do_microperforated_panel_device(wasm_arg_obj : JsValue) -> JsValue {
   // Construct configuration structs
   let air_cfg = AirConfig::new(air_temp, air_pressure)
     .unwrap_or_else(|err: AirError| {
-      error_msgs.push(String::from(err.description()));
+      error_msgs.push(String::from(err.to_string()));
       AirConfig::default()
     });
 
   let cavity_cfg = CavityConfig::new(air_gap_mm)
     .unwrap_or_else(|err: CavityError| {
-      error_msgs.push(String::from(err.description()));
+      error_msgs.push(String::from(err.to_string()));
       CavityConfig::default()
     });
 
   let display_cfg = DisplayConfig::new(graph_start_freq, smooth_curve, subdivision, show_diagram)
     .unwrap_or_else(|err: DisplayError| {
-      error_msgs.push(String::from(err.description()));
+      error_msgs.push(String::from(err.to_string()));
       DisplayConfig::default()
     });
 
   let panel_cfg = MicroperforatedPanelConfig::new(panel_thickness_mm, repeat_distance_mm, hole_radius_mm, porosity)
     .unwrap_or_else(|err: MicroperforatedPanelError| {
-      error_msgs.push(String::from(err.description()));
+      error_msgs.push(String::from(err.to_string()));
       MicroperforatedPanelConfig::default()
     });
 
   let sound_cfg = SoundConfig::new(angle)
     .unwrap_or_else(|err: SoundError| {
-      error_msgs.push(String::from(err.description()));
+      error_msgs.push(String::from(err.to_string()));
       SoundConfig::default()
     });
 

@@ -8,14 +8,15 @@
 
 use serde::Serialize;
 
-use crate::structs::config_display::SeriesData;
+use crate::structs::{
+  config_display::SeriesData
+, config_porous_layer::PorousLayerConfig
+, config_cavity::CavityConfig
+, panel_slotted::SlottedPanelConfig
+, panel_perforated::PerforatedPanelConfig
+, panel_microperforated::MicroperforatedPanelConfig
+};
 
-use crate::structs::config_porous_layer::PorousLayerConfig;
-use crate::structs::config_cavity::CavityConfig;
-
-use crate::structs::panel_slotted::SlottedPanelConfig;
-use crate::structs::panel_perforated::PerforatedPanelConfig;
-use crate::structs::panel_microperforated::MicroperforatedPanelConfig;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Absorption data for a generic absorber device

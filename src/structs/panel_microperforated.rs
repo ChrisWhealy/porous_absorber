@@ -8,7 +8,6 @@
 extern crate num_format;
 
 use std::f64::consts::PI;
-use std::error::Error;
 use std::fmt;
 
 /***********************************************************************************************************************
@@ -54,11 +53,6 @@ impl fmt::Display for MicroperforatedPanelError {
   }
 }
 
-impl Error for MicroperforatedPanelError {
-  fn description(&self) -> &str {
-    &self.msg
-  }
-}
 
 /***********************************************************************************************************************
  * Perforated panel configuration

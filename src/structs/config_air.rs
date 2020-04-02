@@ -7,7 +7,6 @@
 // *********************************************************************************************************************
 
 use std::f64::consts::PI;
-use std::error::Error;
 use std::fmt;
 
 /***********************************************************************************************************************
@@ -62,12 +61,6 @@ impl AirError {
 impl fmt::Display for AirError {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     write!(f, "{}", self.msg)
-  }
-}
-
-impl Error for AirError {
-  fn description(&self) -> &str {
-    &self.msg
   }
 }
 

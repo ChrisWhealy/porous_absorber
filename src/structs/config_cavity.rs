@@ -6,7 +6,6 @@
 // (c) Chris Whealy 2019
 // *********************************************************************************************************************
 
-use std::error::Error;
 use std::fmt;
 
 /***********************************************************************************************************************
@@ -37,12 +36,6 @@ impl CavityError {
 impl fmt::Display for CavityError {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     write!(f, "{}", self.msg)
-  }
-}
-
-impl Error for CavityError {
-  fn description(&self) -> &str {
-    &self.msg
   }
 }
 

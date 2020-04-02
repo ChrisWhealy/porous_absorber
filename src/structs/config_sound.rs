@@ -6,7 +6,6 @@
 // (c) Chris Whealy 2019
 // *********************************************************************************************************************
 
-use std::error::Error;
 use std::fmt;
 
 /***********************************************************************************************************************
@@ -37,12 +36,6 @@ impl SoundError {
 impl fmt::Display for SoundError {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     write!(f, "{}", self.msg)
-  }
-}
-
-impl Error for SoundError {
-  fn description(&self) -> &str {
-    &self.msg
   }
 }
 

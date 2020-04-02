@@ -5,8 +5,6 @@
 // 
 // (c) Chris Whealy 2019
 // *********************************************************************************************************************
-use std::error::Error;
-
 use wasm_bindgen::JsValue;
 
 use crate::structs::config_air::{AirConfig, AirError};
@@ -89,31 +87,31 @@ pub fn do_slotted_panel_device(wasm_arg_obj : JsValue) -> JsValue {
   // Construct configuration structs
   let air_cfg = AirConfig::new(air_temp, air_pressure)
     .unwrap_or_else(|err: AirError| {
-      error_msgs.push(String::from(err.description()));
+      error_msgs.push(String::from(err.to_string()));
       AirConfig::default()
     });
 
   let cavity_cfg = CavityConfig::new(air_gap_mm)
     .unwrap_or_else(|err: CavityError| {
-      error_msgs.push(String::from(err.description()));
+      error_msgs.push(String::from(err.to_string()));
       CavityConfig::default()
     });
 
   let display_cfg = DisplayConfig::new(graph_start_freq, smooth_curve, subdivision, show_diagram)
     .unwrap_or_else(|err: DisplayError| {
-      error_msgs.push(String::from(err.description()));
+      error_msgs.push(String::from(err.to_string()));
       DisplayConfig::default()
     });
 
   let panel_cfg = SlottedPanelConfig::new(panel_thickness_mm, slot_distance_mm, slot_width_mm, slotted_porosity)
     .unwrap_or_else(|err: SlottedPanelError| {
-      error_msgs.push(String::from(err.description()));
+      error_msgs.push(String::from(err.to_string()));
       SlottedPanelConfig::default()
     });
 
   let porous_cfg = PorousLayerConfig::new(absorber_thickness_mm, flow_resistivity)
     .unwrap_or_else(|err: PorousLayerError| {
-      error_msgs.push(String::from(err.description()));
+      error_msgs.push(String::from(err.to_string()));
       PorousLayerConfig::default()
     });
 

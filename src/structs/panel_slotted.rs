@@ -7,7 +7,6 @@
 // *********************************************************************************************************************
 extern crate num_format;
 
-use std::error::Error;
 use std::fmt;
 
 /***********************************************************************************************************************
@@ -50,12 +49,6 @@ impl SlottedPanelError {
 impl fmt::Display for SlottedPanelError {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     write!(f, "{}", self.msg)
-  }
-}
-
-impl Error for SlottedPanelError {
-  fn description(&self) -> &str {
-    &self.msg
   }
 }
 
