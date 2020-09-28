@@ -2,7 +2,7 @@
 // Porous Absorber Calculator
 //
 // Cavity properties
-// 
+//
 // (c) Chris Whealy 2019
 // *********************************************************************************************************************
 
@@ -11,24 +11,27 @@ use std::fmt;
 /***********************************************************************************************************************
  * Range check values
  */
-const START_THICKNESS   : u16 = 0;
-const DEFAULT_THICKNESS : u16 = 100;
-const END_THICKNESS     : u16 = 500;
+const START_THICKNESS: u16 = 0;
+const DEFAULT_THICKNESS: u16 = 100;
+const END_THICKNESS: u16 = 500;
 
-const UNITS_THICKNESS : &str = "mm";
+const UNITS_THICKNESS: &str = "mm";
 
 /***********************************************************************************************************************
  * Possible errors when creating cavity struct
  */
 #[derive(Debug)]
 pub struct CavityError {
-  msg : String
+  msg: String,
 }
 
 impl CavityError {
-  fn new(property: &str, units: &str, min: u16, max:u16, err_val: u16) -> CavityError {
+  fn new(property: &str, units: &str, min: u16, max: u16, err_val: u16) -> CavityError {
     CavityError {
-      msg : format!("{} must be a value in {} between {:?} and {:?}, not '{:?}'", property, units, min, max, err_val)
+      msg: format!(
+        "{} must be a value in {} between {:?} and {:?}, not '{:?}'",
+        property, units, min, max, err_val
+      ),
     }
   }
 }
@@ -44,8 +47,8 @@ impl fmt::Display for CavityError {
  */
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CavityConfig {
-  pub air_gap_mm : u16
-, pub air_gap    : f64
+  pub air_gap_mm: u16,
+  pub air_gap: f64,
 }
 
 impl CavityConfig {
@@ -55,13 +58,18 @@ impl CavityConfig {
 
   pub fn new(air_gap_arg: u16) -> Result<CavityConfig, CavityError> {
     if air_gap_arg > END_THICKNESS {
-      return Err(CavityError::new("Air gap", UNITS_THICKNESS, START_THICKNESS, END_THICKNESS, air_gap_arg));
+      Err(CavityError::new(
+        "Air gap",
+        UNITS_THICKNESS,
+        START_THICKNESS,
+        END_THICKNESS,
+        air_gap_arg,
+      ))
+    } else {
+      Ok(CavityConfig {
+        air_gap_mm: air_gap_arg,
+        air_gap: air_gap_arg as f64 / 1000.0,
+      })
     }
-
-    return Ok(CavityConfig {
-      air_gap_mm : air_gap_arg
-    , air_gap    : air_gap_arg as f64 / 1000.0
-    })
   }
 }
-

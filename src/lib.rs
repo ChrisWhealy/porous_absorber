@@ -2,7 +2,7 @@
 // Porous Absorber Calculator
 //
 // This top-level library acts simply a list of public entry points
-// 
+//
 // (c) Chris Whealy 2019
 // *********************************************************************************************************************
 extern crate wasm_bindgen;
@@ -10,20 +10,18 @@ extern crate wasm_bindgen;
 #[macro_use]
 extern crate serde_derive;
 
-
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Submodules
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+mod calc_engine;
+mod render;
 mod structs;
 mod trace;
-mod render;
-mod calc_engine;
 
-mod device_rb_porous_absorber;
-mod device_perforated_panel;
-mod device_slotted_panel;
 mod device_microperforated_panel;
-
+mod device_perforated_panel;
+mod device_rb_porous_absorber;
+mod device_slotted_panel;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Usage
@@ -31,20 +29,18 @@ mod device_microperforated_panel;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsValue;
 
+use device_microperforated_panel::*;
+use device_perforated_panel::*;
 use device_rb_porous_absorber::*;
 use device_slotted_panel::*;
-use device_perforated_panel::*;
-use device_microperforated_panel::*;
-
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Trace functionality
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 use trace::Trace;
 
-const LIB_NAME     : &str  = &"lib";
-const TRACE_ACTIVE : &bool = &false;
-
+const LIB_NAME: &str = &"lib";
+const TRACE_ACTIVE: &bool = &false;
 
 // *********************************************************************************************************************
 // *********************************************************************************************************************
@@ -69,43 +65,38 @@ pub fn main() -> Result<(), JsValue> {
   Ok(())
 }
 
-
 // *********************************************************************************************************************
 // Rigid backed porous absorber
 // *********************************************************************************************************************
 #[wasm_bindgen]
-pub fn rb_porous_absorber(wasm_arg_obj : JsValue) -> JsValue {
+pub fn rb_porous_absorber(wasm_arg_obj: JsValue) -> JsValue {
   (Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, &"rb_porous_absorber"))(&None);
-  return do_porous_absorber_device(wasm_arg_obj)
+  do_porous_absorber_device(wasm_arg_obj)
 }
-
 
 // *********************************************************************************************************************
 // Slotted panel
 // *********************************************************************************************************************
 #[wasm_bindgen]
-pub fn slotted_panel(wasm_arg_obj : JsValue) -> JsValue {
+pub fn slotted_panel(wasm_arg_obj: JsValue) -> JsValue {
   (Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, &"slotted_panel"))(&None);
-  return do_slotted_panel_device(wasm_arg_obj)
+  do_slotted_panel_device(wasm_arg_obj)
 }
-
 
 // *********************************************************************************************************************
 // Perforated panel
 // *********************************************************************************************************************
 #[wasm_bindgen]
-pub fn perforated_panel(wasm_arg_obj : JsValue) -> JsValue {
+pub fn perforated_panel(wasm_arg_obj: JsValue) -> JsValue {
   (Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, &"perforated_panel"))(&None);
-  return do_perforated_panel_device(wasm_arg_obj)
+  do_perforated_panel_device(wasm_arg_obj)
 }
-
 
 // *********************************************************************************************************************
 // Microperforated panel
 // *********************************************************************************************************************
 #[wasm_bindgen]
-pub fn microperforated_panel(wasm_arg_obj : JsValue) -> JsValue {
+pub fn microperforated_panel(wasm_arg_obj: JsValue) -> JsValue {
   (Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, &"microperforated_panel"))(&None);
-  return do_microperforated_panel_device(wasm_arg_obj)
+  do_microperforated_panel_device(wasm_arg_obj)
 }
-
