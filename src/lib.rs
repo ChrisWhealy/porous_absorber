@@ -39,8 +39,8 @@ use device_slotted_panel::*;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 use trace::Trace;
 
-const LIB_NAME: &str = &"lib";
-const TRACE_ACTIVE: &bool = &false;
+const LIB_NAME: &str = "lib";
+const TRACE_ACTIVE: bool = false;
 
 // *********************************************************************************************************************
 // *********************************************************************************************************************
@@ -70,7 +70,7 @@ pub fn main() -> Result<(), JsValue> {
 // *********************************************************************************************************************
 #[wasm_bindgen]
 pub fn rb_porous_absorber(wasm_arg_obj: JsValue) -> JsValue {
-  (Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, &"rb_porous_absorber"))(&None);
+  (Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), "rb_porous_absorber".to_string()))(None);
   do_porous_absorber_device(wasm_arg_obj)
 }
 
@@ -79,7 +79,7 @@ pub fn rb_porous_absorber(wasm_arg_obj: JsValue) -> JsValue {
 // *********************************************************************************************************************
 #[wasm_bindgen]
 pub fn slotted_panel(wasm_arg_obj: JsValue) -> JsValue {
-  (Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, &"slotted_panel"))(&None);
+  (Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), "slotted_panel".to_string()))(None);
   do_slotted_panel_device(wasm_arg_obj)
 }
 
@@ -88,7 +88,7 @@ pub fn slotted_panel(wasm_arg_obj: JsValue) -> JsValue {
 // *********************************************************************************************************************
 #[wasm_bindgen]
 pub fn perforated_panel(wasm_arg_obj: JsValue) -> JsValue {
-  (Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, &"perforated_panel"))(&None);
+  (Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), "perforated_panel".to_string()))(None);
   do_perforated_panel_device(wasm_arg_obj)
 }
 
@@ -97,6 +97,6 @@ pub fn perforated_panel(wasm_arg_obj: JsValue) -> JsValue {
 // *********************************************************************************************************************
 #[wasm_bindgen]
 pub fn microperforated_panel(wasm_arg_obj: JsValue) -> JsValue {
-  (Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, &"microperforated_panel"))(&None);
+  (Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), "microperforated_panel".to_string()))(None);
   do_microperforated_panel_device(wasm_arg_obj)
 }

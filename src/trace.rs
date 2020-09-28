@@ -5,9 +5,9 @@
 // *********************************************************************************************************************
 use wasm_bindgen::prelude::*;
 
-const ENTRY_ARROW: &str = &"WASM --->";
-const EXIT_ARROW: &str = &"WASM <---";
-const IN_OUT_ARROW: &str = &"WASM <-->";
+const ENTRY_ARROW: &str = "WASM --->";
+const EXIT_ARROW: &str = "WASM <---";
+const IN_OUT_ARROW: &str = "WASM <-->";
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Interface to browser functionality
@@ -18,25 +18,17 @@ extern "C" {
   fn log(s: String);
 }
 
-// *********************************************************************************************************************
-// The Trace struct is simply a container for the required functionality
-// *********************************************************************************************************************
 pub struct Trace {}
 
 impl Trace {
   // *******************************************************************************************************************
   // Trace execution flow at function boundaries
-  // *******************************************************************************************************************
-  pub fn make_boundary_trace_fn<'a>(
-    is_active: &'a bool,
-    lib_name: &'a str,
-    fn_name: &'a str,
-  ) -> impl Fn(&'a Option<bool>) {
-    move |is_entry| {
-      if *is_active {
+  pub fn make_boundary_trace_fn(is_active: bool, lib_name: String, fn_name: String) -> impl Fn(Option<bool>) {
+    move |is_entry: Option<bool>| {
+      if is_active {
         let ptr = match is_entry {
           Some(b) => {
-            if *b {
+            if b {
               ENTRY_ARROW
             } else {
               EXIT_ARROW
@@ -52,14 +44,9 @@ impl Trace {
 
   // *******************************************************************************************************************
   // Trace data during execution flow
-  // *******************************************************************************************************************
-  pub fn make_trace_fn<'a>(
-    is_active: &'a bool,
-    lib_name: &'a str,
-    fn_name: &'a str,
-  ) -> impl Fn(&str) + 'a {
+  pub fn make_trace_fn(is_active: bool, lib_name: String, fn_name: String) -> impl Fn(String) {
     move |info| {
-      if *is_active {
+      if is_active {
         log(format!("WASM      {}.{}() {}", lib_name, fn_name, info));
       }
     }

@@ -21,8 +21,8 @@ use crate::render;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 use crate::Trace;
 
-const LIB_NAME: &str = &"device_rb_porous_absorber";
-const TRACE_ACTIVE: &bool = &false;
+const LIB_NAME: &str = "device_rb_porous_absorber";
+const TRACE_ACTIVE: bool = true;
 
 // *********************************************************************************************************************
 // *********************************************************************************************************************
@@ -36,36 +36,27 @@ const TRACE_ACTIVE: &bool = &false;
  * Handle incoming arguments for calculating the absorption of a rigid backed porous absorption device
  */
 pub fn do_porous_absorber_device(wasm_arg_obj: JsValue) -> JsValue {
-  const FN_NAME: &str = &"do_porous_absorber_device";
+  const FN_NAME: &str = "do_porous_absorber_device";
 
-  let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
-  let trace = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
+  let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
+  let trace = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
 
-  trace_boundary(&Some(true));
+  trace_boundary(Some(true));
 
   // Parse object received from JavaScript
   let arg_obj: PorousAbsorberArgs = wasm_arg_obj.into_serde().unwrap();
 
   // What values did we receive from JavaScript?
-  trace(&format!(
-    "absorber_thickness_mm = {}",
-    arg_obj.absorber_thickness_mm
-  ));
-  trace(&format!(
-    "flow_resistivity      = {}",
-    arg_obj.flow_resistivity
-  ));
-  trace(&format!("air_gap_mm            = {}", arg_obj.air_gap_mm));
-  trace(&format!("angle                 = {}", arg_obj.angle));
-  trace(&format!(
-    "graph_start_freq      = {}",
-    arg_obj.graph_start_freq
-  ));
-  trace(&format!("smooth_curve          = {}", arg_obj.smooth_curve));
-  trace(&format!("subdivision           = {}", arg_obj.subdivision));
-  trace(&format!("show_diagram          = {}", arg_obj.show_diagram));
-  trace(&format!("air_temp              = {}", arg_obj.air_temp));
-  trace(&format!("air_pressure          = {}", arg_obj.air_pressure));
+  trace(format!("absorber_thickness_mm = {}", arg_obj.absorber_thickness_mm));
+  trace(format!("flow_resistivity      = {}", arg_obj.flow_resistivity));
+  trace(format!("air_gap_mm            = {}", arg_obj.air_gap_mm));
+  trace(format!("angle                 = {}", arg_obj.angle));
+  trace(format!("graph_start_freq      = {}", arg_obj.graph_start_freq));
+  trace(format!("smooth_curve          = {}", arg_obj.smooth_curve));
+  trace(format!("subdivision           = {}", arg_obj.subdivision));
+  trace(format!("show_diagram          = {}", arg_obj.show_diagram));
+  trace(format!("air_temp              = {}", arg_obj.air_temp));
+  trace(format!("air_pressure          = {}", arg_obj.air_pressure));
 
   // Parse arguments to the required data types
   let absorber_thickness_mm: u16 = arg_obj.absorber_thickness_mm.parse().unwrap();
@@ -93,34 +84,29 @@ pub fn do_porous_absorber_device(wasm_arg_obj: JsValue) -> JsValue {
     CavityConfig::default()
   });
 
-  let display_cfg = DisplayConfig::new(graph_start_freq, smooth_curve, subdivision, show_diagram)
-    .unwrap_or_else(|err: DisplayError| {
+  let display_cfg = DisplayConfig::new(graph_start_freq, smooth_curve, subdivision, show_diagram).unwrap_or_else(
+    |err: DisplayError| {
       error_msgs.push(err.to_string());
       DisplayConfig::default()
-    });
+    },
+  );
 
   let sound_cfg = SoundConfig::new(angle).unwrap_or_else(|err: SoundError| {
     error_msgs.push(err.to_string());
     SoundConfig::default()
   });
 
-  let porous_cfg = PorousLayerConfig::new(absorber_thickness_mm, flow_resistivity).unwrap_or_else(
-    |err: PorousLayerError| {
+  let porous_cfg =
+    PorousLayerConfig::new(absorber_thickness_mm, flow_resistivity).unwrap_or_else(|err: PorousLayerError| {
       error_msgs.push(err.to_string());
       PorousLayerConfig::default()
-    },
-  );
+    });
 
   // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
   // value "Ok", else return the array of error messages
   let return_value = if error_msgs.is_empty() {
-    let absorber_info = calc_engine::calculate_porous_absorber(
-      &air_cfg,
-      &cavity_cfg,
-      &display_cfg,
-      &sound_cfg,
-      &porous_cfg,
-    );
+    let absorber_info =
+      calc_engine::calculate_porous_absorber(&air_cfg, &cavity_cfg, &display_cfg, &sound_cfg, &porous_cfg);
 
     // Plot the graph
     let chart_info = render::plot_generic_device(
@@ -135,7 +121,7 @@ pub fn do_porous_absorber_device(wasm_arg_obj: JsValue) -> JsValue {
     JsValue::from_serde(&error_msgs).unwrap()
   };
 
-  trace_boundary(&Some(false));
+  trace_boundary(Some(false));
 
   // Return either the {X,Y} values of plot points or the error messages back to JavaScript
   return_value

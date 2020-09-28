@@ -12,9 +12,7 @@ use crate::structs::config_cavity::{CavityConfig, CavityError};
 use crate::structs::config_display::{DisplayConfig, DisplayError};
 use crate::structs::config_sound::{SoundConfig, SoundError};
 
-use crate::structs::panel_microperforated::{
-  MicroperforatedPanelConfig, MicroperforatedPanelError,
-};
+use crate::structs::panel_microperforated::{MicroperforatedPanelConfig, MicroperforatedPanelError};
 
 use crate::calc_engine;
 use crate::render;
@@ -24,8 +22,8 @@ use crate::render;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 use crate::Trace;
 
-const LIB_NAME: &str = &"device_microperforated_panel";
-const TRACE_ACTIVE: &bool = &false;
+const LIB_NAME: &str = "device_microperforated_panel";
+const TRACE_ACTIVE: bool = false;
 
 // *********************************************************************************************************************
 // *********************************************************************************************************************
@@ -39,41 +37,29 @@ const TRACE_ACTIVE: &bool = &false;
  * Handle incoming arguments for calculating the absorption of a microperforated panel absorption device
  */
 pub fn do_microperforated_panel_device(wasm_arg_obj: JsValue) -> JsValue {
-  const FN_NAME: &str = &"do_microperforated_panel_device";
+  const FN_NAME: &str = "do_microperforated_panel_device";
 
-  let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
-  let trace = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME, FN_NAME);
+  let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
+  let trace = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
 
-  trace_boundary(&Some(true));
+  trace_boundary(Some(true));
 
   // Parse object received from JavaScript
   let arg_obj: MicroperforatedPanelArgs = wasm_arg_obj.into_serde().unwrap();
 
   // What values did we receive from JavaScript?
-  trace(&format!(
-    "panel_thickness_mm    = {}",
-    arg_obj.panel_thickness_mm
-  ));
-  trace(&format!(
-    "repeat_distance_mm    = {}",
-    arg_obj.repeat_distance_mm
-  ));
-  trace(&format!(
-    "hole_radius_mm        = {}",
-    arg_obj.hole_radius_mm
-  ));
-  trace(&format!("porosity              = {}", arg_obj.porosity));
-  trace(&format!("air_gap_mm            = {}", arg_obj.air_gap_mm));
-  trace(&format!("angle                 = {}", arg_obj.angle));
-  trace(&format!(
-    "graph_start_freq      = {}",
-    arg_obj.graph_start_freq
-  ));
-  trace(&format!("smooth_curve          = {}", arg_obj.smooth_curve));
-  trace(&format!("subdivisions          = {}", arg_obj.subdivision));
-  trace(&format!("show_diagram          = {}", arg_obj.show_diagram));
-  trace(&format!("air_temp              = {}", arg_obj.air_temp));
-  trace(&format!("air_pressure          = {}", arg_obj.air_pressure));
+  trace(format!("panel_thickness_mm    = {}", arg_obj.panel_thickness_mm));
+  trace(format!("repeat_distance_mm    = {}", arg_obj.repeat_distance_mm));
+  trace(format!("hole_radius_mm        = {}", arg_obj.hole_radius_mm));
+  trace(format!("porosity              = {}", arg_obj.porosity));
+  trace(format!("air_gap_mm            = {}", arg_obj.air_gap_mm));
+  trace(format!("angle                 = {}", arg_obj.angle));
+  trace(format!("graph_start_freq      = {}", arg_obj.graph_start_freq));
+  trace(format!("smooth_curve          = {}", arg_obj.smooth_curve));
+  trace(format!("subdivisions          = {}", arg_obj.subdivision));
+  trace(format!("show_diagram          = {}", arg_obj.show_diagram));
+  trace(format!("air_temp              = {}", arg_obj.air_temp));
+  trace(format!("air_pressure          = {}", arg_obj.air_pressure));
 
   // Parse arguments to the required data types
   let panel_thickness_mm: f64 = arg_obj.panel_thickness_mm.parse().unwrap();
@@ -103,22 +89,18 @@ pub fn do_microperforated_panel_device(wasm_arg_obj: JsValue) -> JsValue {
     CavityConfig::default()
   });
 
-  let display_cfg = DisplayConfig::new(graph_start_freq, smooth_curve, subdivision, show_diagram)
-    .unwrap_or_else(|err: DisplayError| {
+  let display_cfg = DisplayConfig::new(graph_start_freq, smooth_curve, subdivision, show_diagram).unwrap_or_else(
+    |err: DisplayError| {
       error_msgs.push(err.to_string());
       DisplayConfig::default()
-    });
+    },
+  );
 
-  let panel_cfg = MicroperforatedPanelConfig::new(
-    panel_thickness_mm,
-    repeat_distance_mm,
-    hole_radius_mm,
-    porosity,
-  )
-  .unwrap_or_else(|err: MicroperforatedPanelError| {
-    error_msgs.push(err.to_string());
-    MicroperforatedPanelConfig::default()
-  });
+  let panel_cfg = MicroperforatedPanelConfig::new(panel_thickness_mm, repeat_distance_mm, hole_radius_mm, porosity)
+    .unwrap_or_else(|err: MicroperforatedPanelError| {
+      error_msgs.push(err.to_string());
+      MicroperforatedPanelConfig::default()
+    });
 
   let sound_cfg = SoundConfig::new(angle).unwrap_or_else(|err: SoundError| {
     error_msgs.push(err.to_string());
@@ -128,13 +110,8 @@ pub fn do_microperforated_panel_device(wasm_arg_obj: JsValue) -> JsValue {
   // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
   // value "Ok", else return the array of error messages
   let return_value = if error_msgs.is_empty() {
-    let absorber_info = calc_engine::calculate_microperforated_panel(
-      &air_cfg,
-      &cavity_cfg,
-      &display_cfg,
-      &panel_cfg,
-      &sound_cfg,
-    );
+    let absorber_info =
+      calc_engine::calculate_microperforated_panel(&air_cfg, &cavity_cfg, &display_cfg, &panel_cfg, &sound_cfg);
 
     // Plot the graph
     let chart_info = render::plot_generic_device(
@@ -149,7 +126,7 @@ pub fn do_microperforated_panel_device(wasm_arg_obj: JsValue) -> JsValue {
     JsValue::from_serde(&error_msgs).unwrap()
   };
 
-  trace_boundary(&Some(false));
+  trace_boundary(Some(false));
 
   // Return either the {X,Y} values of plot points or the error messages back to JavaScript
   return_value
