@@ -8,6 +8,14 @@ The porous absorber is typically made from some material such as Rockwool or gla
 
 
 <!--------------------------------------------------------------------------------------------------------------------->
+<a name="background"></a>
+## Background
+
+This app is the reimplementation of an [Excel spreadsheet](http://whealy.com/acoustics/Porous.html) I wrote in 2004.  It was rewritten as part of an on-going exercise in learning Rust and cross-compiling to Web Assembly using [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/) and [wasm-bindgen](https://rustwasm.github.io/wasm-bindgen/introduction.html).
+
+
+
+<!--------------------------------------------------------------------------------------------------------------------->
 <a name="usage"></a>
 ## Usage
 
@@ -53,7 +61,9 @@ The graph maintains an aspect ratio of 21:9 as the browser screen resizes and ha
 
 ### Show Diagram
 
-When switched on, a graphical representation of the absorption device will be displayed on the left of the chart.
+When switched on, a cross-section of the absorption device will be displayed on the left of the chart.
+
+The graphic shows the wall on the far left, then the air gap, then the porous absorber layer, and finally if relevant, the slotted/perforated panel on the right.
 
 ![Show diagram](./img/rb_porous_absorber_screen2.png)
 
@@ -105,18 +115,36 @@ It is possible that after a new version of this app is released, old values in t
 These instructions assume you have already installed Rust and `wasm-pack`, and that Python3 is available to act as a Web server.
 
 1. Clone this repo
-2. Change into the repo's top-level directory
-3. Compile using `wasm-pack build --release --target web`
-4. Start a Python3 Web server using `python3 -m http.server`
-5. Visit <http://0.0.0.0:8000>
+1. Change into the repo's top-level directory
+1. Ensure that you have installed [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/) as per the instructions behind the link
+1. Compile using `wasm-pack build --release --target web`
+
+### Testing
+
+To test this app locally, run the shell script `./test_server.sh` then visit <http://0.0.0.0:8000>
+
+The purpose of this shell script is simply to ensure that the Python Webserver serves files of type `.wasm` with the correct MIME type of `application/wasm`.
+
+Running this shell script is not a requirement; alternatively, you could simply start the default Python Webserver using the command `python3 -m http.server`.  Using this approach however, you will see the following non-fatal error in your browser console:
+
+```
+porous_absorber_calculator.js:242 `WebAssembly.instantiateStreaming` failed because your server does not serve wasm with `application/wasm` MIME type.  
+Falling back to `WebAssembly.instantiate` which is slower.  
+Original error: TypeError: Failed to execute 'compile' on 'WebAssembly': Incorrect response MIME type. Expected 'application/wasm'.
+```
 
 
+### Debug/Trace Output
 
-<!--------------------------------------------------------------------------------------------------------------------->
-<a name="background"></a>
-## Background
+If you wish switch on debug/trace output, then you need to switch the `TRACE_ACTIVE` flag in the relevant module.
 
-This app is the reimplementation of an [Excel spreadsheet](http://whealy.com/acoustics/Porous.html) I wrote in 2004 and is part of an on-going exercise in learning Rust and cross-compiling it to Web Assembly using [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/) and [wasm-bindgen](https://rustwasm.github.io/wasm-bindgen/introduction.html).
+For each module in which debug/trace output is relevant, locate the line
+
+```rust
+const TRACE_ACTIVE: bool = false;
+```
+
+Change the value to `true`, recompile using `wasm-pack` and the perform a hard refresh of the browser page.  Debug/trace output will then be visible in the browser console whenever control passes through that particular module.
 
 
 
@@ -131,7 +159,9 @@ Nothing so far
 <a name="caveat"></a>
 ## Caveat
 
-The author has taken every reasonable step to ensure that the calculations are accurate to the equations and methodology documented in the book "*Acoustic Absorbers and Diffusers.  Theory, Design and Practice*" by Trevor Cox and Peter D'Antonio (First Edition).  The author also recognises that this book is now in its third edition and therefore, certain calculations may have been modified or revised; consequently, the graphs plotted by this tool may vary from those plotted by a tool based on the most recent version of this book.
+I realise that this app is an implementation of the ***theory*** of how acoustic absorption can be calculated.  I cannot make any guarantee that reality will match up to the results of these calculations!
+
+I havae also taken every reasonable step to ensure that the calculations are accurate to the equations and methodology documented in the book "*Acoustic Absorbers and Diffusers.  Theory, Design and Practice*" by Trevor Cox and Peter D'Antonio (First Edition).  However, this book is now in its third edition and therefore certain calculations may have been modified or revised; consequently, the graphs plotted by this tool may vary from those plotted by a tool based on the most recent version of this book.
 
 
 
@@ -143,17 +173,13 @@ For best results, view this app use Brave, Google Chrome or Firefox Quantum brow
 
 This app has ***not*** been optimized for display on mobile devices.
 
-### Brave Useability Issues
-
-When testing this app in the Brave browser against a local Python 3 web server, the spacing of the axis ticks and labels is not correct.  This problem only occurs during testing.
-
 
 
 <!--------------------------------------------------------------------------------------------------------------------->
 <a name="support"></a>
 ## Support
 
-Support *can* be provided; however, I cannot guarantee a prompt response...
+I can provide a limited level of support; however, I cannot guarantee a prompt response...
 
 
 
