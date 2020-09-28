@@ -21,7 +21,7 @@ This app is the reimplementation of an [Excel spreadsheet](http://whealy.com/aco
 
 When the app starts, the "Rigid Backed Porous Absorber" tab will be selected by default.
 
-![Screen shot](./img/rb_porous_absorber_screen1.png)
+![Screen shot](./img/porous_absorber_screen1.png)
 
 If this is the first time you have run this calculator, then all calculations will be performed using default values.
 
@@ -37,7 +37,7 @@ As you move the mouse pointer over the chart, cross hairs will appear and the ab
 
 Four absorber device types have been implemented:
 
-* [Rigid Backed Porous Absorber](./docs/rb_porous_absorber.md)
+* [Rigid Backed Porous Absorber](./docs/porous_absorber.md)
 * [Slotted Panel](./docs/slotted_panel.md)
 * [Perforated Panel](./docs/perforated_panel.md)
 * [Microperforated Panel](./docs/microperforated_panel.md)
@@ -65,7 +65,7 @@ When switched on, a cross-section of the absorption device will be displayed on 
 
 The graphic shows the wall on the far left, then the air gap, then the porous absorber layer, and finally if relevant, the slotted/perforated panel on the right.
 
-![Show diagram](./img/rb_porous_absorber_screen2.png)
+![Show diagram](./img/porous_absorber_screen2.png)
 
 As you change the dimensions of the air gap and porous absorber layer, the diagram changes to show the device dimensions in proportion to each other.
 
@@ -128,8 +128,8 @@ The purpose of this shell script is simply to ensure that the Python Webserver s
 Running this shell script is not a requirement; alternatively, you could simply start the default Python Webserver using the command `python3 -m http.server`.  Using this approach however, you will see the following non-fatal error in your browser console:
 
 ```
-porous_absorber_calculator.js:242 `WebAssembly.instantiateStreaming` failed because your server does not serve wasm with `application/wasm` MIME type.  
-Falling back to `WebAssembly.instantiate` which is slower.  
+porous_absorber_calculator.js:242 `WebAssembly.instantiateStreaming` failed because your server does not serve wasm with `application/wasm` MIME type.
+Falling back to `WebAssembly.instantiate` which is slower.
 Original error: TypeError: Failed to execute 'compile' on 'WebAssembly': Incorrect response MIME type. Expected 'application/wasm'.
 ```
 
@@ -196,5 +196,3 @@ Chris Whealy  <chris@whealy.com>
 ## License
 
 This project is licensed under the Apache Software License, Version 2.0 except as noted otherwise in the [LICENSE](LICENSE) file.
-
-

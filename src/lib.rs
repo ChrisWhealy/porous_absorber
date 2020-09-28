@@ -14,14 +14,11 @@ extern crate serde_derive;
 // Submodules
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 mod calc_engine;
+mod devices;
 mod render;
 mod structs;
 mod trace;
-
-mod device_microperforated_panel;
-mod device_perforated_panel;
-mod device_rb_porous_absorber;
-mod device_slotted_panel;
+mod utils;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Usage
@@ -29,10 +26,10 @@ mod device_slotted_panel;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsValue;
 
-use device_microperforated_panel::*;
-use device_perforated_panel::*;
-use device_rb_porous_absorber::*;
-use device_slotted_panel::*;
+use devices::{
+  microperforated_panel::do_microperforated_panel_device, perforated_panel::do_perforated_panel_device,
+  porous_absorber::do_porous_absorber_device, slotted_panel::do_slotted_panel_device,
+};
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Trace functionality
@@ -41,14 +38,6 @@ use trace::Trace;
 
 const LIB_NAME: &str = "lib";
 const TRACE_ACTIVE: bool = false;
-
-// *********************************************************************************************************************
-// *********************************************************************************************************************
-//
-//                                                  P U B L I C   A P I
-//
-// *********************************************************************************************************************
-// *********************************************************************************************************************
 
 // *********************************************************************************************************************
 // Default and main entry points
@@ -69,8 +58,8 @@ pub fn main() -> Result<(), JsValue> {
 // Rigid backed porous absorber
 // *********************************************************************************************************************
 #[wasm_bindgen]
-pub fn rb_porous_absorber(wasm_arg_obj: JsValue) -> JsValue {
-  (Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), "rb_porous_absorber".to_string()))(None);
+pub fn porous_absorber(wasm_arg_obj: JsValue) -> JsValue {
+  (Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), "porous_absorber".to_string()))(None);
   do_porous_absorber_device(wasm_arg_obj)
 }
 

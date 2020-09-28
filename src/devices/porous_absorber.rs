@@ -13,7 +13,7 @@ use crate::structs::config_display::{DisplayConfig, DisplayError};
 use crate::structs::config_porous_layer::{PorousLayerConfig, PorousLayerError};
 use crate::structs::config_sound::{SoundConfig, SoundError};
 
-use crate::calc_engine;
+use crate::calc_engine::porous_absorber;
 use crate::render;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -21,16 +21,8 @@ use crate::render;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 use crate::Trace;
 
-const LIB_NAME: &str = "device_rb_porous_absorber";
+const LIB_NAME: &str = "devices::porous_absorber";
 const TRACE_ACTIVE: bool = false;
-
-// *********************************************************************************************************************
-// *********************************************************************************************************************
-//
-//                                                  P U B L I C   A P I
-//
-// *********************************************************************************************************************
-// *********************************************************************************************************************
 
 /***********************************************************************************************************************
  * Handle incoming arguments for calculating the absorption of a rigid backed porous absorption device
@@ -105,8 +97,7 @@ pub fn do_porous_absorber_device(wasm_arg_obj: JsValue) -> JsValue {
   // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
   // value "Ok", else return the array of error messages
   let return_value = if error_msgs.is_empty() {
-    let absorber_info =
-      calc_engine::calculate_porous_absorber(&air_cfg, &cavity_cfg, &display_cfg, &sound_cfg, &porous_cfg);
+    let absorber_info = porous_absorber::calculate(&air_cfg, &cavity_cfg, &display_cfg, &sound_cfg, &porous_cfg);
 
     // Plot the graph
     let chart_info = render::plot_generic_device(
@@ -126,14 +117,6 @@ pub fn do_porous_absorber_device(wasm_arg_obj: JsValue) -> JsValue {
   // Return either the {X,Y} values of plot points or the error messages back to JavaScript
   return_value
 }
-
-// *********************************************************************************************************************
-// *********************************************************************************************************************
-//
-//                                                 P R I V A T E   A P I
-//
-// *********************************************************************************************************************
-// *********************************************************************************************************************
 
 /***********************************************************************************************************************
  * Arguments required by function do_porous_absorber_device

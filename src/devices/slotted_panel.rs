@@ -14,7 +14,7 @@ use crate::structs::config_porous_layer::{PorousLayerConfig, PorousLayerError};
 
 use crate::structs::panel_slotted::{SlottedPanelConfig, SlottedPanelError};
 
-use crate::calc_engine;
+use crate::calc_engine::slotted_panel;
 use crate::render;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -22,18 +22,10 @@ use crate::render;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 use crate::Trace;
 
-const LIB_NAME: &str = "device_slotted_panel";
+const LIB_NAME: &str = "devices::slotted_panel";
 const TRACE_ACTIVE: bool = false;
 
 const CHART_TITLE: &str = "Normal Incidence Absorption";
-
-// *********************************************************************************************************************
-// *********************************************************************************************************************
-//
-//                                                  P U B L I C   A P I
-//
-// *********************************************************************************************************************
-// *********************************************************************************************************************
 
 /***********************************************************************************************************************
  * Handle incoming arguments for calculating the absorption of a slotted panel absorption device
@@ -115,8 +107,7 @@ pub fn do_slotted_panel_device(wasm_arg_obj: JsValue) -> JsValue {
   // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
   // value "Ok", else return the array of error messages
   let return_value = if error_msgs.is_empty() {
-    let absorber_info =
-      calc_engine::calculate_slotted_panel(&air_cfg, &cavity_cfg, &display_cfg, &panel_cfg, &porous_cfg);
+    let absorber_info = slotted_panel::calculate(&air_cfg, &cavity_cfg, &display_cfg, &panel_cfg, &porous_cfg);
 
     // Plot the graph
     let chart_info = render::plot_generic_device(absorber_info, &display_cfg, CHART_TITLE);
@@ -132,14 +123,6 @@ pub fn do_slotted_panel_device(wasm_arg_obj: JsValue) -> JsValue {
   // Return either the {X,Y} values of plot points or the error messages back to JavaScript
   return_value
 }
-
-// *********************************************************************************************************************
-// *********************************************************************************************************************
-//
-//                                                 P R I V A T E   A P I
-//
-// *********************************************************************************************************************
-// *********************************************************************************************************************
 
 /***********************************************************************************************************************
  * Arguments required by function do_slotted_panel_device

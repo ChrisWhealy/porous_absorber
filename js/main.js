@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  * Porous Absorber Calculator
- * 
+ *
  * (c) Chris Whealy 2019
  **********************************************************************************************************************/
 
@@ -25,10 +25,10 @@ import {
 // JavaScript wrapper functions for the underlying WASM functions
 //
 // Other than the default function name "init", the other function names are the names of the Rust functions exposed
-// using the #[wasm_bindgen] directive in lib.rs.  These names, in turn, must match the tab names listed in the 
+// using the #[wasm_bindgen] directive in lib.rs.  These names, in turn, must match the tab names listed in the
 // tabConfig object in tabConfig.js
 import init
-, { rb_porous_absorber
+, { porous_absorber
   , slotted_panel
   , perforated_panel
   , microperforated_panel
@@ -71,7 +71,7 @@ window.half                        = TM.half
 window.double                      = TM.double
 
 // Make the WASM wrapper functions globally accessible
-window.rb_porous_absorber    = rb_porous_absorber
+window.porous_absorber       = porous_absorber
 window.slotted_panel         = slotted_panel
 window.perforated_panel      = perforated_panel
 window.microperforated_panel = microperforated_panel
@@ -124,8 +124,7 @@ const startTabs = traceFnBoundary("startTabs", startTabsFn)
 async function startWASM() {
   await init()
   console.log("WASM module initialisation complete...")
-  
+
   useLocalStorage()
   await startTabs()
 }
-
