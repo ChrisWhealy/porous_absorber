@@ -1,8 +1,8 @@
-pub mod config_air;
-pub mod config_cavity;
-pub mod config_display;
-pub mod config_porous_layer;
-pub mod config_sound;
+pub mod air;
+pub mod cavity;
+pub mod display;
+pub mod porous_layer;
+pub mod sound;
 
 pub mod panel_microperforated;
 pub mod panel_perforated;

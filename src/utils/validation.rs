@@ -3,8 +3,8 @@
  *
  * (c) Chris Whealy 2020
  */
-use crate::structs::constants;
-use crate::structs::ranges::Range;
+use crate::config::constants;
+use crate::config::ranges::Range;
 
 pub fn failure_msg<T: std::fmt::Debug>(range: Range<T>, err_val: T) -> String {
   format!(

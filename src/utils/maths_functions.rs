@@ -9,7 +9,7 @@ use libm::{fabs, pow, sqrt};
 use num::complex::Complex;
 use std::f64::consts::PI;
 
-use crate::structs::{config_air::AirConfig, config_porous_layer::PorousLayerConfig};
+use crate::config::{air::AirConfig, porous_layer::PorousLayerConfig};
 
 pub fn cmplx_abs(cplx: Complex<f64>) -> f64 {
   sqrt(cplx.norm_sqr())

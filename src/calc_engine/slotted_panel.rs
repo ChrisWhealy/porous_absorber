@@ -9,15 +9,16 @@ use libm::{log, sin};
 use num::complex::Complex;
 use std::f64::consts::PI;
 
-use crate::structs::{
-  config_air::AirConfig,
-  config_cavity::CavityConfig,
-  config_display::{DisplayConfig, PlotAbsPoint, SeriesData},
-  config_porous_layer::PorousLayerConfig,
+use crate::config::{
+  air::AirConfig,
+  cavity::CavityConfig,
+  display::{DisplayConfig, PlotAbsPoint, SeriesData},
   generic_device::{DeviceType, GenericDeviceInfo},
   panel_slotted::SlottedPanelConfig,
+  porous_layer::PorousLayerConfig,
 };
 
+use crate::chart::constants;
 use crate::utils::maths_functions::*;
 
 /***********************************************************************************************************************
@@ -29,12 +30,8 @@ const LIB_NAME: &str = "calc_engine::slotted_panel";
 const TRACE_ACTIVE: bool = false;
 
 /***********************************************************************************************************************
- * Slotted Panel
+ * Slotted Panel Calculation
  */
-const STR_NO_AIR_GAP: &str = "No Air Gap";
-const STR_ABS_AGAINST_PANEL: &str = "Absorber Against Panel";
-const STR_ABS_AGAINST_BACKING: &str = "Absorber Against Backing";
-
 pub fn calculate<'a>(
   air: &'a AirConfig,
   cavity: &'a CavityConfig,
@@ -73,15 +70,15 @@ pub fn calculate<'a>(
       device_type: DeviceType::SlottedPanelAbsorber,
       abs_series: vec![
         SeriesData {
-          name: STR_NO_AIR_GAP,
+          name: constants::TXT_NO_AIR_GAP,
           plot_points: vec![],
         },
         SeriesData {
-          name: STR_ABS_AGAINST_PANEL,
+          name: constants::TXT_ABS_AGAINST_PANEL,
           plot_points: vec![],
         },
         SeriesData {
-          name: STR_ABS_AGAINST_BACKING,
+          name: constants::TXT_ABS_AGAINST_BACKING,
           plot_points: vec![],
         },
       ],

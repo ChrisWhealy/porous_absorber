@@ -9,15 +9,16 @@ use libm::{cos, sin};
 use num::complex::Complex;
 use std::f64::consts::PI;
 
-use crate::structs::{
-  config_air::AirConfig,
-  config_cavity::CavityConfig,
-  config_display::{DisplayConfig, PlotAbsPoint, SeriesData},
-  config_porous_layer::PorousLayerConfig,
-  config_sound::SoundConfig,
+use crate::config::{
+  air::AirConfig,
+  cavity::CavityConfig,
+  display::{DisplayConfig, PlotAbsPoint, SeriesData},
   generic_device::{DeviceType, GenericDeviceInfo},
+  porous_layer::PorousLayerConfig,
+  sound::SoundConfig,
 };
 
+use crate::chart::constants;
 use crate::utils::maths_functions::*;
 
 /***********************************************************************************************************************
@@ -29,13 +30,10 @@ const LIB_NAME: &str = "calc_engine::porous_absorber";
 const TRACE_ACTIVE: bool = false;
 
 /***********************************************************************************************************************
- * Rigid Backed Porous Absorber
+ * Rigid Backed Porous Absorber Calculation
  */
 const PI_OVER_180: f64 = PI / 180.0;
 const ONE_80_OVER_PI: f64 = 180.0 / PI;
-
-const STR_AIR_GAP: &str = "Air Gap";
-const STR_NO_AIR_GAP: &str = "No Air Gap";
 
 pub fn calculate<'a>(
   air: &'a AirConfig,
@@ -55,11 +53,11 @@ pub fn calculate<'a>(
       device_type: DeviceType::RigidBackedPorousAbsorber,
       abs_series: vec![
         SeriesData {
-          name: STR_AIR_GAP,
+          name: constants::TXT_AIR_GAP,
           plot_points: vec![],
         },
         SeriesData {
-          name: STR_NO_AIR_GAP,
+          name: constants::TXT_NO_AIR_GAP,
           plot_points: vec![],
         },
       ],

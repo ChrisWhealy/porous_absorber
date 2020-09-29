@@ -6,9 +6,12 @@
 use std::f64::consts::PI;
 use wasm_bindgen::{JsCast, JsValue};
 
-use crate::chart::render::{bezier, canvas_utils::*, constants::*};
-use crate::structs::{
-  config_display::*,
+use crate::chart::{
+  constants::*,
+  render::{bezier, canvas_utils::*, constants::*},
+};
+use crate::config::{
+  display::*,
   generic_device::{DeviceType, GenericDeviceInfo},
 };
 
@@ -23,6 +26,8 @@ const TRACE_ACTIVE: bool = false;
 /***********************************************************************************************************************
  * Draw the device diagram
  */
+pub const PI_OVER_TWO: f64 = PI / 2.0;
+
 pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_axis_length: &f64, y_axis_inset: &f64) {
   const FN_NAME: &str = "device_diagram";
 
@@ -348,7 +353,8 @@ pub fn title_and_key(
 
 /***********************************************************************************************************************
  * Draw graph axes
- * This function returns a tuple containing firstly, the chart box dimensions within which the cross-hairs are drawn and
+ *
+ * This function returns a tuple containing firstly the chart box dimensions within which the cross-hairs are drawn and
  * secondly, the width of the widest Y axis tick label
  *
  * The widest tick label value is needed as part of the calculation to determine the available width within which to
@@ -534,7 +540,7 @@ pub fn splines(
  * Draw a single axis
  */
 fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: Axis) -> f64 {
-  const FN_NAME: &str = "axis";
+  const FN_NAME: &str = "draw_axis";
 
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
   let trace = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());

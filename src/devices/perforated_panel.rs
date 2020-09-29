@@ -5,12 +5,13 @@
  */
 use wasm_bindgen::JsValue;
 
-use crate::structs::config_air::{AirConfig, AirError};
-use crate::structs::config_cavity::{CavityConfig, CavityError};
-use crate::structs::config_display::{DisplayConfig, DisplayError};
-use crate::structs::config_porous_layer::{PorousLayerConfig, PorousLayerError};
-
-use crate::structs::panel_perforated::{PerforatedPanelConfig, PerforatedPanelError};
+use crate::config::{
+  air::{AirConfig, AirError},
+  cavity::{CavityConfig, CavityError},
+  display::{DisplayConfig, DisplayError},
+  panel_perforated::{PerforatedPanelConfig, PerforatedPanelError},
+  porous_layer::{PorousLayerConfig, PorousLayerError},
+};
 
 use crate::calc_engine::perforated_panel;
 use crate::chart;

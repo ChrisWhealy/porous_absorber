@@ -5,12 +5,13 @@
  */
 use wasm_bindgen::JsValue;
 
-use crate::structs::config_air::{AirConfig, AirError};
-use crate::structs::config_cavity::{CavityConfig, CavityError};
-use crate::structs::config_display::{DisplayConfig, DisplayError};
-use crate::structs::config_sound::{SoundConfig, SoundError};
-
-use crate::structs::panel_microperforated::{MicroperforatedPanelConfig, MicroperforatedPanelError};
+use crate::config::{
+  air::{AirConfig, AirError},
+  cavity::{CavityConfig, CavityError},
+  display::{DisplayConfig, DisplayError},
+  panel_microperforated::{MicroperforatedPanelConfig, MicroperforatedPanelError},
+  sound::{SoundConfig, SoundError},
+};
 
 use crate::calc_engine::microperforated_panel;
 use crate::chart;

@@ -10,8 +10,8 @@ extern crate serde_derive;
 
 mod calc_engine;
 mod chart;
+mod config;
 mod devices;
-mod structs;
 mod trace;
 mod utils;
 

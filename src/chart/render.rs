@@ -3,16 +3,17 @@
  *
  * (c) Chris Whealy 2020
  */
+pub mod constants;
+
 mod bezier;
 mod canvas_utils;
-mod constants;
 mod draw;
 
 use wasm_bindgen::{JsCast, JsValue};
 
-use crate::chart::render::constants::*;
-use crate::structs::{
-  config_display::*,
+use crate::chart::{constants::*, render::constants::*};
+use crate::config::{
+  display::{ChartInfo, DisplayConfig, SeriesData},
   generic_device::{DeviceType, GenericDeviceInfo},
 };
 

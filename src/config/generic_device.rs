@@ -5,10 +5,9 @@
  */
 use serde::Serialize;
 
-use crate::structs::{
-  config_cavity::CavityConfig, config_display::SeriesData, config_porous_layer::PorousLayerConfig,
-  panel_microperforated::MicroperforatedPanelConfig, panel_perforated::PerforatedPanelConfig,
-  panel_slotted::SlottedPanelConfig,
+use crate::config::{
+  cavity::CavityConfig, display::SeriesData, panel_microperforated::MicroperforatedPanelConfig,
+  panel_perforated::PerforatedPanelConfig, panel_slotted::SlottedPanelConfig, porous_layer::PorousLayerConfig,
 };
 
 /***********************************************************************************************************************

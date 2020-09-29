@@ -5,15 +5,15 @@
 */
 use wasm_bindgen::JsValue;
 
-use crate::structs::config_air::{AirConfig, AirError};
-use crate::structs::config_cavity::{CavityConfig, CavityError};
-use crate::structs::config_display::{DisplayConfig, DisplayError};
-use crate::structs::config_porous_layer::{PorousLayerConfig, PorousLayerError};
-
-use crate::structs::panel_slotted::{SlottedPanelConfig, SlottedPanelError};
-
 use crate::calc_engine::slotted_panel;
 use crate::chart;
+use crate::config::{
+  air::{AirConfig, AirError},
+  cavity::{CavityConfig, CavityError},
+  display::{DisplayConfig, DisplayError},
+  panel_slotted::{SlottedPanelConfig, SlottedPanelError},
+  porous_layer::{PorousLayerConfig, PorousLayerError},
+};
 
 /***********************************************************************************************************************
  * Trace functionality

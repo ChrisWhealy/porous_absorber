@@ -7,7 +7,7 @@ extern crate num_format;
 
 use std::fmt;
 
-use crate::structs::{constants, ranges::Range};
+use crate::config::{constants, ranges::Range};
 use crate::utils::validation;
 
 /***********************************************************************************************************************

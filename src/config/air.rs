@@ -6,7 +6,7 @@
 use std::f64::consts::PI;
 use std::fmt;
 
-use crate::structs::{constants, ranges::Range};
+use crate::config::{constants, ranges::Range};
 use crate::utils::validation;
 
 /***********************************************************************************************************************

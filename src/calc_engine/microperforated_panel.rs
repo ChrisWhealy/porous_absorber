@@ -9,15 +9,16 @@ use libm::{cos, sin, sqrt};
 use num::complex::Complex;
 use std::f64::consts::PI;
 
-use crate::structs::{
-  config_air::{AirConfig, AIR_VISCOSITY},
-  config_cavity::CavityConfig,
-  config_display::{DisplayConfig, PlotAbsPoint, SeriesData},
-  config_sound::SoundConfig,
+use crate::config::{
+  air::{AirConfig, AIR_VISCOSITY},
+  cavity::CavityConfig,
+  display::{DisplayConfig, PlotAbsPoint, SeriesData},
   generic_device::{DeviceType, GenericDeviceInfo},
   panel_microperforated::MicroperforatedPanelConfig,
+  sound::SoundConfig,
 };
 
+use crate::chart::constants;
 use crate::utils::maths_functions::*;
 
 /***********************************************************************************************************************
@@ -29,10 +30,8 @@ const LIB_NAME: &str = "calc_engine::microperforated_panel";
 const TRACE_ACTIVE: bool = false;
 
 /***********************************************************************************************************************
- * Microperforated Panel
+ * Microperforated Panel Calculation
  */
-const STR_MP_PANEL: &str = "Microperforated Panel";
-
 pub fn calculate<'a>(
   air: &'a AirConfig,
   cavity: &'a CavityConfig,
@@ -52,7 +51,7 @@ pub fn calculate<'a>(
     GenericDeviceInfo {
       device_type: DeviceType::MicroperforatedPanelAbsorber,
       abs_series: vec![SeriesData {
-        name: STR_MP_PANEL,
+        name: constants::TXT_MP_PANEL,
         plot_points: vec![],
       }],
       sl_panel: None,
