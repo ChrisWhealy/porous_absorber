@@ -25,7 +25,7 @@ const LIB_NAME: &str = "chart::render";
 const TRACE_ACTIVE: bool = false;
 
 /***********************************************************************************************************************
- * Generic device calculator
+ * Plot a chart for a generic device
  */
 pub fn generic_device<'a>(
   device_info: GenericDeviceInfo<'a>,
@@ -53,7 +53,7 @@ pub fn generic_device<'a>(
   canvas_utils::clear(&canvas);
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  // Define metadata for series name and plot colour
+  // Each device type has one or more plot series, each defined by a relevant metadata object
   let series_metadata = match device_info.device_type {
     DeviceType::RigidBackedPorousAbsorber => vec![&METADATA_NO_AIR_GAP, &METADATA_AIR_GAP],
     DeviceType::PerforatedPanelAbsorber => vec![&METADATA_NO_AIR_GAP, &METADATA_ABS_PANEL, &METADATA_ABS_BACKING],

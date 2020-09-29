@@ -7,34 +7,37 @@ extern crate num_format;
 
 use std::fmt;
 
-use crate::structs::ranges::RangeF64;
+use crate::structs::{constants, ranges::Range};
+use crate::utils::validation;
 
 /***********************************************************************************************************************
  * Range check values
  */
-const THICKNESS_RANGE: RangeF64 = RangeF64 {
+const THICKNESS_RANGE: Range<f64> = Range {
+  name: constants::TXT_THICKNESS,
+  units: constants::UNITS_THICKNESS,
   min: 1.0,
   default: 10.0,
   max: 50.0,
 };
 
-const DISTANCE_RANGE: RangeF64 = RangeF64 {
+const DISTANCE_RANGE: Range<f64> = Range {
+  name: constants::TXT_DISTANCE,
+  units: constants::UNITS_DISTANCE,
   min: 2.0,
   default: 25.4,
   max: 300.0,
 };
 
-const WIDTH_RANGE: RangeF64 = RangeF64 {
+const WIDTH_RANGE: Range<f64> = Range {
+  name: constants::TXT_WIDTH,
+  units: constants::UNITS_WIDTH,
   min: 1.0,
   default: 5.0,
   max: 50.0,
 };
 
 const DEFAULT_POROSITY: f64 = WIDTH_RANGE.default / (DISTANCE_RANGE.default + WIDTH_RANGE.default);
-
-const UNITS_THICKNESS: &str = "mm";
-const UNITS_DISTANCE: &str = "mm";
-const UNITS_WIDTH: &str = "mm";
 
 /***********************************************************************************************************************
  * Possible errors when creating porous absorber struct
@@ -45,12 +48,9 @@ pub struct SlottedPanelError {
 }
 
 impl SlottedPanelError {
-  pub fn new(property: &str, units: &str, min: f64, max: f64, err_val: f64) -> SlottedPanelError {
+  pub fn new(range: Range<f64>, err_val: f64) -> SlottedPanelError {
     SlottedPanelError {
-      msg: format!(
-        "{} must be a value in {} between {:?} and {:?}, not '{:?}'",
-        property, units, min, max, err_val
-      ),
+      msg: validation::failure_msg(range, err_val),
     }
   }
 }
@@ -93,33 +93,15 @@ impl SlottedPanelConfig {
     porosity_arg: f64,
   ) -> Result<SlottedPanelConfig, SlottedPanelError> {
     if thickness_arg < THICKNESS_RANGE.min || thickness_arg > THICKNESS_RANGE.max {
-      return Err(SlottedPanelError::new(
-        "Thickness",
-        UNITS_THICKNESS,
-        THICKNESS_RANGE.min,
-        THICKNESS_RANGE.max,
-        thickness_arg,
-      ));
+      return Err(SlottedPanelError::new(THICKNESS_RANGE, thickness_arg));
     }
 
     if distance_arg < DISTANCE_RANGE.min || distance_arg > DISTANCE_RANGE.max {
-      return Err(SlottedPanelError::new(
-        "Distance",
-        UNITS_DISTANCE,
-        DISTANCE_RANGE.min,
-        DISTANCE_RANGE.max,
-        distance_arg,
-      ));
+      return Err(SlottedPanelError::new(DISTANCE_RANGE, distance_arg));
     }
 
     if width_arg < WIDTH_RANGE.min || width_arg > WIDTH_RANGE.max {
-      return Err(SlottedPanelError::new(
-        "Width",
-        UNITS_WIDTH,
-        WIDTH_RANGE.min,
-        WIDTH_RANGE.max,
-        width_arg,
-      ));
+      return Err(SlottedPanelError::new(WIDTH_RANGE, width_arg));
     }
 
     Ok(SlottedPanelConfig {

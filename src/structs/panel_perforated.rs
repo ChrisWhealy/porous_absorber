@@ -8,24 +8,31 @@ extern crate num_format;
 use std::f64::consts::PI;
 use std::fmt;
 
-use crate::structs::ranges::RangeF64;
+use crate::structs::{constants, ranges::Range};
+use crate::utils::validation;
 
 /***********************************************************************************************************************
  * Range check values
  */
-const THICKNESS_RANGE: RangeF64 = RangeF64 {
+const THICKNESS_RANGE: Range<f64> = Range {
+  name: constants::TXT_THICKNESS,
+  units: constants::UNITS_THICKNESS,
   min: 1.0,
   default: 10.0,
   max: 50.0,
 };
 
-const CENTRES_RANGE: RangeF64 = RangeF64 {
+const CENTRES_RANGE: Range<f64> = Range {
+  name: constants::TXT_CENTRES,
+  units: constants::UNITS_CENTRES,
   min: 2.0,
   default: 25.4,
   max: 300.0,
 };
 
-const RADIUS_RANGE: RangeF64 = RangeF64 {
+const RADIUS_RANGE: Range<f64> = Range {
+  name: constants::TXT_RADIUS,
+  units: constants::UNITS_RADIUS,
   min: 1.0,
   default: 12.7,
   max: 50.0,
@@ -33,10 +40,6 @@ const RADIUS_RANGE: RangeF64 = RangeF64 {
 
 const DEFAULT_POROSITY: f64 =
   (PI * RADIUS_RANGE.default * RADIUS_RANGE.default) / (CENTRES_RANGE.default * CENTRES_RANGE.default);
-
-const UNITS_THICKNESS: &str = "mm";
-const UNITS_CENTRES: &str = "mm";
-const UNITS_RADIUS: &str = "mm";
 
 /***********************************************************************************************************************
  * Possible errors when creating struct for a perforated panel device
@@ -47,12 +50,9 @@ pub struct PerforatedPanelError {
 }
 
 impl PerforatedPanelError {
-  pub fn new(property: &str, units: &str, min: f64, max: f64, err_val: f64) -> PerforatedPanelError {
+  pub fn new(range: Range<f64>, err_val: f64) -> PerforatedPanelError {
     PerforatedPanelError {
-      msg: format!(
-        "{} must be a value in {} between {:?} and {:?}, not '{:?}'",
-        property, units, min, max, err_val
-      ),
+      msg: validation::failure_msg(range, err_val),
     }
   }
 }
@@ -95,33 +95,15 @@ impl PerforatedPanelConfig {
     porosity_arg: f64,
   ) -> Result<PerforatedPanelConfig, PerforatedPanelError> {
     if thickness_arg < THICKNESS_RANGE.min || thickness_arg > THICKNESS_RANGE.max {
-      return Err(PerforatedPanelError::new(
-        "Thickness",
-        UNITS_THICKNESS,
-        THICKNESS_RANGE.min,
-        THICKNESS_RANGE.max,
-        thickness_arg,
-      ));
+      return Err(PerforatedPanelError::new(THICKNESS_RANGE, thickness_arg));
     }
 
     if centres_arg < CENTRES_RANGE.min || centres_arg > CENTRES_RANGE.max {
-      return Err(PerforatedPanelError::new(
-        "Centres",
-        UNITS_CENTRES,
-        CENTRES_RANGE.min,
-        CENTRES_RANGE.max,
-        centres_arg,
-      ));
+      return Err(PerforatedPanelError::new(CENTRES_RANGE, centres_arg));
     }
 
     if radius_arg < RADIUS_RANGE.min || radius_arg > RADIUS_RANGE.max {
-      return Err(PerforatedPanelError::new(
-        "Radius",
-        UNITS_RADIUS,
-        RADIUS_RANGE.min,
-        RADIUS_RANGE.max,
-        radius_arg,
-      ));
+      return Err(PerforatedPanelError::new(RADIUS_RANGE, radius_arg));
     }
 
     Ok(PerforatedPanelConfig {

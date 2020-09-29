@@ -8,5 +8,6 @@ pub mod panel_microperforated;
 pub mod panel_perforated;
 pub mod panel_slotted;
 
+pub mod constants;
 pub mod generic_device;
 pub mod ranges;

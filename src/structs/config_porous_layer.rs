@@ -7,25 +7,27 @@ extern crate num_format;
 
 use std::fmt;
 
-use crate::structs::ranges::{RangeU16, RangeU32};
+use crate::structs::{constants, ranges::Range};
+use crate::utils::validation;
 
 /***********************************************************************************************************************
  * Range check values
  */
-const THICKNESS_RANGE: RangeU16 = RangeU16 {
+const THICKNESS_RANGE: Range<u16> = Range {
+  name: constants::TXT_THICKNESS,
+  units: constants::UNITS_THICKNESS,
   min: 5,
   default: 30,
   max: 500,
 };
 
-const FLOW_RESISTIVITY_RANGE: RangeU32 = RangeU32 {
+const FLOW_RESISTIVITY_RANGE: Range<u32> = Range {
+  name: constants::TXT_FLOW_RESISTIVITY,
+  units: constants::UNITS_THICKNESS,
   min: 1000,
   default: 16500,
   max: 100000,
 };
-
-const UNITS_THICKNESS: &str = "mm";
-const UNITS_FLOW_RESISTIVITY: &str = "rayls/m";
 
 /***********************************************************************************************************************
  * Possible errors when creating porous absorber struct
@@ -36,12 +38,15 @@ pub struct PorousLayerError {
 }
 
 impl PorousLayerError {
-  pub fn new(property: &str, units: &str, min: u32, max: u32, err_val: u32) -> PorousLayerError {
+  pub fn new_from_u16(range: Range<u16>, err_val: u16) -> PorousLayerError {
     PorousLayerError {
-      msg: format!(
-        "{} must be a value in {} between {:?} and {:?}, not '{:?}'",
-        property, units, min, max, err_val
-      ),
+      msg: validation::failure_msg(range, err_val),
+    }
+  }
+
+  pub fn new_from_u32(range: Range<u32>, err_val: u32) -> PorousLayerError {
+    PorousLayerError {
+      msg: validation::failure_msg(range, err_val),
     }
   }
 }
@@ -69,23 +74,11 @@ impl PorousLayerConfig {
 
   pub fn new(thickness_arg: u16, sigma_arg: u32) -> Result<PorousLayerConfig, PorousLayerError> {
     if !THICKNESS_RANGE.contains(thickness_arg) {
-      return Err(PorousLayerError::new(
-        "Thickness",
-        UNITS_THICKNESS,
-        THICKNESS_RANGE.min as u32,
-        THICKNESS_RANGE.max as u32,
-        thickness_arg as u32,
-      ));
+      return Err(PorousLayerError::new_from_u16(THICKNESS_RANGE, thickness_arg));
     }
 
     if !FLOW_RESISTIVITY_RANGE.contains(sigma_arg) {
-      return Err(PorousLayerError::new(
-        "Flow resistivity",
-        UNITS_FLOW_RESISTIVITY,
-        FLOW_RESISTIVITY_RANGE.min,
-        FLOW_RESISTIVITY_RANGE.max,
-        sigma_arg,
-      ));
+      return Err(PorousLayerError::new_from_u32(FLOW_RESISTIVITY_RANGE, sigma_arg));
     }
 
     Ok(PorousLayerConfig {

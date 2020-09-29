@@ -1,0 +1,21 @@
+pub const TXT_AIR_GAP: &str = "Air gap";
+pub const TXT_AIR_PRESSURE: &str = "Air pressure";
+pub const TXT_AIR_TEMP: &str = "Air temperature";
+pub const TXT_CENTRES: &str = "Centres";
+pub const TXT_DISTANCE: &str = "Distance";
+pub const TXT_FLOW_RESISTIVITY: &str = "Flow resistivity";
+pub const TXT_FREQ_RANGE: &str = "Frequency range";
+pub const TXT_INCIDENT_ANGLE: &str = "Incident angle";
+pub const TXT_RADIUS: &str = "Radius";
+pub const TXT_THICKNESS: &str = "Thickness";
+pub const TXT_WIDTH: &str = "Width";
+
+pub const UNITS_ANGLE: &str = "degrees";
+pub const UNITS_CENTRES: &str = "mm";
+pub const UNITS_DISTANCE: &str = "mm";
+pub const UNITS_FREQ: &str = "Hz";
+pub const UNITS_PRESSURE: &str = "bar";
+pub const UNITS_RADIUS: &str = "mm";
+pub const UNITS_TEMP: &str = "°C";
+pub const UNITS_THICKNESS: &str = "mm";
+pub const UNITS_WIDTH: &str = "mm";

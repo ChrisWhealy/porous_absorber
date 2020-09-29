@@ -6,7 +6,8 @@
 use std::f64::consts::PI;
 use std::fmt;
 
-use crate::structs::ranges::{RangeF64, RangeI16};
+use crate::structs::{constants, ranges::Range};
+use crate::utils::validation;
 
 /***********************************************************************************************************************
  * Air constants
@@ -30,20 +31,21 @@ pub fn sound_velocity(temp: f64) -> f64 {
 /***********************************************************************************************************************
  * Air pressure and temperature range check values
  */
-const TEMP_RANGE: RangeI16 = RangeI16 {
+const TEMP_RANGE: Range<i16> = Range {
+  name: constants::TXT_AIR_TEMP,
+  units: constants::UNITS_TEMP,
   min: -20,
   default: 20,
   max: 100,
 };
 
-const PRESSURE_RANGE: RangeF64 = RangeF64 {
+const PRESSURE_RANGE: Range<f64> = Range {
+  name: constants::TXT_AIR_PRESSURE,
+  units: constants::UNITS_PRESSURE,
   min: 0.8,
   default: 1.0,
   max: 1.1,
 };
-
-const UNITS_TEMP: &str = "°C";
-const UNITS_PRESSURE: &str = "bar";
 
 /***********************************************************************************************************************
  * Possible errors when creating air properties
@@ -54,12 +56,15 @@ pub struct AirError {
 }
 
 impl AirError {
-  fn new(property: &str, units: &str, min: f64, max: f64, err_val: f64) -> AirError {
+  fn new_from_f64(range: Range<f64>, err_val: f64) -> AirError {
     AirError {
-      msg: format!(
-        "{} must be a value in {} between {:?} and {:?}, not '{:?}'",
-        property, units, min, max, err_val
-      ),
+      msg: validation::failure_msg(range, err_val),
+    }
+  }
+
+  fn new_from_i16(range: Range<i16>, err_val: i16) -> AirError {
+    AirError {
+      msg: validation::failure_msg(range, err_val),
     }
   }
 }
@@ -92,23 +97,11 @@ impl AirConfig {
 
   pub fn new(temp_arg: i16, pressure_arg: f64) -> Result<AirConfig, AirError> {
     if !TEMP_RANGE.contains(temp_arg) {
-      return Err(AirError::new(
-        "Air temperature",
-        UNITS_TEMP,
-        TEMP_RANGE.min as f64,
-        TEMP_RANGE.max as f64,
-        temp_arg as f64,
-      ));
+      return Err(AirError::new_from_i16(TEMP_RANGE, temp_arg));
     }
 
     if !PRESSURE_RANGE.contains(pressure_arg) {
-      return Err(AirError::new(
-        "Air pressure",
-        UNITS_PRESSURE,
-        PRESSURE_RANGE.min,
-        PRESSURE_RANGE.max,
-        pressure_arg,
-      ));
+      return Err(AirError::new_from_f64(PRESSURE_RANGE, pressure_arg));
     }
 
     let den = air_density(pressure_arg, temp_arg);

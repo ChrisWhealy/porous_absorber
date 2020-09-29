@@ -7,18 +7,19 @@ use libm::{fabs, log2, pow};
 use serde::Serialize;
 use std::fmt;
 
-use crate::structs::ranges::RangeF64;
+use crate::structs::{constants, ranges::Range};
+use crate::utils::validation;
 
 /***********************************************************************************************************************
  * Graph start frequency and octave subdivision range check values
  */
-const FREQ_RANGE: RangeF64 = RangeF64 {
+const FREQ_RANGE: Range<f64> = Range {
+  name: constants::TXT_FREQ_RANGE,
+  units: constants::UNITS_FREQ,
   min: 20.0,
   default: 62.5,
   max: 100.0,
 };
-
-const UNITS_FREQ: &str = "Hz";
 
 const SUBDIVISIONS: [u16; 4] = [1, 2, 3, 6];
 const DEFAULT_SUBDIVISION: u16 = 3;
@@ -42,16 +43,10 @@ impl DisplayError {
   fn new(err_type: ErrType, err_val: f64) -> DisplayError {
     match err_type {
       ErrType::Graph => DisplayError {
-        msg: format!(
-          "Graph start frequency must be a value in {} between {:?} and {:?}, not '{:?}'",
-          UNITS_FREQ, FREQ_RANGE.min, FREQ_RANGE.max, err_val
-        ),
+        msg: validation::start_freq_err(FREQ_RANGE, err_val),
       },
       ErrType::Subdivision => DisplayError {
-        msg: format!(
-          "Octave subdivisions argument must be either 1, 2, 3 or 6, not '{}'",
-          err_val.round()
-        ),
+        msg: validation::oct_subdiv_err(err_val),
       },
     }
   }

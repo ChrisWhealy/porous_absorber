@@ -5,18 +5,19 @@
  */
 use std::fmt;
 
-use crate::structs::ranges::RangeU16;
+use crate::structs::{constants, ranges::Range};
+use crate::utils::validation;
 
 /***********************************************************************************************************************
  * Range check values
  */
-const ANGLE_RANGE: RangeU16 = RangeU16 {
+const ANGLE_RANGE: Range<u16> = Range {
+  name: constants::TXT_INCIDENT_ANGLE,
+  units: constants::UNITS_ANGLE,
   min: 0,
   default: 0,
   max: 89,
 };
-
-const UNITS_ANGLE: &str = "degrees";
 
 /***********************************************************************************************************************
  * Possible errors when creating sound struct
@@ -27,12 +28,9 @@ pub struct SoundError {
 }
 
 impl SoundError {
-  fn new(property: &str, units: &str, min: u16, max: u16, err_val: u16) -> SoundError {
+  fn new(range: Range<u16>, err_val: u16) -> SoundError {
     SoundError {
-      msg: format!(
-        "{} must be a value in {} between {:?} and {:?}, not '{:?}'",
-        property, units, min, max, err_val
-      ),
+      msg: validation::failure_msg(range, err_val),
     }
   }
 }
@@ -57,13 +55,7 @@ impl SoundConfig {
 
   pub fn new(angle_arg: u16) -> Result<SoundConfig, SoundError> {
     if !ANGLE_RANGE.contains(angle_arg) {
-      Err(SoundError::new(
-        "Incident angle",
-        UNITS_ANGLE,
-        ANGLE_RANGE.min,
-        ANGLE_RANGE.max,
-        angle_arg,
-      ))
+      Err(SoundError::new(ANGLE_RANGE, angle_arg))
     } else {
       Ok(SoundConfig { angle: angle_arg })
     }

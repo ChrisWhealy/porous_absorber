@@ -5,18 +5,19 @@
  */
 use std::fmt;
 
-use crate::structs::ranges::RangeU16;
+use crate::structs::{constants, ranges::Range};
+use crate::utils::validation;
 
 /***********************************************************************************************************************
  * Range check values
  */
-const THICKNESS_RANGE: RangeU16 = RangeU16 {
+const THICKNESS_RANGE: Range<u16> = Range {
+  name: constants::TXT_AIR_GAP,
+  units: constants::UNITS_THICKNESS,
   min: 0,
   default: 100,
   max: 500,
 };
-
-const UNITS_THICKNESS: &str = "mm";
 
 /***********************************************************************************************************************
  * Possible errors when creating cavity struct
@@ -27,12 +28,9 @@ pub struct CavityError {
 }
 
 impl CavityError {
-  fn new(property: &str, units: &str, min: u16, max: u16, err_val: u16) -> CavityError {
+  fn new(range: Range<u16>, err_val: u16) -> CavityError {
     CavityError {
-      msg: format!(
-        "{} must be a value in {} between {:?} and {:?}, not '{:?}'",
-        property, units, min, max, err_val
-      ),
+      msg: validation::failure_msg(range, err_val),
     }
   }
 }
@@ -59,13 +57,7 @@ impl CavityConfig {
 
   pub fn new(air_gap_arg: u16) -> Result<CavityConfig, CavityError> {
     if !THICKNESS_RANGE.contains(air_gap_arg) {
-      Err(CavityError::new(
-        "Air gap",
-        UNITS_THICKNESS,
-        THICKNESS_RANGE.min,
-        THICKNESS_RANGE.max,
-        air_gap_arg,
-      ))
+      Err(CavityError::new(THICKNESS_RANGE, air_gap_arg))
     } else {
       Ok(CavityConfig {
         air_gap_mm: air_gap_arg,
