@@ -1,30 +1,36 @@
-// *********************************************************************************************************************
-// Porous Absorber Calculator
-//
-// Slotted panel properties
-//
-// (c) Chris Whealy 2019
-// *********************************************************************************************************************
+/***********************************************************************************************************************
+ * Porous Absorber Calculator - Slotted panel properties
+ *
+ * (c) Chris Whealy 2020
+ */
 extern crate num_format;
 
 use std::fmt;
 
+use crate::structs::ranges::RangeF64;
+
 /***********************************************************************************************************************
  * Range check values
  */
-const START_THICKNESS: f64 = 1.0;
-const DEFAULT_THICKNESS: f64 = 10.0;
-const END_THICKNESS: f64 = 50.0;
+const THICKNESS_RANGE: RangeF64 = RangeF64 {
+  min: 1.0,
+  default: 10.0,
+  max: 50.0,
+};
 
-const START_DISTANCE: f64 = 2.0;
-const DEFAULT_DISTANCE: f64 = 25.4;
-const END_DISTANCE: f64 = 300.0;
+const DISTANCE_RANGE: RangeF64 = RangeF64 {
+  min: 2.0,
+  default: 25.4,
+  max: 300.0,
+};
 
-const START_WIDTH: f64 = 1.0;
-const DEFAULT_WIDTH: f64 = 5.0;
-const END_WIDTH: f64 = 50.0;
+const WIDTH_RANGE: RangeF64 = RangeF64 {
+  min: 1.0,
+  default: 5.0,
+  max: 50.0,
+};
 
-const DEFAULT_POROSITY: f64 = DEFAULT_WIDTH / (DEFAULT_DISTANCE + DEFAULT_WIDTH);
+const DEFAULT_POROSITY: f64 = WIDTH_RANGE.default / (DISTANCE_RANGE.default + WIDTH_RANGE.default);
 
 const UNITS_THICKNESS: &str = "mm";
 const UNITS_DISTANCE: &str = "mm";
@@ -72,9 +78,9 @@ pub struct SlottedPanelConfig {
 impl SlottedPanelConfig {
   pub fn default() -> SlottedPanelConfig {
     SlottedPanelConfig::new(
-      DEFAULT_THICKNESS,
-      DEFAULT_DISTANCE,
-      DEFAULT_WIDTH,
+      THICKNESS_RANGE.default,
+      DISTANCE_RANGE.default,
+      WIDTH_RANGE.default,
       DEFAULT_POROSITY,
     )
     .unwrap()
@@ -86,32 +92,32 @@ impl SlottedPanelConfig {
     width_arg: f64,
     porosity_arg: f64,
   ) -> Result<SlottedPanelConfig, SlottedPanelError> {
-    if thickness_arg < START_THICKNESS || thickness_arg > END_THICKNESS {
+    if thickness_arg < THICKNESS_RANGE.min || thickness_arg > THICKNESS_RANGE.max {
       return Err(SlottedPanelError::new(
         "Thickness",
         UNITS_THICKNESS,
-        START_THICKNESS,
-        END_THICKNESS,
+        THICKNESS_RANGE.min,
+        THICKNESS_RANGE.max,
         thickness_arg,
       ));
     }
 
-    if distance_arg < START_DISTANCE || distance_arg > END_DISTANCE {
+    if distance_arg < DISTANCE_RANGE.min || distance_arg > DISTANCE_RANGE.max {
       return Err(SlottedPanelError::new(
         "Distance",
         UNITS_DISTANCE,
-        START_DISTANCE,
-        END_DISTANCE,
+        DISTANCE_RANGE.min,
+        DISTANCE_RANGE.max,
         distance_arg,
       ));
     }
 
-    if width_arg < START_WIDTH || width_arg > END_WIDTH {
+    if width_arg < WIDTH_RANGE.min || width_arg > WIDTH_RANGE.max {
       return Err(SlottedPanelError::new(
         "Width",
         UNITS_WIDTH,
-        START_WIDTH,
-        END_WIDTH,
+        WIDTH_RANGE.min,
+        WIDTH_RANGE.max,
         width_arg,
       ));
     }

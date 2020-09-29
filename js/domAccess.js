@@ -1,9 +1,9 @@
 /***********************************************************************************************************************
  * Porous Absorber Calculator
- * 
+ *
  * DOM access utility functions
- * 
- * (c) Chris Whealy 2019
+ *
+ * (c) Chris Whealy 2020
  **********************************************************************************************************************/
 
 import { idiot } from "./utils.js"
@@ -40,7 +40,7 @@ const getParsedElementValue =
 // Write values to DOM elements
 // *********************************************************************************************************************
 const setDomElementProperty =
-  (elementId, propName, parsedVal) => 
+  (elementId, propName, parsedVal) =>
     (el =>
       el ? el[propName] = parsedVal
          : traceInfo("setDomElementProperty")(`DOM element '${elementId}' not found`)

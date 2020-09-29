@@ -1,10 +1,8 @@
-// *********************************************************************************************************************
-// Porous Absorber Calculator
-//
-// Perforated Panel Absorption Device
-//
-// (c) Chris Whealy 2019
-// *********************************************************************************************************************
+/***********************************************************************************************************************
+ * Porous Absorber Calculator - Perforated Panel Absorption Device
+ *
+ * (c) Chris Whealy 2020
+ */
 use wasm_bindgen::JsValue;
 
 use crate::structs::config_air::{AirConfig, AirError};
@@ -15,21 +13,21 @@ use crate::structs::config_porous_layer::{PorousLayerConfig, PorousLayerError};
 use crate::structs::panel_perforated::{PerforatedPanelConfig, PerforatedPanelError};
 
 use crate::calc_engine::perforated_panel;
-use crate::render;
+use crate::chart;
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Trace functionality
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/***********************************************************************************************************************
+ * Trace functionality
+ */
 use crate::Trace;
 
 const LIB_NAME: &str = "devices::perforated_panel";
 const TRACE_ACTIVE: bool = false;
 
-const CHART_TITLE: &str = "Normal Incidence Absorption";
-
 /***********************************************************************************************************************
  * Handle incoming arguments for calculating the absorption of a perforated panel absorption device
  */
+const CHART_TITLE: &str = "Normal Incidence Absorption";
+
 pub fn do_perforated_panel_device(wasm_arg_obj: JsValue) -> JsValue {
   const FN_NAME: &str = "do_perforated_panel_device";
 
@@ -110,7 +108,7 @@ pub fn do_perforated_panel_device(wasm_arg_obj: JsValue) -> JsValue {
     let absorber_info = perforated_panel::calculate(&air_cfg, &cavity_cfg, &display_cfg, &panel_cfg, &porous_cfg);
 
     // Plot the graph
-    let chart_info = render::plot_generic_device(absorber_info, &display_cfg, CHART_TITLE);
+    let chart_info = chart::render::generic_device(absorber_info, &display_cfg, CHART_TITLE);
 
     JsValue::from_serde(&chart_info).unwrap()
   } else {

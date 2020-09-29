@@ -1,13 +1,12 @@
-// *********************************************************************************************************************
-// Porous Absorber Calculator
-//
-// Air properties
-//
-// (c) Chris Whealy 2019
-// *********************************************************************************************************************
-
+/***********************************************************************************************************************
+ * Porous Absorber Calculator - Air properties
+ *
+ * (c) Chris Whealy 2020
+ */
 use std::f64::consts::PI;
 use std::fmt;
+
+use crate::structs::ranges::{RangeF64, RangeI16};
 
 /***********************************************************************************************************************
  * Air constants
@@ -31,13 +30,17 @@ pub fn sound_velocity(temp: f64) -> f64 {
 /***********************************************************************************************************************
  * Air pressure and temperature range check values
  */
-const START_TEMP: i16 = -20;
-const DEFAULT_TEMP: i16 = 20;
-const END_TEMP: i16 = 100;
+const TEMP_RANGE: RangeI16 = RangeI16 {
+  min: -20,
+  default: 20,
+  max: 100,
+};
 
-const START_PRESSURE: f64 = 0.8;
-const DEFAULT_PRESSURE: f64 = 1.0;
-const END_PRESSURE: f64 = 1.1;
+const PRESSURE_RANGE: RangeF64 = RangeF64 {
+  min: 0.8,
+  default: 1.0,
+  max: 1.1,
+};
 
 const UNITS_TEMP: &str = "°C";
 const UNITS_PRESSURE: &str = "bar";
@@ -84,26 +87,26 @@ pub struct AirConfig {
 
 impl AirConfig {
   pub fn default() -> AirConfig {
-    AirConfig::new(DEFAULT_TEMP, DEFAULT_PRESSURE).unwrap()
+    AirConfig::new(TEMP_RANGE.default, PRESSURE_RANGE.default).unwrap()
   }
 
   pub fn new(temp_arg: i16, pressure_arg: f64) -> Result<AirConfig, AirError> {
-    if temp_arg < START_TEMP || temp_arg > END_TEMP {
+    if !TEMP_RANGE.contains(temp_arg) {
       return Err(AirError::new(
         "Air temperature",
         UNITS_TEMP,
-        START_TEMP as f64,
-        END_TEMP as f64,
+        TEMP_RANGE.min as f64,
+        TEMP_RANGE.max as f64,
         temp_arg as f64,
       ));
     }
 
-    if pressure_arg < START_PRESSURE || pressure_arg > END_PRESSURE {
+    if !PRESSURE_RANGE.contains(pressure_arg) {
       return Err(AirError::new(
         "Air pressure",
         UNITS_PRESSURE,
-        START_PRESSURE,
-        END_PRESSURE,
+        PRESSURE_RANGE.min,
+        PRESSURE_RANGE.max,
         pressure_arg,
       ));
     }

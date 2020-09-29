@@ -1,24 +1,28 @@
-// *********************************************************************************************************************
-// Porous Absorber Calculator
-//
-// Rigid Backed Porous Absorber
-//
-// (c) Chris Whealy 2019
-// *********************************************************************************************************************
+/***********************************************************************************************************************
+ * Porous Absorber Calculator - Rigid Backed Porous Absorber
+ *
+ * (c) Chris Whealy 2020
+ */
 extern crate num_format;
 
 use std::fmt;
 
+use crate::structs::ranges::{RangeU16, RangeU32};
+
 /***********************************************************************************************************************
  * Range check values
  */
-const START_THICKNESS: u16 = 5;
-const DEFAULT_THICKNESS: u16 = 30;
-const END_THICKNESS: u16 = 500;
+const THICKNESS_RANGE: RangeU16 = RangeU16 {
+  min: 5,
+  default: 30,
+  max: 500,
+};
 
-const START_FLOW_RESISTIVITY: u32 = 1000;
-const DEFAULT_FLOW_RESISTIVITY: u32 = 16500;
-const END_FLOW_RESISTIVITY: u32 = 100000;
+const FLOW_RESISTIVITY_RANGE: RangeU32 = RangeU32 {
+  min: 1000,
+  default: 16500,
+  max: 100000,
+};
 
 const UNITS_THICKNESS: &str = "mm";
 const UNITS_FLOW_RESISTIVITY: &str = "rayls/m";
@@ -60,26 +64,26 @@ pub struct PorousLayerConfig {
 
 impl PorousLayerConfig {
   pub fn default() -> PorousLayerConfig {
-    PorousLayerConfig::new(DEFAULT_THICKNESS, DEFAULT_FLOW_RESISTIVITY).unwrap()
+    PorousLayerConfig::new(THICKNESS_RANGE.default, FLOW_RESISTIVITY_RANGE.default).unwrap()
   }
 
   pub fn new(thickness_arg: u16, sigma_arg: u32) -> Result<PorousLayerConfig, PorousLayerError> {
-    if thickness_arg < START_THICKNESS || thickness_arg > END_THICKNESS {
+    if !THICKNESS_RANGE.contains(thickness_arg) {
       return Err(PorousLayerError::new(
         "Thickness",
         UNITS_THICKNESS,
-        START_THICKNESS as u32,
-        END_THICKNESS as u32,
+        THICKNESS_RANGE.min as u32,
+        THICKNESS_RANGE.max as u32,
         thickness_arg as u32,
       ));
     }
 
-    if sigma_arg < START_FLOW_RESISTIVITY || sigma_arg > END_FLOW_RESISTIVITY {
+    if !FLOW_RESISTIVITY_RANGE.contains(sigma_arg) {
       return Err(PorousLayerError::new(
         "Flow resistivity",
         UNITS_FLOW_RESISTIVITY,
-        START_FLOW_RESISTIVITY,
-        END_FLOW_RESISTIVITY,
+        FLOW_RESISTIVITY_RANGE.min,
+        FLOW_RESISTIVITY_RANGE.max,
         sigma_arg,
       ));
     }

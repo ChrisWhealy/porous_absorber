@@ -1,9 +1,3 @@
-// *********************************************************************************************************************
-// Porous Absorber Calculator - List of configuration structs
-//
-// (c) Chris Whealy 2019
-// *********************************************************************************************************************
-
 pub mod config_air;
 pub mod config_cavity;
 pub mod config_display;
@@ -15,3 +9,4 @@ pub mod panel_perforated;
 pub mod panel_slotted;
 
 pub mod generic_device;
+pub mod ranges;

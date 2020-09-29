@@ -1,11 +1,8 @@
-// *********************************************************************************************************************
-// Porous Absorber Calculator
-//
-// Properties of a generic absorber device
-//
-// (c) Chris Whealy 2019
-// *********************************************************************************************************************
-
+/***********************************************************************************************************************
+ * Porous Absorber Calculator - Generic absorber device properties
+ *
+ * (c) Chris Whealy 2020
+ */
 use serde::Serialize;
 
 use crate::structs::{
@@ -14,9 +11,9 @@ use crate::structs::{
   panel_slotted::SlottedPanelConfig,
 };
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Absorption data for a generic absorber device
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/***********************************************************************************************************************
+ * Absorption data
+ */
 #[derive(Debug, Serialize)]
 pub enum DeviceType {
   RigidBackedPorousAbsorber,
@@ -25,9 +22,9 @@ pub enum DeviceType {
   MicroperforatedPanelAbsorber,
 }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Dimensions and absorption data for a generic absorber device
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/***********************************************************************************************************************
+ * Dimensions and absorption data
+ */
 #[derive(Debug, Serialize)]
 pub struct GenericDeviceInfo<'a> {
   pub device_type: DeviceType,

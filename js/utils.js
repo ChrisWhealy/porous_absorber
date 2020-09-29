@@ -1,9 +1,9 @@
 /***********************************************************************************************************************
  * Porous Absorber Calculator
- * 
+ *
  * Fundamental utilities module
- * 
- * (c) Chris Whealy 2019
+ *
+ * (c) Chris Whealy 2020
  **********************************************************************************************************************/
 
 // The "do nothing" function
@@ -98,22 +98,22 @@ export {
 , unshift
 
   // Datatype identifiers
-, typeOf           
-, isOfType         
-, isArray          
-, isBigInt         
-, isFunction       
-, isMap            
-, isNull           
-, isNullOrUndef    
-, isNotNullOrUndef 
-, isNumber         
-, isNumeric        
-, isObject         
-, isSet            
-, isString         
-, isSymbol         
-, isUndefined      
+, typeOf
+, isOfType
+, isArray
+, isBigInt
+, isFunction
+, isMap
+, isNull
+, isNullOrUndef
+, isNotNullOrUndef
+, isNumber
+, isNumeric
+, isObject
+, isSet
+, isString
+, isSymbol
+, isUndefined
 
   // Numeric tests
 , isBetween

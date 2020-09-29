@@ -1,9 +1,9 @@
 /***********************************************************************************************************************
  * Porous Absorber Calculator
- * 
+ *
  * Unit conversion functions
- * 
- * (c) Chris Whealy 2019
+ *
+ * (c) Chris Whealy 2020
  **********************************************************************************************************************/
 
 import { $id }           from "./domAccess.js"
@@ -38,7 +38,7 @@ const toImperial = (units, val) => {
       result = `(${Math.floor(m_as_inches / 12)} ft ${Number.parseFloat(m_as_inches % 12).toFixed(2)} in)`
       break
 
-    // Milliemetres to inches
+    // Millimetres to inches
     case "mm":
       result = `(${Number.parseFloat(val / 25.4).toFixed(3)} in)`
       break
@@ -134,4 +134,3 @@ const showAndConvertUnits = traceFnBoundary("showAndConvertUnits", showAndConver
 export {
   showAndConvertUnits
 }
-

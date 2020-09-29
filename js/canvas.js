@@ -1,9 +1,9 @@
 /***********************************************************************************************************************
  * Porous Absorber Calculator
- * 
+ *
  * HTML Canvas utility functions
- * 
- * (c) Chris Whealy 2019
+ *
+ * (c) Chris Whealy 2020
  **********************************************************************************************************************/
 
 import { isBetween, isInsideRect } from "./utils.js"
@@ -114,7 +114,7 @@ const canvasMouseOverHandler =
     ((boxFn, ctx) =>
        e => {
         let mousePos = mousePositionOnCanvas(e)
-        
+
         // A quick, but non-intuitive way to blank out the entire canvas... :-)
         canvas.width = canvas.width
         ctx.font = "11pt Arial"
@@ -123,18 +123,18 @@ const canvasMouseOverHandler =
         if (boxFn(mousePos)) {
           drawCrossHairs(ctx, mousePos, chartBox)
         }
-      
+
         // For each X value in the inverted data series
         Object
           .keys(seriestData)
           .map(
-            xValStr => 
+            xValStr =>
               (xVal =>
                 // Does the mouse pointer's current X position fall within the width of a plot point?
                 (isBetween(xVal + PLOT_POINT_RADIUS, xVal - PLOT_POINT_RADIUS, mousePos.x))
                 // Yup, so check mouse pointer Y position
                 ? seriestData[xValStr].map(
-                    plotPoint => 
+                    plotPoint =>
                       (yVal =>
                         // Does the mouse pointer's current Y position also fall within the height of a plot point?
                         isBetween(yVal + PLOT_POINT_RADIUS, yVal - PLOT_POINT_RADIUS, mousePos.y)
@@ -185,6 +185,3 @@ export {
 , GRAPH
 , GRAPH_OVERLAY
 }
-
-
-

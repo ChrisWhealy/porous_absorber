@@ -1,32 +1,38 @@
-// *********************************************************************************************************************
-// Porous Absorber Calculator
-//
-// Perforated panel properties
-//
-// (c) Chris Whealy 2019
-// *********************************************************************************************************************
+/***********************************************************************************************************************
+ * Porous Absorber Calculator - Perforated panel properties
+ *
+ * (c) Chris Whealy 2020
+ */
 extern crate num_format;
 
 use std::f64::consts::PI;
 use std::fmt;
 
+use crate::structs::ranges::RangeF64;
+
 /***********************************************************************************************************************
  * Range check values
  */
-const START_THICKNESS: f64 = 1.0;
-const DEFAULT_THICKNESS: f64 = 10.0;
-const END_THICKNESS: f64 = 50.0;
+const THICKNESS_RANGE: RangeF64 = RangeF64 {
+  min: 1.0,
+  default: 10.0,
+  max: 50.0,
+};
 
-const START_CENTRES: f64 = 2.0;
-const DEFAULT_CENTRES: f64 = 25.4;
-const END_CENTRES: f64 = 300.0;
+const CENTRES_RANGE: RangeF64 = RangeF64 {
+  min: 2.0,
+  default: 25.4,
+  max: 300.0,
+};
 
-const START_RADIUS: f64 = 1.0;
-const DEFAULT_RADIUS: f64 = 12.7;
-const END_RADIUS: f64 = 50.0;
+const RADIUS_RANGE: RangeF64 = RangeF64 {
+  min: 1.0,
+  default: 12.7,
+  max: 50.0,
+};
 
 const DEFAULT_POROSITY: f64 =
-  (PI * DEFAULT_RADIUS * DEFAULT_RADIUS) / (DEFAULT_CENTRES * DEFAULT_CENTRES);
+  (PI * RADIUS_RANGE.default * RADIUS_RANGE.default) / (CENTRES_RANGE.default * CENTRES_RANGE.default);
 
 const UNITS_THICKNESS: &str = "mm";
 const UNITS_CENTRES: &str = "mm";
@@ -41,13 +47,7 @@ pub struct PerforatedPanelError {
 }
 
 impl PerforatedPanelError {
-  pub fn new(
-    property: &str,
-    units: &str,
-    min: f64,
-    max: f64,
-    err_val: f64,
-  ) -> PerforatedPanelError {
+  pub fn new(property: &str, units: &str, min: f64, max: f64, err_val: f64) -> PerforatedPanelError {
     PerforatedPanelError {
       msg: format!(
         "{} must be a value in {} between {:?} and {:?}, not '{:?}'",
@@ -80,9 +80,9 @@ pub struct PerforatedPanelConfig {
 impl PerforatedPanelConfig {
   pub fn default() -> PerforatedPanelConfig {
     PerforatedPanelConfig::new(
-      DEFAULT_THICKNESS,
-      DEFAULT_CENTRES,
-      DEFAULT_RADIUS,
+      THICKNESS_RANGE.default,
+      CENTRES_RANGE.default,
+      RADIUS_RANGE.default,
       DEFAULT_POROSITY,
     )
     .unwrap()
@@ -94,32 +94,32 @@ impl PerforatedPanelConfig {
     radius_arg: f64,
     porosity_arg: f64,
   ) -> Result<PerforatedPanelConfig, PerforatedPanelError> {
-    if thickness_arg < START_THICKNESS || thickness_arg > END_THICKNESS {
+    if thickness_arg < THICKNESS_RANGE.min || thickness_arg > THICKNESS_RANGE.max {
       return Err(PerforatedPanelError::new(
         "Thickness",
         UNITS_THICKNESS,
-        START_THICKNESS,
-        END_THICKNESS,
+        THICKNESS_RANGE.min,
+        THICKNESS_RANGE.max,
         thickness_arg,
       ));
     }
 
-    if centres_arg < START_CENTRES || centres_arg > END_CENTRES {
+    if centres_arg < CENTRES_RANGE.min || centres_arg > CENTRES_RANGE.max {
       return Err(PerforatedPanelError::new(
         "Centres",
         UNITS_CENTRES,
-        START_CENTRES,
-        END_CENTRES,
+        CENTRES_RANGE.min,
+        CENTRES_RANGE.max,
         centres_arg,
       ));
     }
 
-    if radius_arg < START_RADIUS || radius_arg > END_RADIUS {
+    if radius_arg < RADIUS_RANGE.min || radius_arg > RADIUS_RANGE.max {
       return Err(PerforatedPanelError::new(
         "Radius",
         UNITS_RADIUS,
-        START_RADIUS,
-        END_RADIUS,
+        RADIUS_RANGE.min,
+        RADIUS_RANGE.max,
         radius_arg,
       ));
     }

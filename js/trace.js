@@ -1,10 +1,10 @@
 /***********************************************************************************************************************
  * Porous Absorber Calculator
- * 
+ *
  * Trace program execution flow
  * This module only needs to be consumed my module appConfig
- * 
- * (c) Chris Whealy 2019
+ *
+ * (c) Chris Whealy 2020
  **********************************************************************************************************************/
 
 import { no_op, isNullOrUndef } from "./utils.js"
@@ -89,6 +89,3 @@ export {
   doTraceFnBoundary
 , doTraceInfo
 }
-
-
-

@@ -1,19 +1,20 @@
-// *********************************************************************************************************************
-// Porous Absorber Calculator
-//
-// Sound properties
-//
-// (c) Chris Whealy 2019
-// *********************************************************************************************************************
-
+/***********************************************************************************************************************
+ * Porous Absorber Calculator - Sound properties
+ *
+ * (c) Chris Whealy 2020
+ */
 use std::fmt;
+
+use crate::structs::ranges::RangeU16;
 
 /***********************************************************************************************************************
  * Range check values
  */
-const START_ANGLE: u16 = 0;
-const DEFAULT_ANGLE: u16 = START_ANGLE;
-const END_ANGLE: u16 = 89;
+const ANGLE_RANGE: RangeU16 = RangeU16 {
+  min: 0,
+  default: 0,
+  max: 89,
+};
 
 const UNITS_ANGLE: &str = "degrees";
 
@@ -51,16 +52,16 @@ pub struct SoundConfig {
 
 impl SoundConfig {
   pub fn default() -> SoundConfig {
-    SoundConfig::new(DEFAULT_ANGLE).unwrap()
+    SoundConfig::new(ANGLE_RANGE.default).unwrap()
   }
 
   pub fn new(angle_arg: u16) -> Result<SoundConfig, SoundError> {
-    if angle_arg > 90 {
+    if !ANGLE_RANGE.contains(angle_arg) {
       Err(SoundError::new(
         "Incident angle",
         UNITS_ANGLE,
-        START_ANGLE,
-        END_ANGLE,
+        ANGLE_RANGE.min,
+        ANGLE_RANGE.max,
         angle_arg,
       ))
     } else {

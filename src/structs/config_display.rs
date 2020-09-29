@@ -1,21 +1,22 @@
-// *********************************************************************************************************************
-// Porous Absorber Calculator
-//
-// Display properties
-//
-// (c) Chris Whealy 2019
-// *********************************************************************************************************************
-
+/***********************************************************************************************************************
+ * Porous Absorber Calculator - Display properties
+ *
+ * (c) Chris Whealy 2020
+ */
 use libm::{fabs, log2, pow};
 use serde::Serialize;
 use std::fmt;
 
+use crate::structs::ranges::RangeF64;
+
 /***********************************************************************************************************************
  * Graph start frequency and octave subdivision range check values
  */
-const START_FREQ: f64 = 20.0;
-const DEFAULT_FREQ: f64 = 62.5;
-const END_FREQ: f64 = 100.0;
+const FREQ_RANGE: RangeF64 = RangeF64 {
+  min: 20.0,
+  default: 62.5,
+  max: 100.0,
+};
 
 const UNITS_FREQ: &str = "Hz";
 
@@ -43,7 +44,7 @@ impl DisplayError {
       ErrType::Graph => DisplayError {
         msg: format!(
           "Graph start frequency must be a value in {} between {:?} and {:?}, not '{:?}'",
-          UNITS_FREQ, START_FREQ, END_FREQ, err_val
+          UNITS_FREQ, FREQ_RANGE.min, FREQ_RANGE.max, err_val
         ),
       },
       ErrType::Subdivision => DisplayError {
@@ -96,7 +97,7 @@ pub struct DisplayConfig {
 
 impl DisplayConfig {
   pub fn default() -> DisplayConfig {
-    DisplayConfig::new(DEFAULT_FREQ, false, DEFAULT_SUBDIVISION, false).unwrap()
+    DisplayConfig::new(FREQ_RANGE.default, false, DEFAULT_SUBDIVISION, false).unwrap()
   }
 
   pub fn new(
@@ -105,15 +106,12 @@ impl DisplayConfig {
     subdivisions_arg: u16,
     show_diagram: bool,
   ) -> Result<DisplayConfig, DisplayError> {
-    if start_freq_arg < START_FREQ || start_freq_arg > END_FREQ {
+    if !FREQ_RANGE.contains(start_freq_arg) {
       return Err(DisplayError::new(ErrType::Graph, start_freq_arg));
     }
 
     if !SUBDIVISIONS.contains(&subdivisions_arg) {
-      return Err(DisplayError::new(
-        ErrType::Subdivision,
-        subdivisions_arg as f64,
-      ));
+      return Err(DisplayError::new(ErrType::Subdivision, subdivisions_arg as f64));
     }
 
     Ok(DisplayConfig {

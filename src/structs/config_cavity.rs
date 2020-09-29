@@ -1,19 +1,20 @@
-// *********************************************************************************************************************
-// Porous Absorber Calculator
-//
-// Cavity properties
-//
-// (c) Chris Whealy 2019
-// *********************************************************************************************************************
-
+/***********************************************************************************************************************
+ * Porous Absorber Calculator - Cavity properties
+ *
+ * (c) Chris Whealy 2020
+ */
 use std::fmt;
+
+use crate::structs::ranges::RangeU16;
 
 /***********************************************************************************************************************
  * Range check values
  */
-const START_THICKNESS: u16 = 0;
-const DEFAULT_THICKNESS: u16 = 100;
-const END_THICKNESS: u16 = 500;
+const THICKNESS_RANGE: RangeU16 = RangeU16 {
+  min: 0,
+  default: 100,
+  max: 500,
+};
 
 const UNITS_THICKNESS: &str = "mm";
 
@@ -53,16 +54,16 @@ pub struct CavityConfig {
 
 impl CavityConfig {
   pub fn default() -> CavityConfig {
-    CavityConfig::new(DEFAULT_THICKNESS).unwrap()
+    CavityConfig::new(THICKNESS_RANGE.default).unwrap()
   }
 
   pub fn new(air_gap_arg: u16) -> Result<CavityConfig, CavityError> {
-    if air_gap_arg > END_THICKNESS {
+    if !THICKNESS_RANGE.contains(air_gap_arg) {
       Err(CavityError::new(
         "Air gap",
         UNITS_THICKNESS,
-        START_THICKNESS,
-        END_THICKNESS,
+        THICKNESS_RANGE.min,
+        THICKNESS_RANGE.max,
         air_gap_arg,
       ))
     } else {

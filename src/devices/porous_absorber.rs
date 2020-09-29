@@ -1,10 +1,8 @@
-// *********************************************************************************************************************
-// Porous Absorber Calculator
-//
-// Rigid Backed Porous Absorption Device
-//
-// (c) Chris Whealy 2019
-// *********************************************************************************************************************
+/***********************************************************************************************************************
+ * Porous Absorber Calculator - Rigid Backed Porous Absorption Device
+ *
+ * (c) Chris Whealy 2020
+ */
 use wasm_bindgen::JsValue;
 
 use crate::structs::config_air::{AirConfig, AirError};
@@ -14,11 +12,11 @@ use crate::structs::config_porous_layer::{PorousLayerConfig, PorousLayerError};
 use crate::structs::config_sound::{SoundConfig, SoundError};
 
 use crate::calc_engine::porous_absorber;
-use crate::render;
+use crate::chart;
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Trace functionality
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/***********************************************************************************************************************
+ * Trace functionality
+ */
 use crate::Trace;
 
 const LIB_NAME: &str = "devices::porous_absorber";
@@ -100,7 +98,7 @@ pub fn do_porous_absorber_device(wasm_arg_obj: JsValue) -> JsValue {
     let absorber_info = porous_absorber::calculate(&air_cfg, &cavity_cfg, &display_cfg, &sound_cfg, &porous_cfg);
 
     // Plot the graph
-    let chart_info = render::plot_generic_device(
+    let chart_info = chart::render::generic_device(
       absorber_info,
       &display_cfg,
       &format!("Overall absorption at {}°", sound_cfg.angle),

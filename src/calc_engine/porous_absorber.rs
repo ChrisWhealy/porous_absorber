@@ -1,8 +1,8 @@
-// *********************************************************************************************************************
-// Porous Absorber Calculation Engine
-//
-// (c) Chris Whealy 2019
-// *********************************************************************************************************************
+/***********************************************************************************************************************
+ * Porous Absorber Calculation Engine - Porous Absorber
+ *
+ * (c) Chris Whealy 2020
+ */
 extern crate wasm_bindgen;
 
 use libm::{cos, sin};
@@ -20,26 +20,23 @@ use crate::structs::{
 
 use crate::utils::maths_functions::*;
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Trace functionality
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/***********************************************************************************************************************
+ * Trace functionality
+ */
 use crate::trace::Trace;
 
 const LIB_NAME: &str = "calc_engine::porous_absorber";
 const TRACE_ACTIVE: bool = false;
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Constants
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/***********************************************************************************************************************
+ * Rigid Backed Porous Absorber
+ */
 const PI_OVER_180: f64 = PI / 180.0;
 const ONE_80_OVER_PI: f64 = 180.0 / PI;
 
 const STR_AIR_GAP: &str = "Air Gap";
 const STR_NO_AIR_GAP: &str = "No Air Gap";
 
-// *********************************************************************************************************************
-// Rigid Backed Porous Absorber
-// *********************************************************************************************************************
 pub fn calculate<'a>(
   air: &'a AirConfig,
   cavity: &'a CavityConfig,
@@ -100,9 +97,9 @@ pub fn calculate<'a>(
   abs_info
 }
 
-// *********************************************************************************************************************
-// Reducer function to calculate the absorption of a porous absorber at a specific frequency
-// *********************************************************************************************************************
+/***********************************************************************************************************************
+ * Reducer function to calculate the absorption of a porous absorber at a specific frequency
+ */
 fn do_porous_abs_calc(
   frequency: f64,
   air_cfg: &AirConfig,
@@ -142,8 +139,6 @@ fn do_porous_abs_calc(
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // Impedance values (with air gap)
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   // X and Y components of the wave number in the air gap
   let wave_no_air_y = wave_no_abs * sin(beta_porous * PI_OVER_180);
   let wave_no_air_x = ((k_air * k_air) - (wave_no_air_y * wave_no_air_y)).sqrt();

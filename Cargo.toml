@@ -1,9 +1,11 @@
 [package]
 name = "porous_absorber_calculator"
-version = "1.0.2"
+version = "1.1.0"
 authors = ["Chris Whealy <chris@whealy.com>"]
 edition = "2018"
 description = "Calculates the acoustic absorption curve of various porous absorber devices"
+license-file = "LICENSE"
+repository = "https://github.com/ChrisWhealy/porous_absorber"
 
 [lib]
 crate-type = ["cdylib"]

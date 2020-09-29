@@ -1,9 +1,9 @@
 /***********************************************************************************************************************
  * Porous Absorber Calculator
- * 
+ *
  * Local storage utility functions
- * 
- * (c) Chris Whealy 2019
+ *
+ * (c) Chris Whealy 2020
  **********************************************************************************************************************/
 
 import tabConfig from "./tabConfig.js"
@@ -42,7 +42,7 @@ const restoreFromLocalStorageFn =
     }
     else {
       let thisConfig = tabConfig[tabName]
-  
+
       JSON.parse(tabValueStr).map((field, idx) => {
         trace(`${field.id} = ${field.value}`)
         thisConfig[idx].setter(field.id, field.value)
@@ -50,7 +50,7 @@ const restoreFromLocalStorageFn =
     }
   }
 
-  
+
 // *********************************************************************************************************************
 const writeToLocalStorageFn =
   tabName => {
@@ -59,11 +59,11 @@ const writeToLocalStorageFn =
       , "value" : isNullOrUndef(field.getter(field.id)) ? field.default : field.getter(field.id)
       })
     )
-      
+
       traceInfo("writeToLocalStorage")(`Writing ${JSON.stringify(cacheVals)} to local storage`)
       window.localStorage.setItem(tabName, JSON.stringify(cacheVals))
     }
-    
+
 // *********************************************************************************************************************
 const clearLocalStorageFn =
   () =>

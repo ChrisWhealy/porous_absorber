@@ -1,8 +1,8 @@
-// *********************************************************************************************************************
-// Porous Absorber Calculation Engine
-//
-// (c) Chris Whealy 2019
-// *********************************************************************************************************************
+/***********************************************************************************************************************
+ * Porous Absorber Calculation Engine - Perforated Panel
+ *
+ * (c) Chris Whealy 2020
+ */
 extern crate wasm_bindgen;
 
 use libm::{pow, sqrt};
@@ -19,24 +19,21 @@ use crate::structs::{
 
 use crate::utils::maths_functions::*;
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Trace functionality
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/***********************************************************************************************************************
+ * Trace functionality
+ */
 use crate::trace::Trace;
 
 const LIB_NAME: &str = "calc_engine::perforated_panel";
 const TRACE_ACTIVE: bool = false;
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Constants
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/***********************************************************************************************************************
+ * Perforated Panel
+ */
 const STR_NO_AIR_GAP: &str = "No Air Gap";
 const STR_ABS_AGAINST_PANEL: &str = "Absorber Against Panel";
 const STR_ABS_AGAINST_BACKING: &str = "Absorber Against Backing";
 
-// *********************************************************************************************************************
-// Perforated Panel
-// *********************************************************************************************************************
 pub fn calculate<'a>(
   air: &'a AirConfig,
   cavity: &'a CavityConfig,
@@ -125,9 +122,9 @@ pub fn calculate<'a>(
   abs_info
 }
 
-// *********************************************************************************************************************
-// Reducer function to calculate the absorption of a perforated panel absorber at a specific frequency
-// *********************************************************************************************************************
+/***********************************************************************************************************************
+ * Reducer function to calculate the absorption of a perforated panel absorber at a specific frequency
+ */
 fn do_perforated_panel_calc(
   frequency: f64,
   air_cfg: &AirConfig,

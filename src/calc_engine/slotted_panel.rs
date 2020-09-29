@@ -1,8 +1,8 @@
-// *********************************************************************************************************************
-// Porous Absorber Calculation Engine
-//
-// (c) Chris Whealy 2019
-// *********************************************************************************************************************
+/***********************************************************************************************************************
+ * Porous Absorber Calculation Engine - Slotted Panel
+ *
+ * (c) Chris Whealy 2020
+ */
 extern crate wasm_bindgen;
 
 use libm::{log, sin};
@@ -20,24 +20,21 @@ use crate::structs::{
 
 use crate::utils::maths_functions::*;
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Trace functionality
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/***********************************************************************************************************************
+ * Trace functionality
+ */
 use crate::trace::Trace;
 
 const LIB_NAME: &str = "calc_engine::slotted_panel";
 const TRACE_ACTIVE: bool = false;
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Constants
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/***********************************************************************************************************************
+ * Slotted Panel
+ */
 const STR_NO_AIR_GAP: &str = "No Air Gap";
 const STR_ABS_AGAINST_PANEL: &str = "Absorber Against Panel";
 const STR_ABS_AGAINST_BACKING: &str = "Absorber Against Backing";
 
-// *********************************************************************************************************************
-// Slotted Panel
-// *********************************************************************************************************************
 pub fn calculate<'a>(
   air: &'a AirConfig,
   cavity: &'a CavityConfig,
@@ -137,9 +134,9 @@ pub fn calculate<'a>(
   abs_info
 }
 
-// *********************************************************************************************************************
-// Reducer function to calculate the absorption of a slotted panel absorber at a specific frequency
-// *********************************************************************************************************************
+/***********************************************************************************************************************
+ * Reducer function to calculate the absorption of a slotted panel absorber at a specific frequency
+ */
 fn do_slotted_panel_calc(
   frequency: f64,
   air_cfg: &AirConfig,

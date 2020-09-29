@@ -1,16 +1,16 @@
 /***********************************************************************************************************************
  * Porous Absorber Calculator App Configuration
- * 
+ *
  * Provide a single location for all application configuration:
- * 
+ *
  * 1) All module debug flags
  * 2) Minimum canvas width in pixels
- * 
+ *
  * This module exposes the traceFnBoundary and traceInfo functions as properties of the defineTrace object.
  * If any of the trace flags are switched on for modules listed below, traceFnBoundary and traceInfo will write trace
  * information to the browser console, otherwise they evaluate to a call to no_op()
- * 
- * (c) Chris Whealy 2019
+ *
+ * (c) Chris Whealy 2020
  **********************************************************************************************************************/
 
 import { doTraceFnBoundary, doTraceInfo } from "./trace.js"
@@ -53,7 +53,7 @@ const MIN_CANVAS_WIDTH = 1000
 // 2) Call defineTrace() passing in the module name.  E.G. for module "main":
 //
 //    const { traceFnBoundary, traceInfo } = defineTrace("main")
-//    
+//
 //    This call returns an object containing two properties called traceFnBoundary and traceInfo
 //    These properties are functions whose implementation varies depending on the Boolean trace values listed in the
 //    JS_MODULE_TRACE_FLAGS object above
@@ -69,11 +69,11 @@ const MIN_CANVAS_WIDTH = 1000
 //           }
 //
 //         Where functions "writeTraceText" and "arrow" are defined internally within module "trace.js"
-//     
+//
 //         Otherwise, traceFnBoundary becomes the function
-//     
+//
 //         (_, fn) => fn.apply(null, args)
-//     
+//
 //    2.2) The two arguments to function traceBoundary() are:
 //
 //         * A string holding the name of the function within module "main" whose boundary crossings are to be logged
@@ -116,9 +116,9 @@ const MIN_CANVAS_WIDTH = 1000
 //         const doSomethingFn =
 //           (arg1, arg2) => {
 //             const trace = traceInfo("doSomething")
-//        
+//
 //             trace(`arg1 = "${arg1}", arg2 = "${arg2}"`)
-//            
+//
 //             // snip...
 //           }
 //

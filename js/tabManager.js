@@ -1,9 +1,9 @@
 /***********************************************************************************************************************
  * Porous Absorber Calculator
- * 
+ *
  * Tab management functions
- * 
- * (c) Chris Whealy 2019
+ *
+ * (c) Chris Whealy 2020
  **********************************************************************************************************************/
 
 import {
@@ -50,8 +50,8 @@ const openTabFn =
   (evt, tabName) => {
     // Remove graph from screen when the configuration tab is selected and blank out graph overlay canvas
     $id(CANVAS_CONTAINER).className = tabName === "configuration" ? "fadeOut" : "fadeIn"
-    $id(GRAPH_OVERLAY).width        = $id(GRAPH_OVERLAY).width     
-    
+    $id(GRAPH_OVERLAY).width        = $id(GRAPH_OVERLAY).width
+
     // Cache values from current tab and deactive that tab button
     cacheValuesAndDeactivate()
     hideAndEmptyAllTabs()
@@ -103,11 +103,11 @@ const tabLoadedFn =
     () => {
       $id(tabName).innerHTML = ""
       $id(tabName).insertAdjacentHTML('afterbegin', req.response)
-      
+
       // Restore the current tab's values using the function defined in main.js that in turn, is based on the
       // availability of local storage.  If local storage is not available, then this function evaluates to no_op
       window.restoreTabValues(tabName)
-      
+
       // Call WASM to update the screen and then replace the mousemove handler for the canvas overlay
       updateScreenAndMouseHandler(tabName)
     }
@@ -189,7 +189,7 @@ const updateScreenAndMouseHandlerFn =
         console.error(JSON.stringify(wasm_response, null, 2))
       }
       // If the non-null wasm_response is an object containing the property "series_data", then a graph has been plotted
-      // and we are getting the chart data back 
+      // and we are getting the chart data back
       else if (isNotNullOrUndef(wasm_response) && wasm_response.series_data) {
         // For all tabs except configuration, invert the structure of the wasm_response.series_data array and pass the
         // result to the canvas overlay mousemove handler
@@ -257,4 +257,3 @@ export {
 , updateScreen
 , updateScreenAndMouseHandler
 }
-
