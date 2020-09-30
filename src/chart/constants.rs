@@ -17,6 +17,15 @@ pub const TXT_Y_AXIS_TITLE: &str = "Absorption";
 pub const TXT_X_AXIS_TITLE: &str = "Frequency (Hz)";
 
 /***********************************************************************************************************************
+ * Chart titles
+ */
+pub const CHART_TITLE_OVERALL_ABS: &str = "Overall Absorption";
+pub const CHART_TITLE_NORMAL_INCIDENCE: &str = "Normal Incidence Absorption";
+
+pub fn chart_title_at_incident_angle(title: &str, angle: u16) -> String {
+  format!("{} at {}°", title, angle)
+}
+/***********************************************************************************************************************
  * Chart series and font metadata
  */
 pub const METADATA_AIR_GAP: SeriesMetadata = SeriesMetadata {

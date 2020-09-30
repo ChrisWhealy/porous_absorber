@@ -26,8 +26,6 @@ const TRACE_ACTIVE: bool = false;
 /***********************************************************************************************************************
  * Handle incoming arguments for calculating the absorption of a slotted panel absorption device
  */
-const CHART_TITLE: &str = "Normal Incidence Absorption";
-
 pub fn do_slotted_panel_device(wasm_arg_obj: JsValue) -> JsValue {
   const FN_NAME: &str = "do_slotted_panel_device";
 
@@ -108,7 +106,11 @@ pub fn do_slotted_panel_device(wasm_arg_obj: JsValue) -> JsValue {
     let absorber_info = slotted_panel::calculate(&air_cfg, &cavity_cfg, &display_cfg, &panel_cfg, &porous_cfg);
 
     // Plot the graph
-    let chart_info = chart::render::generic_device(absorber_info, &display_cfg, CHART_TITLE);
+    let chart_info = chart::render::generic_device(
+      absorber_info,
+      &display_cfg,
+      chart::constants::CHART_TITLE_NORMAL_INCIDENCE,
+    );
 
     JsValue::from_serde(&chart_info).unwrap()
   } else {

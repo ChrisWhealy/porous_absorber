@@ -103,7 +103,7 @@ pub fn do_porous_absorber_device(wasm_arg_obj: JsValue) -> JsValue {
     let chart_info = chart::render::generic_device(
       absorber_info,
       &display_cfg,
-      &format!("Overall absorption at {}°", sound_cfg.angle),
+      &chart::constants::chart_title_at_incident_angle(chart::constants::CHART_TITLE_OVERALL_ABS, sound_cfg.angle),
     );
 
     JsValue::from_serde(&chart_info).unwrap()
