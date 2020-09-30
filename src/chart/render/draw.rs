@@ -6,9 +6,10 @@
 use std::f64::consts::PI;
 use wasm_bindgen::{JsCast, JsValue};
 
+use crate::chart;
 use crate::chart::{
-  constants::*,
-  render::{bezier, canvas_utils::*, constants::*},
+  render,
+  render::{bezier, canvas_utils::*},
 };
 use crate::config::{
   display::*,
@@ -27,14 +28,10 @@ const TRACE_ACTIVE: bool = false;
  * Define a subdivision of an image
  */
 struct ImageSubdiv {
-  sub_top_left_x: f64,
-  sub_top_left_y: f64,
-  sub_width: f64,
-  sub_height: f64,
-  top_left_x: f64,
-  top_left_y: f64,
-  width: f64,
-  height: f64,
+  sub_top_left: PlotPoint,
+  sub_dims: DimensionPair,
+  top_left: PlotPoint,
+  dims: DimensionPair,
 }
 
 /***********************************************************************************************************************
@@ -51,7 +48,7 @@ pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_ax
   trace_boundary(Some(true));
 
   let document = web_sys::window().unwrap().document().unwrap();
-  let canvas_el = document.get_element_by_id(GRAPH_CANVAS_ID).unwrap();
+  let canvas_el = document.get_element_by_id(render::constants::GRAPH_CANVAS_ID).unwrap();
   let canvas = canvas_el.dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
   let ctx = get_2d_context(&canvas);
 
@@ -94,8 +91,10 @@ pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_ax
   let dev_depth_mm = air_gap_mm + absorber_thickness_mm + panel_thickness_mm;
 
   // Calculate the amount of space available for the diagram
-  let available_pxls =
-    y_axis_name_x_pos(widest_y_tick_label, y_axis_inset) - LEFT_MARGIN_INSET - WALL_IMG_WIDTH - LABEL_FONT_SIZE;
+  let available_pxls = y_axis_name_x_pos(widest_y_tick_label, y_axis_inset)
+    - render::constants::LEFT_MARGIN_INSET
+    - render::constants::WALL_IMG_WIDTH
+    - chart::constants::LABEL_FONT_SIZE;
 
   let horiz_pixels_per_mm = if dev_depth_mm > available_pxls {
     available_pxls / dev_depth_mm
@@ -110,19 +109,30 @@ pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_ax
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // Fetch image elements from the DOM
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  let wall_img = fetch_image(&document, WALL_IMG_ID);
-  let panel_img = fetch_image(&document, PANEL_IMG_ID);
-  let absorber_img = fetch_image(&document, ABSORBER_IMG_ID);
+  let wall_img = fetch_image(&document, render::constants::WALL_IMG_ID);
+  let panel_img = fetch_image(&document, render::constants::PANEL_IMG_ID);
+  let absorber_img = fetch_image(&document, render::constants::ABSORBER_IMG_ID);
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // Draw fixed wall image
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  let wall_pos_x = LEFT_MARGIN_INSET - WALL_IMG_WIDTH;
-  let wall_pos_y = X_AXIS_INSET;
+  let wall_pos_x = render::constants::LEFT_MARGIN_INSET - render::constants::WALL_IMG_WIDTH;
+  let wall_pos_y = render::constants::X_AXIS_INSET;
 
   trace(format!("Drawing wall at location ({},{})", wall_pos_x, wall_pos_y));
 
-  draw_image(&ctx, &wall_img, wall_pos_x, wall_pos_y, WALL_IMG_WIDTH, *y_axis_length);
+  draw_image(
+    &ctx,
+    &wall_img,
+    PlotPoint {
+      x: wall_pos_x,
+      y: wall_pos_y,
+    },
+    DimensionPair {
+      width: render::constants::WALL_IMG_WIDTH,
+      height: *y_axis_length,
+    },
+  );
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // Draw an optional absorber layer - this layer is absent for the microperforated panel device
@@ -130,8 +140,8 @@ pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_ax
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   let half_height = *y_axis_length / 2.0;
 
-  let abs_pos_x = LEFT_MARGIN_INSET + (air_gap_mm * horiz_pixels_per_mm);
-  let abs_pos_y = X_AXIS_INSET;
+  let abs_pos_x = render::constants::LEFT_MARGIN_INSET + (air_gap_mm * horiz_pixels_per_mm);
+  let abs_pos_y = render::constants::X_AXIS_INSET;
   let abs_width_px = absorber_thickness_mm * horiz_pixels_per_mm;
 
   // Do we need to draw an absorber?
@@ -146,14 +156,19 @@ pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_ax
         &ctx,
         &absorber_img,
         ImageSubdiv {
-          sub_top_left_x: 0.0,
-          sub_top_left_y: 0.0,
-          sub_width: abs_width_px,
-          sub_height: half_height,
-          top_left_x: abs_pos_x,
-          top_left_y: abs_pos_y,
-          width: abs_width_px,
-          height: half_height,
+          sub_top_left: render::constants::ORIGIN,
+          sub_dims: DimensionPair {
+            width: abs_width_px,
+            height: half_height,
+          },
+          top_left: PlotPoint {
+            x: abs_pos_x,
+            y: abs_pos_y,
+          },
+          dims: DimensionPair {
+            width: abs_width_px,
+            height: half_height,
+          },
         },
       );
 
@@ -162,14 +177,19 @@ pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_ax
         &ctx,
         &absorber_img,
         ImageSubdiv {
-          sub_top_left_x: 0.0,
-          sub_top_left_y: 0.0,
-          sub_width: abs_width_px,
-          sub_height: half_height,
-          top_left_x: LEFT_MARGIN_INSET,
-          top_left_y: abs_pos_y + half_height,
-          width: abs_width_px,
-          height: half_height,
+          sub_top_left: render::constants::ORIGIN,
+          sub_dims: DimensionPair {
+            width: abs_width_px,
+            height: half_height,
+          },
+          top_left: PlotPoint {
+            x: render::constants::LEFT_MARGIN_INSET,
+            y: abs_pos_y + half_height,
+          },
+          dims: DimensionPair {
+            width: abs_width_px,
+            height: half_height,
+          },
         },
       );
     } else {
@@ -178,14 +198,19 @@ pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_ax
         &ctx,
         &absorber_img,
         ImageSubdiv {
-          sub_top_left_x: 0.0,
-          sub_top_left_y: 0.0,
-          sub_width: abs_width_px,
-          sub_height: *y_axis_length,
-          top_left_x: abs_pos_x,
-          top_left_y: abs_pos_y,
-          width: abs_width_px,
-          height: *y_axis_length,
+          sub_top_left: render::constants::ORIGIN,
+          sub_dims: DimensionPair {
+            width: abs_width_px,
+            height: *y_axis_length,
+          },
+          top_left: PlotPoint {
+            x: abs_pos_x,
+            y: abs_pos_y,
+          },
+          dims: DimensionPair {
+            width: abs_width_px,
+            height: *y_axis_length,
+          },
         },
       );
     }
@@ -200,7 +225,7 @@ pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_ax
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   let panel_width_px = panel_thickness_mm * horiz_pixels_per_mm;
   let panel_pos_x = abs_pos_x + abs_width_px;
-  let panel_pos_y = X_AXIS_INSET;
+  let panel_pos_y = render::constants::X_AXIS_INSET;
 
   // Do we need to draw a panel?
   if panel_thickness_mm > 0.0 {
@@ -211,26 +236,31 @@ pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_ax
       &ctx,
       &panel_img,
       ImageSubdiv {
-        sub_top_left_x: 0.0,
-        sub_top_left_y: 0.0,
-        sub_width: panel_width_px,
-        sub_height: *y_axis_length,
-        top_left_x: panel_pos_x,
-        top_left_y: panel_pos_y,
-        width: panel_width_px,
-        height: *y_axis_length,
+        sub_top_left: render::constants::ORIGIN,
+        sub_dims: DimensionPair {
+          width: panel_width_px,
+          height: *y_axis_length,
+        },
+        top_left: PlotPoint {
+          x: panel_pos_x,
+          y: panel_pos_y,
+        },
+        dims: DimensionPair {
+          width: panel_width_px,
+          height: *y_axis_length,
+        },
       },
     );
 
     // On the microperforated panel, the hole diameter is so small that without the use of a scale factor to magnify
     // them, the holes would be almost invisible
     let scale_factor = match device.device_type {
-      DeviceType::MicroperforatedPanelAbsorber => MP_SCALE_FACTOR,
+      DeviceType::MicroperforatedPanelAbsorber => render::constants::MP_SCALE_FACTOR,
       _ => 1.0,
     };
 
     // "void" represents the size of either the hole or the slot in the panel
-    let bg_colour = JsValue::from(RGB_OFF_WHITE);
+    let bg_colour = JsValue::from(chart::constants::RGB_OFF_WHITE);
     let scaled_void = scale_factor * void_mm;
     let scaled_between_voids = scale_factor * between_voids_mm;
     let interval = scaled_between_voids + scaled_void;
@@ -268,10 +298,6 @@ pub fn title_and_key(
 
   trace_boundary(Some(true));
 
-  const TITLE_KEY_GAP: f64 = 50.0;
-  const KEY_SYMBOL_LENGTH: f64 = 30.0;
-  const SYMBOL_TEXT_GAP: f64 = 10.0;
-
   let ctx = get_2d_context(&canvas);
   ctx.save();
 
@@ -282,7 +308,13 @@ pub fn title_and_key(
   let title_width = ctx.measure_text(title).unwrap().width();
 
   // Add chart title
-  ctx.fill_text(&title, LEFT_MARGIN_INSET, TOP_MARGIN_INSET).unwrap();
+  ctx
+    .fill_text(
+      &title,
+      render::constants::LEFT_MARGIN_INSET,
+      render::constants::TOP_MARGIN_INSET,
+    )
+    .unwrap();
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // Key spacing
@@ -306,9 +338,13 @@ pub fn title_and_key(
     .fold(0.0, |acc: f64, s| acc.max(ctx.measure_text(s.name).unwrap().width()));
 
   // Calculate the required and available space
-  let key_entry_width = KEY_SYMBOL_LENGTH + (3.0 * SYMBOL_TEXT_GAP) + longest_key_text;
-  let available_key_width =
-    canvas.width() as f64 - title_width - LEFT_MARGIN_INSET - RIGHT_MARGIN_INSET - TITLE_KEY_GAP;
+  let key_entry_width =
+    render::constants::KEY_SYMBOL_LENGTH + (3.0 * render::constants::SYMBOL_TEXT_GAP) + longest_key_text;
+  let available_key_width = canvas.width() as f64
+    - title_width
+    - render::constants::LEFT_MARGIN_INSET
+    - render::constants::RIGHT_MARGIN_INSET
+    - render::constants::TITLE_KEY_GAP;
 
   let mut required_key_width = key_entry_width * key_columns as f64;
 
@@ -327,10 +363,10 @@ pub fn title_and_key(
     key_columns, key_rows
   ));
 
-  let start_x = canvas.width() as f64 - RIGHT_MARGIN_INSET - required_key_width;
+  let start_x = canvas.width() as f64 - render::constants::RIGHT_MARGIN_INSET - required_key_width;
 
   let mut x = start_x;
-  let mut y = TOP_MARGIN_INSET - (title_font.font_size / 2.0);
+  let mut y = render::constants::TOP_MARGIN_INSET - (title_font.font_size / 2.0);
 
   for row_idx in 0..key_rows {
     for col_idx in 0..key_columns {
@@ -341,13 +377,17 @@ pub fn title_and_key(
           "row_idx = {}, col_idx = {}, series_idx = {}",
           row_idx, col_idx, series_idx
         ));
-        trace(format!("Drawing key symbol at {},{}", x + (KEY_SYMBOL_LENGTH / 2.0), y));
+        trace(format!(
+          "Drawing key symbol at {},{}",
+          x + (render::constants::KEY_SYMBOL_LENGTH / 2.0),
+          y
+        ));
 
         draw_key_symbol(
           &ctx,
           &PlotPoint { x, y },
           &JsValue::from(series_list[series_idx].plot_colour),
-          &KEY_SYMBOL_LENGTH,
+          &render::constants::KEY_SYMBOL_LENGTH,
         );
 
         // Draw key text
@@ -392,13 +432,13 @@ pub fn axes(canvas: &web_sys::HtmlCanvasElement, display_cfg: &DisplayConfig, y_
 
   let chart_origin = &PlotPoint {
     x: *y_axis_inset,
-    y: canvas.height() as f64 - (2.0 * TOP_MARGIN_INSET),
+    y: canvas.height() as f64 - (2.0 * render::constants::TOP_MARGIN_INSET),
   };
 
   let label_font = &FontMetadata {
-    typeface: &BASE_TYPEFACE,
-    font_size: LABEL_FONT_SIZE,
-    stroke_style: &RGB_BLACK,
+    typeface: &chart::constants::BASE_TYPEFACE,
+    font_size: chart::constants::LABEL_FONT_SIZE,
+    stroke_style: &chart::constants::RGB_BLACK,
   };
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -421,13 +461,13 @@ pub fn axes(canvas: &web_sys::HtmlCanvasElement, display_cfg: &DisplayConfig, y_
 
   let y_axis_end_point = PlotPoint {
     x: *y_axis_inset,
-    y: X_AXIS_INSET,
+    y: render::constants::X_AXIS_INSET,
   };
 
   let widest_tick_label = draw_axis(
     &canvas,
     Axis {
-      title: TXT_Y_AXIS_TITLE,
+      title: chart::constants::TXT_Y_AXIS_TITLE,
       start_point: &chart_origin,
       end_point: &y_axis_end_point,
       values: abs_strs,
@@ -450,14 +490,14 @@ pub fn axes(canvas: &web_sys::HtmlCanvasElement, display_cfg: &DisplayConfig, y_
   });
 
   let x_axis_end_point = PlotPoint {
-    x: canvas.width() as f64 - RIGHT_MARGIN_INSET,
-    y: canvas.height() as f64 - X_AXIS_INSET,
+    x: canvas.width() as f64 - render::constants::RIGHT_MARGIN_INSET,
+    y: canvas.height() as f64 - render::constants::X_AXIS_INSET,
   };
 
   draw_axis(
     &canvas,
     Axis {
-      title: TXT_X_AXIS_TITLE,
+      title: chart::constants::TXT_X_AXIS_TITLE,
       start_point: &chart_origin,
       end_point: &x_axis_end_point,
       values: freq_strs,
@@ -499,7 +539,7 @@ pub fn splines(
   let ctx = get_2d_context(&canvas);
 
   let x_tick_interval = x_axis_length / (abs_points.len() - 1) as f64;
-  let y_pos = scaled_y_pos(canvas.height() as f64 - X_AXIS_INSET, *y_axis_length);
+  let y_pos = scaled_y_pos(canvas.height() as f64 - render::constants::X_AXIS_INSET, *y_axis_length);
 
   // The frequency and absorption values need to be translated into canvas coordinates
   for (idx, abs_point) in abs_points.iter_mut().enumerate() {
@@ -610,16 +650,18 @@ fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: Axis) -> f64 {
     widest_tick_label = widest_tick_label.max(tick_label_width);
 
     // Position the label away from the tick by the tick length plus a gap
-    let label_offset = tick_label_width + TICK_LENGTH + TICK_LABEL_GAP;
+    let label_offset = tick_label_width + render::constants::TICK_LENGTH + render::constants::TICK_LABEL_GAP;
 
     // Draw tick
-    ctx.move_to(-TICK_LENGTH, 0.0);
-    ctx.line_to(0.0, 0.0);
+    ctx.move_to(-render::constants::TICK_LENGTH, 0.0);
+    ctx.line_to(render::constants::ORIGIN.x, render::constants::ORIGIN.y);
 
     // Add label text then move origin to next tick location
     match axis_info.orientation {
       AxisOrientation::Vertical => {
-        ctx.fill_text(&tick_label, -label_offset, TICK_LABEL_GAP).unwrap();
+        ctx
+          .fill_text(&tick_label, -label_offset, render::constants::TICK_LABEL_GAP)
+          .unwrap();
         ctx.translate(0.0, -tick_interval).unwrap();
       }
 
@@ -725,12 +767,14 @@ fn draw_point(ctx: &web_sys::CanvasRenderingContext2d, x: &f64, y: &f64, fill_st
 
   // Draw filled circle
   ctx.set_fill_style(fill_style);
-  ctx.arc(*x, *y, PLOT_POINT_RADIUS, 0.0, 2.0 * PI).unwrap();
+  ctx
+    .arc(*x, *y, render::constants::PLOT_POINT_RADIUS, 0.0, 2.0 * PI)
+    .unwrap();
   ctx.fill();
 
   // Draw black edge
   ctx.set_line_width(0.5);
-  ctx.set_stroke_style(&JsValue::from(RGB_BLACK));
+  ctx.set_stroke_style(&JsValue::from(chart::constants::RGB_BLACK));
   ctx.stroke();
 
   ctx.restore();
@@ -804,7 +848,11 @@ fn scaled_y_pos(start: f64, axis_length: f64) -> impl Fn(f64) -> f64 {
  * X coordinate of Y axis name
  */
 fn y_axis_name_x_pos(tick_label_width: f64, y_axis_inset: &f64) -> f64 {
-  y_axis_inset - TICK_LENGTH - (2.0 * TICK_LABEL_GAP) - tick_label_width - LABEL_FONT_SIZE
+  y_axis_inset
+    - render::constants::TICK_LENGTH
+    - (2.0 * render::constants::TICK_LABEL_GAP)
+    - tick_label_width
+    - chart::constants::LABEL_FONT_SIZE
 }
 
 /***********************************************************************************************************************
@@ -824,23 +872,20 @@ fn fetch_image(document: &web_sys::Document, img_name: &str) -> web_sys::HtmlIma
 fn draw_image(
   ctx: &web_sys::CanvasRenderingContext2d,
   img: &web_sys::HtmlImageElement,
-  top_left_x: f64,
-  top_left_y: f64,
-  width: f64,
-  height: f64,
+  at: PlotPoint,
+  size: DimensionPair,
 ) {
   draw_partial_image(
     ctx,
     img,
     ImageSubdiv {
-      sub_top_left_x: 0.0,
-      sub_top_left_y: 0.0,
-      sub_width: img.width() as f64,
-      sub_height: img.height() as f64,
-      top_left_x,
-      top_left_y,
-      width,
-      height,
+      sub_top_left: render::constants::ORIGIN,
+      sub_dims: DimensionPair {
+        width: img.width() as f64,
+        height: img.height() as f64,
+      },
+      top_left: at,
+      dims: size,
     },
   );
 }
@@ -857,14 +902,14 @@ fn draw_partial_image(
     // Possibly the longest function name I've ever seen...
     .draw_image_with_html_image_element_and_sw_and_sh_and_dx_and_dy_and_dw_and_dh(
       img,
-      img_subdiv.sub_top_left_x,
-      img_subdiv.sub_top_left_y,
-      img_subdiv.sub_width,
-      img_subdiv.sub_height,
-      img_subdiv.top_left_x,
-      img_subdiv.top_left_y,
-      img_subdiv.width,
-      img_subdiv.height,
+      img_subdiv.sub_top_left.x,
+      img_subdiv.sub_top_left.y,
+      img_subdiv.sub_dims.width,
+      img_subdiv.sub_dims.height,
+      img_subdiv.top_left.x,
+      img_subdiv.top_left.y,
+      img_subdiv.dims.width,
+      img_subdiv.dims.height,
     )
     .unwrap();
 }
@@ -876,9 +921,24 @@ fn draw_partial_image(
 fn draw_control_points(ctx: &web_sys::CanvasRenderingContext2d, cps: &[PlotPoint]) {
   for i in 0..(cps.len() / 2) {
     let idx = 2 * i;
-    draw_point(ctx, &cps[idx].x, &cps[idx].y, &JsValue::from(RGB_LIGHT_PINK));
-    draw_point(ctx, &cps[idx + 1].x, &cps[idx + 1].y, &JsValue::from(RGB_LIGHT_PINK));
+    draw_point(
+      ctx,
+      &cps[idx].x,
+      &cps[idx].y,
+      &JsValue::from(chart::constants::RGB_LIGHT_PINK),
+    );
+    draw_point(
+      ctx,
+      &cps[idx + 1].x,
+      &cps[idx + 1].y,
+      &JsValue::from(chart::constants::RGB_LIGHT_PINK),
+    );
 
-    draw_line(ctx, &cps[idx], &cps[idx + 1], &JsValue::from(RGB_LIGHT_PINK));
+    draw_line(
+      ctx,
+      &cps[idx],
+      &cps[idx + 1],
+      &JsValue::from(chart::constants::RGB_LIGHT_PINK),
+    );
   }
 }

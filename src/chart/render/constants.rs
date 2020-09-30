@@ -3,6 +3,9 @@
  *
  * (c) Chris Whealy 2020
  */
+use crate::config::display::PlotPoint;
+
+pub const ORIGIN: PlotPoint = PlotPoint { x: 0.0, y: 0.0 };
 
 // These names must correspond to the element ids used in index.html
 pub const GRAPH_CANVAS_ID: &str = "graph_canvas";
@@ -21,20 +24,13 @@ pub const RIGHT_MARGIN_INSET: f64 = 50.0;
 pub const TOP_MARGIN_INSET: f64 = 50.0;
 pub const BOTTOM_MARGIN_INSET: f64 = 17.5;
 
-pub const RGB_BLACK: &str = "rgb(0, 0, 0)";
-pub const RGB_PINK: &str = "rgb(234, 51, 247)";
-pub const RGB_LIGHT_PINK: &str = "rgb(246, 195, 203)";
-pub const RGB_DARK_BLUE: &str = "rgb(6, 1, 123)";
-pub const RGB_GREEN: &str = "rgb(20, 255, 20)";
-pub const RGB_OFF_WHITE: &str = "rgb(255, 255, 238)";
-
-pub const BASE_TYPEFACE: &str = "Arial";
-pub const TITLE_FONT_SIZE: f64 = 36.0;
-pub const LABEL_FONT_SIZE: f64 = 20.0;
-
 pub const TICK_LENGTH: f64 = 10.0;
 pub const TICK_LABEL_GAP: f64 = 5.0;
 pub const PLOT_POINT_RADIUS: f64 = 5.0;
+
+pub const TITLE_KEY_GAP: f64 = 50.0;
+pub const KEY_SYMBOL_LENGTH: f64 = 30.0;
+pub const SYMBOL_TEXT_GAP: f64 = 10.0;
 
 // Scale factor for magnifying the holes in a microperforated panel
 pub const MP_SCALE_FACTOR: f64 = 20.0;
