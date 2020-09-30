@@ -1,6 +1,6 @@
 # Microperforated Panel
 
-A microperforated absorber does not require a porous absorber layer because energy losses are achieved using the viscous boundary layer within the perforations.  In order for this device type to be effective, the perforations must be sub-millimetre in diameter.
+A microperforated absorber does not require a porous absorber layer because energy losses are achieved using the viscous boundary layer within the perforations.  In order for this device type to be effective, the perforation diameter must be sub-millimetre.
 
 The advantage of this device type is that it can be constructed from a transparent material such as perspex or glass.
 
@@ -28,5 +28,3 @@ Since the holes and panel thickness of the microperforated panel are so small, i
 | Angle | 0° | 0° | 89°
 | Graph start frequency | 20 Hz | 62.5 Hz | 100 Hz
 | Octave subdivisions | 1 | 1 | 1, 2, 3 or 6
-
-
