@@ -24,6 +24,20 @@ const LIB_NAME: &str = "chart::render::draw";
 const TRACE_ACTIVE: bool = false;
 
 /***********************************************************************************************************************
+ * Define a subdivision of an image
+ */
+struct ImageSubdiv {
+  sub_top_left_x: f64,
+  sub_top_left_y: f64,
+  sub_width: f64,
+  sub_height: f64,
+  top_left_x: f64,
+  top_left_y: f64,
+  width: f64,
+  height: f64,
+}
+
+/***********************************************************************************************************************
  * Draw the device diagram
  */
 pub const PI_OVER_TWO: f64 = PI / 2.0;
@@ -131,42 +145,48 @@ pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_ax
       draw_partial_image(
         &ctx,
         &absorber_img,
-        0.0,
-        0.0,
-        abs_width_px,
-        half_height,
-        abs_pos_x,
-        abs_pos_y,
-        abs_width_px,
-        half_height,
+        ImageSubdiv {
+          sub_top_left_x: 0.0,
+          sub_top_left_y: 0.0,
+          sub_width: abs_width_px,
+          sub_height: half_height,
+          top_left_x: abs_pos_x,
+          top_left_y: abs_pos_y,
+          width: abs_width_px,
+          height: half_height,
+        },
       );
 
       // Then below, draw another half height absorber against the backing
       draw_partial_image(
         &ctx,
         &absorber_img,
-        0.0,
-        0.0,
-        abs_width_px,
-        half_height,
-        LEFT_MARGIN_INSET,
-        abs_pos_y + half_height,
-        abs_width_px,
-        half_height,
+        ImageSubdiv {
+          sub_top_left_x: 0.0,
+          sub_top_left_y: 0.0,
+          sub_width: abs_width_px,
+          sub_height: half_height,
+          top_left_x: LEFT_MARGIN_INSET,
+          top_left_y: abs_pos_y + half_height,
+          width: abs_width_px,
+          height: half_height,
+        },
       );
     } else {
       // Nope, so draw a full height absorber
       draw_partial_image(
         &ctx,
         &absorber_img,
-        0.0,
-        0.0,
-        abs_width_px,
-        *y_axis_length,
-        abs_pos_x,
-        abs_pos_y,
-        abs_width_px,
-        *y_axis_length,
+        ImageSubdiv {
+          sub_top_left_x: 0.0,
+          sub_top_left_y: 0.0,
+          sub_width: abs_width_px,
+          sub_height: *y_axis_length,
+          top_left_x: abs_pos_x,
+          top_left_y: abs_pos_y,
+          width: abs_width_px,
+          height: *y_axis_length,
+        },
       );
     }
   } else {
@@ -190,14 +210,16 @@ pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_ax
     draw_partial_image(
       &ctx,
       &panel_img,
-      0.0,
-      0.0,
-      panel_width_px,
-      *y_axis_length,
-      panel_pos_x,
-      panel_pos_y,
-      panel_width_px,
-      *y_axis_length,
+      ImageSubdiv {
+        sub_top_left_x: 0.0,
+        sub_top_left_y: 0.0,
+        sub_width: panel_width_px,
+        sub_height: *y_axis_length,
+        top_left_x: panel_pos_x,
+        top_left_y: panel_pos_y,
+        width: panel_width_px,
+        height: *y_axis_length,
+      },
     );
 
     // On the microperforated panel, the hole diameter is so small that without the use of a scale factor to magnify
@@ -810,14 +832,16 @@ fn draw_image(
   draw_partial_image(
     ctx,
     img,
-    0.0,
-    0.0,
-    img.width() as f64,
-    img.height() as f64,
-    top_left_x,
-    top_left_y,
-    width,
-    height,
+    ImageSubdiv {
+      sub_top_left_x: 0.0,
+      sub_top_left_y: 0.0,
+      sub_width: img.width() as f64,
+      sub_height: img.height() as f64,
+      top_left_x,
+      top_left_y,
+      width,
+      height,
+    },
   );
 }
 
@@ -827,27 +851,20 @@ fn draw_image(
 fn draw_partial_image(
   ctx: &web_sys::CanvasRenderingContext2d,
   img: &web_sys::HtmlImageElement,
-  sub_top_left_x: f64,
-  sub_top_left_y: f64,
-  sub_width: f64,
-  sub_height: f64,
-  top_left_x: f64,
-  top_left_y: f64,
-  width: f64,
-  height: f64,
+  img_subdiv: ImageSubdiv,
 ) {
   ctx
     // Possibly the longest function name I've ever seen...
     .draw_image_with_html_image_element_and_sw_and_sh_and_dx_and_dy_and_dw_and_dh(
       img,
-      sub_top_left_x,
-      sub_top_left_y,
-      sub_width,
-      sub_height,
-      top_left_x,
-      top_left_y,
-      width,
-      height,
+      img_subdiv.sub_top_left_x,
+      img_subdiv.sub_top_left_y,
+      img_subdiv.sub_width,
+      img_subdiv.sub_height,
+      img_subdiv.top_left_x,
+      img_subdiv.top_left_y,
+      img_subdiv.width,
+      img_subdiv.height,
     )
     .unwrap();
 }
