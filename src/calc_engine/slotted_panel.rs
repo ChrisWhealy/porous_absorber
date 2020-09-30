@@ -15,7 +15,7 @@ use crate::config::{
   generic_device::{DeviceType, GenericDeviceInfo},
 };
 
-use crate::chart::constants;
+use crate::chart::{constants, render};
 use crate::utils::maths_functions::*;
 
 /***********************************************************************************************************************
@@ -106,20 +106,17 @@ pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
       // function plot_generic_device when calculating the series_data vector.  The correct vector of plot_points must
       // be passed to function render::draw_splines
       acc.abs_series[0].plot_points.push(PlotAbsPoint {
-        x: 0.0,
-        y: 0.0,
+        at: render::constants::ORIGIN,
         freq: *frequency,
         abs: abs_no_air_gap,
       });
       acc.abs_series[1].plot_points.push(PlotAbsPoint {
-        x: 0.0,
-        y: 0.0,
+        at: render::constants::ORIGIN,
         freq: *frequency,
         abs: abs_against_panel,
       });
       acc.abs_series[2].plot_points.push(PlotAbsPoint {
-        x: 0.0,
-        y: 0.0,
+        at: render::constants::ORIGIN,
         freq: *frequency,
         abs: abs_against_backing,
       });

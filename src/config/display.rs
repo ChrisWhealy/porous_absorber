@@ -130,10 +130,26 @@ pub struct DimensionPair {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Plot point for simple canvas locations
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct PlotPoint {
   pub x: f64,
   pub y: f64,
+}
+
+impl PlotPoint {
+  pub fn x_diff(&self, other_point: &Self) -> f64 {
+    self.x - other_point.x
+  }
+
+  pub fn y_diff(&self, other_point: &Self) -> f64 {
+    self.y - other_point.y
+  }
+}
+
+impl std::fmt::Display for PlotPoint {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "({},{})", self.x, self.y)
+  }
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -141,8 +157,7 @@ pub struct PlotPoint {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #[derive(Debug, Serialize, Clone)]
 pub struct PlotAbsPoint {
-  pub x: f64,
-  pub y: f64,
+  pub at: PlotPoint,
   pub freq: f64,
   pub abs: f64,
 }
@@ -203,8 +218,8 @@ pub struct Axis<'a> {
 impl<'a> Axis<'a> {
   pub fn length(&self) -> f64 {
     match &self.orientation {
-      AxisOrientation::Horizontal => fabs(self.end_point.x - self.start_point.x),
-      AxisOrientation::Vertical => fabs(self.end_point.y - self.start_point.y),
+      AxisOrientation::Horizontal => fabs(self.end_point.x_diff(self.start_point)),
+      AxisOrientation::Vertical => fabs(self.end_point.y_diff(self.start_point)),
     }
   }
 

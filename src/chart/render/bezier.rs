@@ -21,18 +21,18 @@ pub fn gen_control_points(pt1: &PlotAbsPoint, pt2: &PlotAbsPoint, pt3: &PlotAbsP
 
   // Calculate the gradient between the start and finish points.  The control points then live on a line that has this
   // gradient and passes through the middle point
-  let x_vec = pt3.x - pt1.x;
-  let y_vec = pt3.y - pt1.y;
+  let x_vec = pt3.at.x_diff(&pt1.at);
+  let y_vec = pt3.at.y_diff(&pt1.at);
 
   // Return the coordinates of the two control points lying between the three supplied points
   return vec![
     PlotPoint {
-      x: pt2.x - x_vec * tension * seg_1_ratio,
-      y: pt2.y - y_vec * tension * seg_1_ratio,
+      x: pt2.at.x - x_vec * tension * seg_1_ratio,
+      y: pt2.at.y - y_vec * tension * seg_1_ratio,
     },
     PlotPoint {
-      x: pt2.x + x_vec * tension * seg_2_ratio,
-      y: pt2.y + y_vec * tension * seg_2_ratio,
+      x: pt2.at.x + x_vec * tension * seg_2_ratio,
+      y: pt2.at.y + y_vec * tension * seg_2_ratio,
     },
   ];
 }

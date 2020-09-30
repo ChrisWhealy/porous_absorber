@@ -18,7 +18,7 @@ use crate::config::{
   panel_microperforated::MicroperforatedPanelConfig,
 };
 
-use crate::chart::constants;
+use crate::chart::{constants, render};
 use crate::utils::maths_functions::*;
 
 /***********************************************************************************************************************
@@ -67,8 +67,7 @@ pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
     |mut acc, frequency| {
       let abs_data = do_microperforated_panel_calc(*frequency, &air, &cavity, &panel, cos_angle);
       acc.abs_series[0].plot_points.push(PlotAbsPoint {
-        x: 0.0,
-        y: 0.0,
+        at: render::constants::ORIGIN,
         freq: *frequency,
         abs: abs_data,
       });

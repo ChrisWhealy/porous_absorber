@@ -543,12 +543,12 @@ pub fn splines(
 
   // The frequency and absorption values need to be translated into canvas coordinates
   for (idx, abs_point) in abs_points.iter_mut().enumerate() {
-    abs_point.x = y_axis_inset + x_tick_interval * idx as f64;
-    abs_point.y = y_pos(abs_point.abs);
+    abs_point.at.x = y_axis_inset + x_tick_interval * idx as f64;
+    abs_point.at.y = y_pos(abs_point.abs);
 
     trace(format!(
-      "PlotPoint(x: {}, y: {}, freq: {}, abs: {})",
-      abs_point.x, abs_point.y, abs_point.freq, abs_point.abs
+      "PlotPoint(At: {}, freq: {}, abs: {})",
+      abs_point.at, abs_point.freq, abs_point.abs
     ));
   }
 
@@ -569,14 +569,14 @@ pub fn splines(
   if TRACE_ACTIVE {
     trace("Control points".to_string());
     for cp in cps.iter() {
-      trace(format!("({},{})", cp.x, cp.y));
+      trace(format!("{}", cp));
     }
   }
 
   // Draw all the plot points
   trace("Drawing points".to_string());
   for abs_point in &abs_points {
-    draw_point(&ctx, &abs_point.x, &abs_point.y, &stroke_colour)
+    draw_point(&ctx, &abs_point.at, &stroke_colour)
   }
 
   // If tracing is switched on, also draw the control points
@@ -623,8 +623,8 @@ fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: Axis) -> f64 {
 
   // Draw the axis line
   trace(format!(
-    "Plotting axis from ({},{}) to ({},{})",
-    axis_info.start_point.x, axis_info.start_point.y, axis_info.end_point.x, axis_info.end_point.y
+    "Plotting axis from {} to {}",
+    axis_info.start_point, axis_info.end_point
   ));
   ctx.begin_path();
   ctx.move_to(axis_info.start_point.x, axis_info.start_point.y);
@@ -723,7 +723,14 @@ fn draw_key_symbol(
     },
     colour,
   );
-  draw_point(ctx, &(location.x + (symbol_length / 2.0)), &location.y, colour);
+  draw_point(
+    ctx,
+    &PlotPoint {
+      x: (location.x + (symbol_length / 2.0)),
+      y: location.y,
+    },
+    colour,
+  );
 }
 
 /***********************************************************************************************************************
@@ -761,14 +768,14 @@ fn draw_box(
 /***********************************************************************************************************************
  * Draw a circular plot point
  */
-fn draw_point(ctx: &web_sys::CanvasRenderingContext2d, x: &f64, y: &f64, fill_style: &JsValue) {
+fn draw_point(ctx: &web_sys::CanvasRenderingContext2d, point: &PlotPoint, fill_style: &JsValue) {
   ctx.begin_path();
   ctx.save();
 
   // Draw filled circle
   ctx.set_fill_style(fill_style);
   ctx
-    .arc(*x, *y, render::constants::PLOT_POINT_RADIUS, 0.0, 2.0 * PI)
+    .arc(point.x, point.y, render::constants::PLOT_POINT_RADIUS, 0.0, 2.0 * PI)
     .unwrap();
   ctx.fill();
 
@@ -796,16 +803,16 @@ fn draw_curved_path(
 
     // First point
     ctx.begin_path();
-    ctx.move_to(points[0].x, points[0].y);
+    ctx.move_to(points[0].at.x, points[0].at.y);
 
     // Are there only 2 points?
     if points.len() == 2 {
       // Yup, so draw a straight line to the last point and we're done
-      ctx.line_to(points[1].x, points[1].y);
+      ctx.line_to(points[1].at.x, points[1].at.y);
     } else {
       // For 3 or more points...
       // Plot points 0 and 1 are connected with a quadratic Bezier that requires a single control point
-      ctx.quadratic_curve_to(cps[0].x, cps[0].y, points[1].x, points[1].y);
+      ctx.quadratic_curve_to(cps[0].x, cps[0].y, points[1].at.x, points[1].at.y);
 
       // All middle plot points are connected with a cubic Bezier that requires a pair of control points
       for (i, point) in points.iter().enumerate().take(points.len() - 1).skip(2) {
@@ -817,8 +824,8 @@ fn draw_curved_path(
           cps[cp_idx1].y,
           cps[cp_idx2].x,
           cps[cp_idx2].y,
-          point.x,
-          point.y,
+          point.at.x,
+          point.at.y,
         );
       }
 
@@ -826,8 +833,8 @@ fn draw_curved_path(
       ctx.quadratic_curve_to(
         cps[cps.len() - 1].x,
         cps[cps.len() - 1].y,
-        points[points.len() - 1].x,
-        points[points.len() - 1].y,
+        points[points.len() - 1].at.x,
+        points[points.len() - 1].at.y,
       );
     }
 
@@ -921,18 +928,8 @@ fn draw_partial_image(
 fn draw_control_points(ctx: &web_sys::CanvasRenderingContext2d, cps: &[PlotPoint]) {
   for i in 0..(cps.len() / 2) {
     let idx = 2 * i;
-    draw_point(
-      ctx,
-      &cps[idx].x,
-      &cps[idx].y,
-      &JsValue::from(chart::constants::RGB_LIGHT_PINK),
-    );
-    draw_point(
-      ctx,
-      &cps[idx + 1].x,
-      &cps[idx + 1].y,
-      &JsValue::from(chart::constants::RGB_LIGHT_PINK),
-    );
+    draw_point(ctx, &cps[idx], &JsValue::from(chart::constants::RGB_LIGHT_PINK));
+    draw_point(ctx, &cps[idx + 1], &JsValue::from(chart::constants::RGB_LIGHT_PINK));
 
     draw_line(
       ctx,

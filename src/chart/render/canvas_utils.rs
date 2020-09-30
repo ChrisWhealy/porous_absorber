@@ -37,5 +37,5 @@ pub fn clear(canvas: &web_sys::HtmlCanvasElement) {
 }
 
 pub fn distance(pt1: &PlotAbsPoint, pt2: &PlotAbsPoint) -> f64 {
-  sqrt(pow(pt1.x - pt2.x, 2.0) + pow(pt1.y - pt2.y, 2.0))
+  sqrt(pow(pt1.at.x_diff(&pt2.at), 2.0) + pow(pt1.at.y_diff(&pt2.at), 2.0))
 }
