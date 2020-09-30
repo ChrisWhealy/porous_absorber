@@ -136,7 +136,7 @@ Original error: TypeError: Failed to execute 'compile' on 'WebAssembly': Incorre
 
 ### Debug/Trace Output
 
-If you wish switch on debug/trace output, then you need to switch the `TRACE_ACTIVE` flag in the relevant module.
+If you wish switch on debug/trace output, then you need to switch on the `TRACE_ACTIVE` flag in the relevant module.
 
 For each module in which debug/trace output is relevant, locate the line
 
@@ -144,7 +144,7 @@ For each module in which debug/trace output is relevant, locate the line
 const TRACE_ACTIVE: bool = false;
 ```
 
-Change the value to `true`, recompile using `wasm-pack` and the perform a hard refresh of the browser page.  Debug/trace output will then be visible in the browser console whenever control passes through that particular module.
+Change the value to `true`, recompile using `wasm-pack` and then perform a hard refresh of the browser page.  Debug/trace output will then be visible in the browser console whenever control passes through that particular module.
 
 
 
@@ -159,9 +159,9 @@ Nothing so far
 <a name="caveat"></a>
 ## Caveat
 
-I realise that this app is an implementation of the ***theory*** of how acoustic absorption can be calculated.  I cannot make any guarantee that reality will match up to the results of these calculations!
+I realise that this app is an implementation of the ***theory*** of how acoustic absorption can be calculated.  I can make no guarantees that reality will match up to the results of these calculations!
 
-I havae also taken every reasonable step to ensure that the calculations are accurate to the equations and methodology documented in the book "*Acoustic Absorbers and Diffusers.  Theory, Design and Practice*" by Trevor Cox and Peter D'Antonio (First Edition).  However, this book is now in its third edition and therefore certain calculations may have been modified or revised; consequently, the graphs plotted by this tool may vary from those plotted by a tool based on the most recent version of this book.
+I have also taken every reasonable step to ensure that the calculations are accurate to the equations and methodology documented in the book "*Acoustic Absorbers and Diffusers.  Theory, Design and Practice*" by Trevor Cox and Peter D'Antonio (First Edition).  However, this book is now in its third edition and therefore certain calculations may have been modified or revised; consequently, the graphs plotted by this tool may vary from those plotted by a tool based on the most recent version of this book.
 
 
 
