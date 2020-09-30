@@ -8,6 +8,7 @@ use wasm_bindgen::JsValue;
 use crate::config::{
   air::{AirConfig, AirError},
   cavity::{CavityConfig, CavityError},
+  config_set::{ConfigSet, PanelConfigSet},
   display::{DisplayConfig, DisplayError},
   panel_perforated::{PerforatedPanelConfig, PerforatedPanelError},
   porous_layer::{PorousLayerConfig, PorousLayerError},
@@ -71,45 +72,61 @@ pub fn do_perforated_panel_device(wasm_arg_obj: JsValue) -> JsValue {
   // Empty return data structure
   let mut error_msgs: Vec<String> = vec![];
 
-  // Construct configuration structs
-  let air_cfg = AirConfig::new(air_temp, air_pressure).unwrap_or_else(|err: AirError| {
-    error_msgs.push(err.to_string());
-    AirConfig::default()
-  });
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // Construct set of configuration structs
+  let panel_config_set = PanelConfigSet {
+    panel_microperforated: None,
+    panel_perforated: Some(
+      PerforatedPanelConfig::new(panel_thickness_mm, repeat_distance_mm, hole_radius_mm, porosity).unwrap_or_else(
+        |err: PerforatedPanelError| {
+          error_msgs.push(err.to_string());
+          PerforatedPanelConfig::default()
+        },
+      ),
+    ),
+    panel_slotted: None,
+  };
 
-  let cavity_cfg = CavityConfig::new(air_gap_mm).unwrap_or_else(|err: CavityError| {
-    error_msgs.push(err.to_string());
-    CavityConfig::default()
-  });
-
-  let display_cfg = DisplayConfig::new(graph_start_freq, smooth_curve, subdivision, show_diagram).unwrap_or_else(
-    |err: DisplayError| {
+  let config_set = ConfigSet {
+    air_config: Some(AirConfig::new(air_temp, air_pressure).unwrap_or_else(|err: AirError| {
       error_msgs.push(err.to_string());
-      DisplayConfig::default()
-    },
-  );
+      AirConfig::default()
+    })),
 
-  let panel_cfg = PerforatedPanelConfig::new(panel_thickness_mm, repeat_distance_mm, hole_radius_mm, porosity)
-    .unwrap_or_else(|err: PerforatedPanelError| {
+    cavity_config: Some(CavityConfig::new(air_gap_mm).unwrap_or_else(|err: CavityError| {
       error_msgs.push(err.to_string());
-      PerforatedPanelConfig::default()
-    });
+      CavityConfig::default()
+    })),
 
-  let porous_cfg =
-    PorousLayerConfig::new(absorber_thickness_mm, flow_resistivity).unwrap_or_else(|err: PorousLayerError| {
-      error_msgs.push(err.to_string());
-      PorousLayerConfig::default()
-    });
+    display_config: Some(
+      DisplayConfig::new(graph_start_freq, smooth_curve, subdivision, show_diagram).unwrap_or_else(
+        |err: DisplayError| {
+          error_msgs.push(err.to_string());
+          DisplayConfig::default()
+        },
+      ),
+    ),
+
+    sound_config: None,
+
+    panel_config: Some(panel_config_set),
+    porous_config: Some(
+      PorousLayerConfig::new(absorber_thickness_mm, flow_resistivity).unwrap_or_else(|err: PorousLayerError| {
+        error_msgs.push(err.to_string());
+        PorousLayerConfig::default()
+      }),
+    ),
+  };
 
   // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
   // value "Ok", else return the array of error messages
   let return_value = if error_msgs.is_empty() {
-    let absorber_info = perforated_panel::calculate(&air_cfg, &cavity_cfg, &display_cfg, &panel_cfg, &porous_cfg);
+    let absorber_info = perforated_panel::calculate(&config_set);
 
     // Plot the graph
     let chart_info = chart::render::generic_device(
       absorber_info,
-      &display_cfg,
+      &config_set.display_config.as_ref().unwrap(),
       chart::constants::CHART_TITLE_NORMAL_INCIDENCE,
     );
 

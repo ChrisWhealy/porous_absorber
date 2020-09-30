@@ -8,6 +8,7 @@ use wasm_bindgen::JsValue;
 use crate::config::{
   air::{AirConfig, AirError},
   cavity::{CavityConfig, CavityError},
+  config_set::ConfigSet,
   display::{DisplayConfig, DisplayError},
   porous_layer::{PorousLayerConfig, PorousLayerError},
   sound::{SoundConfig, SoundError},
@@ -65,45 +66,56 @@ pub fn do_porous_absorber_device(wasm_arg_obj: JsValue) -> JsValue {
   // Empty return data structure
   let mut error_msgs: Vec<String> = vec![];
 
-  // Construct configuration structs
-  let air_cfg = AirConfig::new(air_temp, air_pressure).unwrap_or_else(|err: AirError| {
-    error_msgs.push(err.to_string());
-    AirConfig::default()
-  });
-
-  let cavity_cfg = CavityConfig::new(air_gap_mm).unwrap_or_else(|err: CavityError| {
-    error_msgs.push(err.to_string());
-    CavityConfig::default()
-  });
-
-  let display_cfg = DisplayConfig::new(graph_start_freq, smooth_curve, subdivision, show_diagram).unwrap_or_else(
-    |err: DisplayError| {
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  // Construct set of configuration structs
+  let config_set = ConfigSet {
+    air_config: Some(AirConfig::new(air_temp, air_pressure).unwrap_or_else(|err: AirError| {
       error_msgs.push(err.to_string());
-      DisplayConfig::default()
-    },
-  );
+      AirConfig::default()
+    })),
 
-  let sound_cfg = SoundConfig::new(angle).unwrap_or_else(|err: SoundError| {
-    error_msgs.push(err.to_string());
-    SoundConfig::default()
-  });
-
-  let porous_cfg =
-    PorousLayerConfig::new(absorber_thickness_mm, flow_resistivity).unwrap_or_else(|err: PorousLayerError| {
+    cavity_config: Some(CavityConfig::new(air_gap_mm).unwrap_or_else(|err: CavityError| {
       error_msgs.push(err.to_string());
-      PorousLayerConfig::default()
-    });
+      CavityConfig::default()
+    })),
+
+    display_config: Some(
+      DisplayConfig::new(graph_start_freq, smooth_curve, subdivision, show_diagram).unwrap_or_else(
+        |err: DisplayError| {
+          error_msgs.push(err.to_string());
+          DisplayConfig::default()
+        },
+      ),
+    ),
+
+    sound_config: Some(SoundConfig::new(angle).unwrap_or_else(|err: SoundError| {
+      error_msgs.push(err.to_string());
+      SoundConfig::default()
+    })),
+
+    panel_config: None,
+
+    porous_config: Some(
+      PorousLayerConfig::new(absorber_thickness_mm, flow_resistivity).unwrap_or_else(|err: PorousLayerError| {
+        error_msgs.push(err.to_string());
+        PorousLayerConfig::default()
+      }),
+    ),
+  };
 
   // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
   // value "Ok", else return the array of error messages
   let return_value = if error_msgs.is_empty() {
-    let absorber_info = porous_absorber::calculate(&air_cfg, &cavity_cfg, &display_cfg, &sound_cfg, &porous_cfg);
+    let absorber_info = porous_absorber::calculate(&config_set);
 
     // Plot the graph
     let chart_info = chart::render::generic_device(
       absorber_info,
-      &display_cfg,
-      &chart::constants::chart_title_at_incident_angle(chart::constants::CHART_TITLE_OVERALL_ABS, sound_cfg.angle),
+      &config_set.display_config.as_ref().unwrap(),
+      &chart::constants::chart_title_at_incident_angle(
+        chart::constants::CHART_TITLE_OVERALL_ABS,
+        config_set.sound_config.as_ref().unwrap().angle,
+      ),
     );
 
     JsValue::from_serde(&chart_info).unwrap()

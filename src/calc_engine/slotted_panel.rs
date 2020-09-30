@@ -10,12 +10,9 @@ use num::complex::Complex;
 use std::f64::consts::PI;
 
 use crate::config::{
-  air::AirConfig,
-  cavity::CavityConfig,
-  display::{DisplayConfig, PlotAbsPoint, SeriesData},
+  config_set::ConfigSet,
+  display::{PlotAbsPoint, SeriesData},
   generic_device::{DeviceType, GenericDeviceInfo},
-  panel_slotted::SlottedPanelConfig,
-  porous_layer::PorousLayerConfig,
 };
 
 use crate::chart::constants;
@@ -32,19 +29,25 @@ const TRACE_ACTIVE: bool = false;
 /***********************************************************************************************************************
  * Slotted Panel Calculation
  */
-pub fn calculate<'a>(
-  air: &'a AirConfig,
-  cavity: &'a CavityConfig,
-  display: &'a DisplayConfig,
-  panel: &'a SlottedPanelConfig,
-  porous: &'a PorousLayerConfig,
-) -> GenericDeviceInfo<'a> {
+pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
   const FN_NAME: &str = "calculate";
 
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
   let trace = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
 
   trace_boundary(Some(true));
+
+  let air = config_set.air_config.as_ref().unwrap();
+  let cavity = config_set.cavity_config.as_ref().unwrap();
+  let display = config_set.display_config.as_ref().unwrap();
+  let panel = config_set
+    .panel_config
+    .as_ref()
+    .unwrap()
+    .panel_slotted
+    .as_ref()
+    .unwrap();
+  let porous = config_set.porous_config.as_ref().unwrap();
 
   // Calculate apparent panel thickness
   let end_correction_delta = -log(sin(PI * panel.porosity / 2.0)) / PI;
@@ -91,9 +94,7 @@ pub fn calculate<'a>(
     |mut acc, frequency| {
       let (abs_no_air_gap, abs_against_panel, abs_against_backing) = do_slotted_panel_calc(
         *frequency,
-        &air,
-        &cavity,
-        &porous,
+        &config_set,
         end_corrected_panel_thickness,
         resistance_at_panel,
         resistance_at_backing,
@@ -136,9 +137,7 @@ pub fn calculate<'a>(
  */
 fn do_slotted_panel_calc(
   frequency: f64,
-  air_cfg: &AirConfig,
-  cavity_cfg: &CavityConfig,
-  porous_cfg: &PorousLayerConfig,
+  config_set: &ConfigSet,
   ec_panel_thickness: f64,
   resistance_at_panel: f64,
   resistance_at_backing: f64,
@@ -150,6 +149,10 @@ fn do_slotted_panel_calc(
   let trace = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
 
   trace_boundary(Some(true));
+
+  let air_cfg = config_set.air_config.as_ref().unwrap();
+  let cavity_cfg = config_set.cavity_config.as_ref().unwrap();
+  let porous_cfg = config_set.porous_config.as_ref().unwrap();
 
   // Frequently used intermediate values
   let i: Complex<f64> = Complex::new(0.0, 1.0);

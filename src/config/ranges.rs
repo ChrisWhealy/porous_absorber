@@ -1,5 +1,5 @@
 /***********************************************************************************************************************
- * Porous Absorber Calculator - Ranges
+ * Porous Absorber Calculator - Range within which a named parameter is valid
  *
  * (c) Chris Whealy 2020
  */

@@ -10,12 +10,9 @@ use num::complex::Complex;
 use std::f64::consts::PI;
 
 use crate::config::{
-  air::AirConfig,
-  cavity::CavityConfig,
-  display::{DisplayConfig, PlotAbsPoint, SeriesData},
+  config_set::ConfigSet,
+  display::{PlotAbsPoint, SeriesData},
   generic_device::{DeviceType, GenericDeviceInfo},
-  porous_layer::PorousLayerConfig,
-  sound::SoundConfig,
 };
 
 use crate::chart::constants;
@@ -35,18 +32,16 @@ const TRACE_ACTIVE: bool = false;
 const PI_OVER_180: f64 = PI / 180.0;
 const ONE_80_OVER_PI: f64 = 180.0 / PI;
 
-pub fn calculate<'a>(
-  air: &'a AirConfig,
-  cavity: &'a CavityConfig,
-  display: &'a DisplayConfig,
-  sound: &'a SoundConfig,
-  porous: &'a PorousLayerConfig,
-) -> GenericDeviceInfo<'a> {
+pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
   const FN_NAME: &str = "calculate";
 
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
 
   trace_boundary(Some(true));
+
+  let cavity = config_set.cavity_config.as_ref().unwrap();
+  let display = config_set.display_config.as_ref().unwrap();
+  let porous = config_set.porous_config.as_ref().unwrap();
 
   let abs_info = display.frequencies.iter().fold(
     GenericDeviceInfo {
@@ -68,12 +63,12 @@ pub fn calculate<'a>(
       cavity: Some(cavity),
     },
     |mut acc, frequency| {
-      let (abs_no_air_gap, abs_air_gap) = do_porous_abs_calc(*frequency, &air, &cavity, &sound, &porous);
+      let (abs_no_air_gap, abs_air_gap) = do_porous_abs_calc(*frequency, &config_set);
 
       // Build the vectors of plot points for each absorber type
-      // The order of plot_points entries in the abs_series vector must match the order used in the render module by
+      // The order of entries in the plot_points abs_series vector must match the order used in the render module by
       // function plot_generic_device when calculating the series_data vector.  The correct vector of plot_points must
-      // be passed to function render::draw_splines
+      // be passed to function chart::render::draw::splines()
       acc.abs_series[0].plot_points.push(PlotAbsPoint {
         x: 0.0,
         y: 0.0,
@@ -98,13 +93,12 @@ pub fn calculate<'a>(
 /***********************************************************************************************************************
  * Reducer function to calculate the absorption of a porous absorber at a specific frequency
  */
-fn do_porous_abs_calc(
-  frequency: f64,
-  air_cfg: &AirConfig,
-  cavity_cfg: &CavityConfig,
-  sound_cfg: &SoundConfig,
-  porous_cfg: &PorousLayerConfig,
-) -> (f64, f64) {
+fn do_porous_abs_calc(frequency: f64, config_set: &ConfigSet) -> (f64, f64) {
+  let air_cfg = config_set.air_config.as_ref().unwrap();
+  let cavity_cfg = config_set.cavity_config.as_ref().unwrap();
+  let sound_cfg = config_set.sound_config.as_ref().unwrap();
+  let porous_cfg = config_set.porous_config.as_ref().unwrap();
+
   // Frequently used intermediate values
   let minus_i: Complex<f64> = Complex::new(0.0, -1.0);
 

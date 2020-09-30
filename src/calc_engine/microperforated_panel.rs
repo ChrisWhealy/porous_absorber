@@ -12,10 +12,10 @@ use std::f64::consts::PI;
 use crate::config::{
   air::{AirConfig, AIR_VISCOSITY},
   cavity::CavityConfig,
-  display::{DisplayConfig, PlotAbsPoint, SeriesData},
+  config_set::ConfigSet,
+  display::{PlotAbsPoint, SeriesData},
   generic_device::{DeviceType, GenericDeviceInfo},
   panel_microperforated::MicroperforatedPanelConfig,
-  sound::SoundConfig,
 };
 
 use crate::chart::constants;
@@ -32,18 +32,22 @@ const TRACE_ACTIVE: bool = false;
 /***********************************************************************************************************************
  * Microperforated Panel Calculation
  */
-pub fn calculate<'a>(
-  air: &'a AirConfig,
-  cavity: &'a CavityConfig,
-  display: &'a DisplayConfig,
-  panel: &'a MicroperforatedPanelConfig,
-  sound: &'a SoundConfig,
-) -> GenericDeviceInfo<'a> {
+pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
   const FN_NAME: &str = "calculate";
-
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
-
   trace_boundary(Some(true));
+
+  let air = config_set.air_config.as_ref().unwrap();
+  let cavity = config_set.cavity_config.as_ref().unwrap();
+  let display = config_set.display_config.as_ref().unwrap();
+  let sound = config_set.sound_config.as_ref().unwrap();
+  let panel = config_set
+    .panel_config
+    .as_ref()
+    .unwrap()
+    .panel_microperforated
+    .as_ref()
+    .unwrap();
 
   let cos_angle = cos(sound.angle as f64 * PI / 180.0);
 
@@ -56,9 +60,9 @@ pub fn calculate<'a>(
       }],
       sl_panel: None,
       pf_panel: None,
-      mp_panel: Some(panel),
+      mp_panel: Some(&panel),
       porous_layer: None,
-      cavity: Some(cavity),
+      cavity: Some(&cavity),
     },
     |mut acc, frequency| {
       let abs_data = do_microperforated_panel_calc(*frequency, &air, &cavity, &panel, cos_angle);

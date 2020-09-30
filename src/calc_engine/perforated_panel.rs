@@ -9,12 +9,10 @@ use libm::{pow, sqrt};
 use num::complex::Complex;
 
 use crate::config::{
-  air::{AirConfig, AIR_VISCOSITY},
-  cavity::CavityConfig,
-  display::{DisplayConfig, PlotAbsPoint, SeriesData},
+  air::AIR_VISCOSITY,
+  config_set::ConfigSet,
+  display::{PlotAbsPoint, SeriesData},
   generic_device::{DeviceType, GenericDeviceInfo},
-  panel_perforated::PerforatedPanelConfig,
-  porous_layer::PorousLayerConfig,
 };
 
 use crate::chart::constants;
@@ -31,19 +29,23 @@ const TRACE_ACTIVE: bool = false;
 /***********************************************************************************************************************
  * Perforated Panel Calculation
  */
-pub fn calculate<'a>(
-  air: &'a AirConfig,
-  cavity: &'a CavityConfig,
-  display: &'a DisplayConfig,
-  panel: &'a PerforatedPanelConfig,
-  porous: &'a PorousLayerConfig,
-) -> GenericDeviceInfo<'a> {
+pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
   const FN_NAME: &str = "calculate";
-
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
   let trace = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
 
   trace_boundary(Some(true));
+
+  let cavity = config_set.cavity_config.as_ref().unwrap();
+  let display = config_set.display_config.as_ref().unwrap();
+  let panel = config_set
+    .panel_config
+    .as_ref()
+    .unwrap()
+    .panel_perforated
+    .as_ref()
+    .unwrap();
+  let porous = config_set.porous_config.as_ref().unwrap();
 
   // Calculate apparent panel thickness
   let end_correction_delta = 0.8 * (1.0 - 1.47 * sqrt(panel.porosity) + 0.47 * sqrt(pow(panel.porosity, 3.0)));
@@ -79,14 +81,8 @@ pub fn calculate<'a>(
       cavity: Some(cavity),
     },
     |mut acc, frequency| {
-      let (abs_no_air_gap, abs_against_panel, abs_against_backing) = do_perforated_panel_calc(
-        *frequency,
-        &air,
-        &cavity,
-        &panel,
-        &porous,
-        end_corrected_panel_thickness,
-      );
+      let (abs_no_air_gap, abs_against_panel, abs_against_backing) =
+        do_perforated_panel_calc(*frequency, &config_set, end_corrected_panel_thickness);
 
       // Build the vectors of plot points for each absorber type
       // The order of plot_points entries in the abs_series vector must match the order used in the render module by
@@ -122,20 +118,24 @@ pub fn calculate<'a>(
 /***********************************************************************************************************************
  * Reducer function to calculate the absorption of a perforated panel absorber at a specific frequency
  */
-fn do_perforated_panel_calc(
-  frequency: f64,
-  air_cfg: &AirConfig,
-  cavity_cfg: &CavityConfig,
-  panel_cfg: &PerforatedPanelConfig,
-  porous_cfg: &PorousLayerConfig,
-  ec_panel_thickness: f64,
-) -> (f64, f64, f64) {
+fn do_perforated_panel_calc(frequency: f64, config_set: &ConfigSet, ec_panel_thickness: f64) -> (f64, f64, f64) {
   const FN_NAME: &str = "do_perforated_panel_calc";
 
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
   let trace = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
 
   trace_boundary(Some(true));
+
+  let air_cfg = config_set.air_config.as_ref().unwrap();
+  let cavity_cfg = config_set.cavity_config.as_ref().unwrap();
+  let panel_cfg = config_set
+    .panel_config
+    .as_ref()
+    .unwrap()
+    .panel_perforated
+    .as_ref()
+    .unwrap();
+  let porous_cfg = config_set.porous_config.as_ref().unwrap();
 
   // Frequently used intermediate values
   let i: Complex<f64> = Complex::new(0.0, 1.0);
