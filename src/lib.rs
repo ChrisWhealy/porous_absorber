@@ -43,6 +43,7 @@ const TRACE_ACTIVE: bool = false;
  */
 #[wasm_bindgen(start)]
 pub fn main() -> Result<(), JsValue> {
+  (Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), "main".to_string()))(None);
   Ok(())
 }
 
