@@ -20,7 +20,10 @@ use crate::chart;
 /***********************************************************************************************************************
  * Trace functionality
  */
-use crate::trace::{Trace, TraceAction};
+use crate::trace::{
+  function_boundaries::{make_boundary_trace_fn, TraceAction},
+  function_data::make_trace_fn,
+};
 
 const LIB_NAME: &str = "devices::microperforated_panel";
 const TRACE_ACTIVE: bool = false;
@@ -31,8 +34,8 @@ const TRACE_ACTIVE: bool = false;
 pub fn do_microperforated_panel_device(wasm_arg_obj: JsValue) -> JsValue {
   const FN_NAME: &str = "do_microperforated_panel_device";
 
-  let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
-  let trace = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
+  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
+  let trace = make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
 
   trace_boundary(TraceAction::Enter);
 
