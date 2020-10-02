@@ -64,15 +64,15 @@ const invertPlotData =
       (acc, seriesData) => {
         seriesData.plot_points.map(
           plotPoint =>
-            ((yVals, yInfo) => setProperty(acc, plotPoint.x, yVals ? yVals.concat(yInfo) : [yInfo]))
-            (acc[plotPoint.x], removeX(plotPoint))
+            ((yVals, yInfo) => setProperty(acc, plotPoint.at.x, yVals ? yVals.concat(yInfo) : [yInfo]))
+            (acc[plotPoint.at.x], removeX(plotPoint))
         )
         return acc
       }
     , {})
 
 // Create a new plot point object that does not include the "x" property
-const removeX = plotPoint => ({"y" : plotPoint.y, "freq" : plotPoint.freq, "abs" : plotPoint.abs})
+const removeX = plotPoint => ({"y" : plotPoint.at.y, "freq" : plotPoint.freq, "abs" : plotPoint.abs})
 
 // Inclusive numeric range test
 const isBetween = (upper, lower, val) => val >= lower && val <= upper

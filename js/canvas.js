@@ -110,8 +110,8 @@ const mousePositionViaElementHierarchy =
 // canvas elements must sit exactly on top of each other
 // *********************************************************************************************************************
 const canvasMouseOverHandler =
-  (canvas, chartBox, seriestData) =>
-    ((boxFn, ctx) =>
+  (canvas, chartBox, seriesData) =>
+    ((boxContains, ctx) =>
        e => {
         let mousePos = mousePositionOnCanvas(e)
 
@@ -120,20 +120,20 @@ const canvasMouseOverHandler =
         ctx.font = "11pt Arial"
 
         // Draw cross-hairs if the mouse pointer is within the chart box area
-        if (boxFn(mousePos)) {
+        if (boxContains(mousePos)) {
           drawCrossHairs(ctx, mousePos, chartBox)
         }
 
         // For each X value in the inverted data series
         Object
-          .keys(seriestData)
+          .keys(seriesData)
           .map(
             xValStr =>
               (xVal =>
                 // Does the mouse pointer's current X position fall within the width of a plot point?
                 (isBetween(xVal + PLOT_POINT_RADIUS, xVal - PLOT_POINT_RADIUS, mousePos.x))
                 // Yup, so check mouse pointer Y position
-                ? seriestData[xValStr].map(
+                ? seriesData[xValStr].map(
                     plotPoint =>
                       (yVal =>
                         // Does the mouse pointer's current Y position also fall within the height of a plot point?

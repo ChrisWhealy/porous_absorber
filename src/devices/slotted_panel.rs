@@ -119,7 +119,7 @@ pub fn do_slotted_panel_device(wasm_arg_obj: JsValue) -> JsValue {
 
   // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
   // value "Ok", else return the array of error messages
-  let return_value = if error_msgs.is_empty() {
+  let series_data = if error_msgs.is_empty() {
     let absorber_info = slotted_panel::calculate(&config_set);
 
     // Plot the graph
@@ -138,7 +138,7 @@ pub fn do_slotted_panel_device(wasm_arg_obj: JsValue) -> JsValue {
   trace_boundary(Some(false));
 
   // Return either the {X,Y} values of plot points or the error messages back to JavaScript
-  return_value
+  series_data
 }
 
 /***********************************************************************************************************************
