@@ -12,7 +12,7 @@ use crate::chart::{
   render::{bezier, canvas_utils::*},
 };
 use crate::config::{
-  display::*,
+  chart::*,
   generic_device::{DeviceType, GenericDeviceInfo},
 };
 
@@ -422,7 +422,7 @@ pub fn title_and_key(
  * The widest tick label value is needed as part of the calculation to determine the available width within which to
  * draw the device diagram
  */
-pub fn axes(canvas: &web_sys::HtmlCanvasElement, display_cfg: &DisplayConfig, y_axis_inset: &f64) -> (ChartBox, f64) {
+pub fn axes(canvas: &web_sys::HtmlCanvasElement, chart_cfg: &ChartConfig, y_axis_inset: &f64) -> (ChartBox, f64) {
   const FN_NAME: &str = "axes";
 
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
@@ -480,7 +480,7 @@ pub fn axes(canvas: &web_sys::HtmlCanvasElement, display_cfg: &DisplayConfig, y_
   // Draw X axis
   trace("Drawing X axis".to_string());
 
-  let freq_strs: Vec<String> = display_cfg.frequencies.iter().fold(vec![], |mut acc, f| {
+  let freq_strs: Vec<String> = chart_cfg.frequencies.iter().fold(vec![], |mut acc, f| {
     acc.push(if (*f - 62.5).abs() < f64::EPSILON {
       "62.5".to_string()
     } else {

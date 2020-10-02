@@ -13,7 +13,7 @@ use wasm_bindgen::{JsCast, JsValue};
 
 use crate::chart::{constants::*, render::constants::*};
 use crate::config::{
-  display::{ChartInfo, DisplayConfig, SeriesData},
+  chart::{ChartConfig, ChartInfo, SeriesData},
   generic_device::{DeviceType, GenericDeviceInfo},
 };
 
@@ -30,7 +30,7 @@ const TRACE_ACTIVE: bool = false;
  */
 pub fn generic_device<'a>(
   device_info: GenericDeviceInfo<'a>,
-  display_cfg: &DisplayConfig,
+  chart_cfg: &ChartConfig,
   chart_title: &str,
 ) -> ChartInfo<'a> {
   const FN_NAME: &str = "generic_device";
@@ -43,7 +43,7 @@ pub fn generic_device<'a>(
   let canvas_el = document.get_element_by_id(GRAPH_CANVAS_ID).unwrap();
   let canvas = canvas_el.dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
 
-  let y_axis_inset: f64 = if display_cfg.show_diagram {
+  let y_axis_inset: f64 = if chart_cfg.show_diagram {
     Y_AXIS_INSET_DIAGRAM
   } else {
     Y_AXIS_INSET_NO_DIAGRAM
@@ -62,7 +62,7 @@ pub fn generic_device<'a>(
     DeviceType::MicroperforatedPanelAbsorber => vec![&METADATA_MP_PANEL],
   };
 
-  let (chart_box, widest_y_tick_label) = draw::axes(&canvas, &display_cfg, &y_axis_inset);
+  let (chart_box, widest_y_tick_label) = draw::axes(&canvas, &chart_cfg, &y_axis_inset);
 
   draw::title_and_key(
     &canvas,
@@ -73,7 +73,7 @@ pub fn generic_device<'a>(
   );
 
   // Draw the device diagram if necessary
-  if display_cfg.show_diagram {
+  if chart_cfg.show_diagram {
     draw::device_diagram(&device_info, widest_y_tick_label, &y_axis_length, &Y_AXIS_INSET_DIAGRAM);
   }
 
@@ -93,7 +93,7 @@ pub fn generic_device<'a>(
           &canvas,
           device_info.abs_series[0].plot_points.to_vec(),
           &JsValue::from(METADATA_AIR_GAP.plot_colour),
-          &display_cfg.smooth_curve,
+          &chart_cfg.smooth_curve,
           &x_axis_length,
           &y_axis_length,
           &y_axis_inset,
@@ -105,7 +105,7 @@ pub fn generic_device<'a>(
           &canvas,
           device_info.abs_series[1].plot_points.to_vec(),
           &JsValue::from(METADATA_NO_AIR_GAP.plot_colour),
-          &display_cfg.smooth_curve,
+          &chart_cfg.smooth_curve,
           &x_axis_length,
           &y_axis_length,
           &y_axis_inset,
@@ -122,7 +122,7 @@ pub fn generic_device<'a>(
           &canvas,
           device_info.abs_series[0].plot_points.to_vec(),
           &JsValue::from(METADATA_NO_AIR_GAP.plot_colour),
-          &display_cfg.smooth_curve,
+          &chart_cfg.smooth_curve,
           &x_axis_length,
           &y_axis_length,
           &y_axis_inset,
@@ -134,7 +134,7 @@ pub fn generic_device<'a>(
           &canvas,
           device_info.abs_series[1].plot_points.to_vec(),
           &JsValue::from(METADATA_ABS_PANEL.plot_colour),
-          &display_cfg.smooth_curve,
+          &chart_cfg.smooth_curve,
           &x_axis_length,
           &y_axis_length,
           &y_axis_inset,
@@ -146,7 +146,7 @@ pub fn generic_device<'a>(
           &canvas,
           device_info.abs_series[2].plot_points.to_vec(),
           &JsValue::from(METADATA_ABS_BACKING.plot_colour),
-          &display_cfg.smooth_curve,
+          &chart_cfg.smooth_curve,
           &x_axis_length,
           &y_axis_length,
           &y_axis_inset,
@@ -163,7 +163,7 @@ pub fn generic_device<'a>(
           &canvas,
           device_info.abs_series[0].plot_points.to_vec(),
           &JsValue::from(METADATA_NO_AIR_GAP.plot_colour),
-          &display_cfg.smooth_curve,
+          &chart_cfg.smooth_curve,
           &x_axis_length,
           &y_axis_length,
           &y_axis_inset,
@@ -175,7 +175,7 @@ pub fn generic_device<'a>(
           &canvas,
           device_info.abs_series[1].plot_points.to_vec(),
           &JsValue::from(METADATA_ABS_PANEL.plot_colour),
-          &display_cfg.smooth_curve,
+          &chart_cfg.smooth_curve,
           &x_axis_length,
           &y_axis_length,
           &y_axis_inset,
@@ -187,7 +187,7 @@ pub fn generic_device<'a>(
           &canvas,
           device_info.abs_series[2].plot_points.to_vec(),
           &JsValue::from(METADATA_ABS_BACKING.plot_colour),
-          &display_cfg.smooth_curve,
+          &chart_cfg.smooth_curve,
           &x_axis_length,
           &y_axis_length,
           &y_axis_inset,
@@ -203,7 +203,7 @@ pub fn generic_device<'a>(
         &canvas,
         device_info.abs_series[0].plot_points.to_vec(),
         &JsValue::from(METADATA_MP_PANEL.plot_colour),
-        &display_cfg.smooth_curve,
+        &chart_cfg.smooth_curve,
         &x_axis_length,
         &y_axis_length,
         &y_axis_inset,

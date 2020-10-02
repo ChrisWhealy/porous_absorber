@@ -10,8 +10,8 @@ use num::complex::Complex;
 use std::f64::consts::PI;
 
 use crate::config::{
+  chart::{PlotAbsPoint, SeriesData},
   config_set::ConfigSet,
-  display::{PlotAbsPoint, SeriesData},
   generic_device::{DeviceType, GenericDeviceInfo},
 };
 
@@ -39,7 +39,6 @@ pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
 
   let air = &config_set.air_config;
   let cavity = &config_set.cavity_config;
-  let display = &config_set.display_config;
   let panel = config_set
     .panel_config
     .as_ref()
@@ -68,7 +67,7 @@ pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
   trace(format!("Resistance at panel   = {}", &resistance_at_panel));
   trace(format!("Mass term for air     = {}", &mass_term_for_air));
 
-  let abs_info = display.frequencies.iter().fold(
+  let abs_info = config_set.chart_config.frequencies.iter().fold(
     GenericDeviceInfo {
       device_type: DeviceType::SlottedPanelAbsorber,
       abs_series: vec![

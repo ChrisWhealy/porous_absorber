@@ -4,7 +4,7 @@
  * (c) Chris Whealy 2020
  */
 use crate::config::{
-  air::AirConfig, cavity::CavityConfig, display::DisplayConfig, panel_microperforated::MicroperforatedPanelConfig,
+  air::AirConfig, cavity::CavityConfig, chart::ChartConfig, panel_microperforated::MicroperforatedPanelConfig,
   panel_perforated::PerforatedPanelConfig, panel_slotted::SlottedPanelConfig, porous_layer::PorousLayerConfig,
   sound::SoundConfig,
 };
@@ -22,7 +22,7 @@ pub struct PanelConfigSet {
 pub struct ConfigSet {
   pub air_config: AirConfig,
   pub cavity_config: CavityConfig,
-  pub display_config: DisplayConfig,
+  pub chart_config: ChartConfig,
   pub sound_config: Option<SoundConfig>,
   pub panel_config: Option<PanelConfigSet>,
   pub porous_config: Option<PorousLayerConfig>,

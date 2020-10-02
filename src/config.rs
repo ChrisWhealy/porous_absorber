@@ -2,7 +2,7 @@ pub mod config_set;
 
 pub mod air;
 pub mod cavity;
-pub mod display;
+pub mod chart;
 pub mod porous_layer;
 pub mod sound;
 

@@ -6,7 +6,7 @@
 use serde::Serialize;
 
 use crate::config::{
-  cavity::CavityConfig, display::SeriesData, panel_microperforated::MicroperforatedPanelConfig,
+  cavity::CavityConfig, chart::SeriesData, panel_microperforated::MicroperforatedPanelConfig,
   panel_perforated::PerforatedPanelConfig, panel_slotted::SlottedPanelConfig, porous_layer::PorousLayerConfig,
 };
 

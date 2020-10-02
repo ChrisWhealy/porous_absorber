@@ -8,8 +8,8 @@ use wasm_bindgen::JsValue;
 use crate::config::{
   air::{AirConfig, AirError},
   cavity::{CavityConfig, CavityError},
+  chart::{ChartConfig, ChartError},
   config_set::ConfigSet,
-  display::{DisplayConfig, DisplayError},
   porous_layer::{PorousLayerConfig, PorousLayerError},
   sound::{SoundConfig, SoundError},
 };
@@ -80,10 +80,10 @@ pub fn do_porous_absorber_device(wasm_arg_obj: JsValue) -> JsValue {
       CavityConfig::default()
     }),
 
-    display_config: DisplayConfig::new(graph_start_freq, smooth_curve, subdivision, show_diagram).unwrap_or_else(
-      |err: DisplayError| {
+    chart_config: ChartConfig::new(graph_start_freq, smooth_curve, subdivision, show_diagram).unwrap_or_else(
+      |err: ChartError| {
         error_msgs.push(err.to_string());
-        DisplayConfig::default()
+        ChartConfig::default()
       },
     ),
 
@@ -111,7 +111,7 @@ pub fn do_porous_absorber_device(wasm_arg_obj: JsValue) -> JsValue {
     // Plot the graph
     let chart_info = chart::render::generic_device(
       absorber_info,
-      &config_set.display_config,
+      &config_set.chart_config,
       &chart::constants::chart_title_at_incident_angle(
         chart::constants::CHART_TITLE_OVERALL_ABS,
         config_set.sound_config.as_ref().unwrap().angle,

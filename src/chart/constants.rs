@@ -3,7 +3,7 @@
  *
  * (c) Chris Whealy 2020
  */
-use crate::config::display::{FontMetadata, SeriesMetadata};
+use crate::config::chart::{FontMetadata, SeriesMetadata};
 
 pub const TXT_AIR_GAP: &str = "Air Gap";
 pub const TXT_NO_AIR_GAP: &str = "No Air Gap";

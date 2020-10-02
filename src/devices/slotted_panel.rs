@@ -10,8 +10,8 @@ use crate::chart;
 use crate::config::{
   air::{AirConfig, AirError},
   cavity::{CavityConfig, CavityError},
+  chart::{ChartConfig, ChartError},
   config_set::{ConfigSet, PanelConfigSet},
-  display::{DisplayConfig, DisplayError},
   panel_slotted::{SlottedPanelConfig, SlottedPanelError},
   porous_layer::{PorousLayerConfig, PorousLayerError},
 };
@@ -98,10 +98,10 @@ pub fn do_slotted_panel_device(wasm_arg_obj: JsValue) -> JsValue {
       CavityConfig::default()
     }),
 
-    display_config: DisplayConfig::new(graph_start_freq, smooth_curve, subdivision, show_diagram).unwrap_or_else(
-      |err: DisplayError| {
+    chart_config: ChartConfig::new(graph_start_freq, smooth_curve, subdivision, show_diagram).unwrap_or_else(
+      |err: ChartError| {
         error_msgs.push(err.to_string());
-        DisplayConfig::default()
+        ChartConfig::default()
       },
     ),
 
@@ -125,7 +125,7 @@ pub fn do_slotted_panel_device(wasm_arg_obj: JsValue) -> JsValue {
     // Plot the graph
     let chart_info = chart::render::generic_device(
       absorber_info,
-      &config_set.display_config,
+      &config_set.chart_config,
       chart::constants::CHART_TITLE_NORMAL_INCIDENCE,
     );
 

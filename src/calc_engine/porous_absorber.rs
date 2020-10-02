@@ -10,8 +10,8 @@ use num::complex::Complex;
 use std::f64::consts::PI;
 
 use crate::config::{
+  chart::{PlotAbsPoint, SeriesData},
   config_set::ConfigSet,
-  display::{PlotAbsPoint, SeriesData},
   generic_device::{DeviceType, GenericDeviceInfo},
 };
 
@@ -40,10 +40,9 @@ pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
   trace_boundary(Some(true));
 
   let cavity = &config_set.cavity_config;
-  let display = &config_set.display_config;
   let porous = config_set.porous_config.as_ref().unwrap();
 
-  let abs_info = display.frequencies.iter().fold(
+  let abs_info = config_set.chart_config.frequencies.iter().fold(
     GenericDeviceInfo {
       device_type: DeviceType::RigidBackedPorousAbsorber,
       abs_series: vec![

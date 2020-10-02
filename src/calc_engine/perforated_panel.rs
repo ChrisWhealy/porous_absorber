@@ -10,8 +10,8 @@ use num::complex::Complex;
 
 use crate::config::{
   air::AIR_VISCOSITY,
+  chart::{PlotAbsPoint, SeriesData},
   config_set::ConfigSet,
-  display::{PlotAbsPoint, SeriesData},
   generic_device::{DeviceType, GenericDeviceInfo},
 };
 
@@ -37,7 +37,6 @@ pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
   trace_boundary(Some(true));
 
   let cavity = &config_set.cavity_config;
-  let display = &config_set.display_config;
   let panel = config_set
     .panel_config
     .as_ref()
@@ -57,7 +56,7 @@ pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
     &end_corrected_panel_thickness
   ));
 
-  let abs_info = display.frequencies.iter().fold(
+  let abs_info = config_set.chart_config.frequencies.iter().fold(
     GenericDeviceInfo {
       device_type: DeviceType::PerforatedPanelAbsorber,
       abs_series: vec![

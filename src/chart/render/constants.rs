@@ -3,7 +3,7 @@
  *
  * (c) Chris Whealy 2020
  */
-use crate::config::display::PlotPoint;
+use crate::config::chart::PlotPoint;
 
 pub const ORIGIN: PlotPoint = PlotPoint { x: 0.0, y: 0.0 };
 

@@ -35,24 +35,24 @@ enum ErrType {
 }
 
 #[derive(Debug)]
-pub struct DisplayError {
+pub struct ChartError {
   msg: String,
 }
 
-impl DisplayError {
-  fn new(err_type: ErrType, err_val: f64) -> DisplayError {
+impl ChartError {
+  fn new(err_type: ErrType, err_val: f64) -> ChartError {
     match err_type {
-      ErrType::Graph => DisplayError {
+      ErrType::Graph => ChartError {
         msg: validation::start_freq_err(FREQ_RANGE, err_val),
       },
-      ErrType::Subdivision => DisplayError {
+      ErrType::Subdivision => ChartError {
         msg: validation::oct_subdiv_err(err_val),
       },
     }
   }
 }
 
-impl fmt::Display for DisplayError {
+impl fmt::Display for ChartError {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     write!(f, "{}", self.msg)
   }
@@ -82,7 +82,7 @@ fn gen_frequencies(graph_start_freq: &f64, subdivisions: &u16) -> Vec<f64> {
 /***********************************************************************************************************************
  * Display configuration
  */
-pub struct DisplayConfig {
+pub struct ChartConfig {
   pub graph_start_freq: f64,
   pub smooth_curve: bool,
   pub subdivisions: u16,
@@ -90,9 +90,9 @@ pub struct DisplayConfig {
   pub frequencies: Vec<f64>,
 }
 
-impl DisplayConfig {
-  pub fn default() -> DisplayConfig {
-    DisplayConfig::new(FREQ_RANGE.default, false, DEFAULT_SUBDIVISION, false).unwrap()
+impl ChartConfig {
+  pub fn default() -> ChartConfig {
+    ChartConfig::new(FREQ_RANGE.default, false, DEFAULT_SUBDIVISION, false).unwrap()
   }
 
   pub fn new(
@@ -100,16 +100,16 @@ impl DisplayConfig {
     smooth_curve: bool,
     subdivisions_arg: u16,
     show_diagram: bool,
-  ) -> Result<DisplayConfig, DisplayError> {
+  ) -> Result<ChartConfig, ChartError> {
     if !FREQ_RANGE.contains(start_freq_arg) {
-      return Err(DisplayError::new(ErrType::Graph, start_freq_arg));
+      return Err(ChartError::new(ErrType::Graph, start_freq_arg));
     }
 
     if !SUBDIVISIONS.contains(&subdivisions_arg) {
-      return Err(DisplayError::new(ErrType::Subdivision, subdivisions_arg as f64));
+      return Err(ChartError::new(ErrType::Subdivision, subdivisions_arg as f64));
     }
 
-    Ok(DisplayConfig {
+    Ok(ChartConfig {
       graph_start_freq: start_freq_arg,
       subdivisions: subdivisions_arg,
       smooth_curve,

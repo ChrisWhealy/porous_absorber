@@ -12,8 +12,8 @@ use std::f64::consts::PI;
 use crate::config::{
   air::{AirConfig, AIR_VISCOSITY},
   cavity::CavityConfig,
+  chart::{PlotAbsPoint, SeriesData},
   config_set::ConfigSet,
-  display::{PlotAbsPoint, SeriesData},
   generic_device::{DeviceType, GenericDeviceInfo},
   panel_microperforated::MicroperforatedPanelConfig,
 };
@@ -39,7 +39,6 @@ pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
 
   let air = &config_set.air_config;
   let cavity = &config_set.cavity_config;
-  let display = &config_set.display_config;
   let sound = config_set.sound_config.as_ref().unwrap();
   let panel = config_set
     .panel_config
@@ -51,7 +50,7 @@ pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
 
   let cos_angle = cos(sound.angle as f64 * PI / 180.0);
 
-  let abs_info = display.frequencies.iter().fold(
+  let abs_info = config_set.chart_config.frequencies.iter().fold(
     GenericDeviceInfo {
       device_type: DeviceType::MicroperforatedPanelAbsorber,
       abs_series: vec![SeriesData {
