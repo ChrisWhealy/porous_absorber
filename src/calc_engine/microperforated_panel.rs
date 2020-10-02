@@ -24,7 +24,7 @@ use crate::utils::maths_functions::*;
 /***********************************************************************************************************************
  * Trace functionality
  */
-use crate::trace::Trace;
+use crate::trace::{Trace, TraceAction};
 
 const LIB_NAME: &str = "calc_engine::microperforated_panel";
 const TRACE_ACTIVE: bool = false;
@@ -35,7 +35,7 @@ const TRACE_ACTIVE: bool = false;
 pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
   const FN_NAME: &str = "calculate";
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
-  trace_boundary(Some(true));
+  trace_boundary(TraceAction::Enter);
 
   let air = &config_set.air_config;
   let cavity = &config_set.cavity_config;
@@ -75,7 +75,7 @@ pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
     },
   );
 
-  trace_boundary(Some(false));
+  trace_boundary(TraceAction::Exit);
   abs_info
 }
 
@@ -94,7 +94,7 @@ fn do_microperforated_panel_calc(
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
   let trace = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
 
-  trace_boundary(Some(true));
+  trace_boundary(TraceAction::Enter);
 
   // Frequently used intermediate values
   let i: Complex<f64> = Complex::new(0.0, 1.0);
@@ -152,6 +152,6 @@ fn do_microperforated_panel_calc(
   trace(format!("Reflectivity = {}", refl));
   trace(format!("Absorption coefficient = {}", abs));
 
-  trace_boundary(Some(false));
+  trace_boundary(TraceAction::Exit);
   abs
 }

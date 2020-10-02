@@ -21,7 +21,7 @@ use crate::utils::maths_functions::*;
 /***********************************************************************************************************************
  * Trace functionality
  */
-use crate::trace::Trace;
+use crate::trace::{Trace, TraceAction};
 
 const LIB_NAME: &str = "calc_engine::perforated_panel";
 const TRACE_ACTIVE: bool = false;
@@ -34,7 +34,7 @@ pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
   let trace = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
 
-  trace_boundary(Some(true));
+  trace_boundary(TraceAction::Enter);
 
   let cavity = &config_set.cavity_config;
   let panel = config_set
@@ -107,7 +107,7 @@ pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
     },
   );
 
-  trace_boundary(Some(false));
+  trace_boundary(TraceAction::Exit);
   abs_info
 }
 
@@ -120,7 +120,7 @@ fn do_perforated_panel_calc(frequency: f64, config_set: &ConfigSet, ec_panel_thi
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
   let trace = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
 
-  trace_boundary(Some(true));
+  trace_boundary(TraceAction::Enter);
 
   let air_cfg = &config_set.air_config;
   let cavity_cfg = &config_set.cavity_config;
@@ -235,6 +235,6 @@ fn do_perforated_panel_calc(frequency: f64, config_set: &ConfigSet, ec_panel_thi
   trace(format!("No air gap reflection = {}", no_air_gap_refl));
   trace(format!("No air gap absorption = {}", no_air_gap_alpha));
 
-  trace_boundary(Some(false));
+  trace_boundary(TraceAction::Exit);
   (no_air_gap_alpha, abs_against_panel_alpha, abs_against_backing_alpha)
 }

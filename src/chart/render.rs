@@ -20,7 +20,7 @@ use crate::config::{
 /***********************************************************************************************************************
  * Trace functionality
  */
-use crate::trace::Trace;
+use crate::trace::{Trace, TraceAction};
 
 const LIB_NAME: &str = "chart::render";
 const TRACE_ACTIVE: bool = false;
@@ -37,7 +37,7 @@ pub fn generic_device<'a>(
 
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
 
-  trace_boundary(Some(true));
+  trace_boundary(TraceAction::Enter);
 
   let document = web_sys::window().unwrap().document().unwrap();
   let canvas_el = document.get_element_by_id(GRAPH_CANVAS_ID).unwrap();
@@ -85,7 +85,7 @@ pub fn generic_device<'a>(
 
   let series_data = match device_info.device_type {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // Rigid backed porous absorber
+    // Plot series for rigid backed porous absorber
     DeviceType::RigidBackedPorousAbsorber => vec![
       SeriesData {
         name: METADATA_AIR_GAP.name,
@@ -114,7 +114,7 @@ pub fn generic_device<'a>(
     ],
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // Perforated panel absorber
+    // Plot series for perforated panel absorber
     DeviceType::PerforatedPanelAbsorber => vec![
       SeriesData {
         name: METADATA_AIR_GAP.name,
@@ -155,7 +155,7 @@ pub fn generic_device<'a>(
     ],
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // Slotted panel absorber
+    // Plot series for slotted panel absorber
     DeviceType::SlottedPanelAbsorber => vec![
       SeriesData {
         name: METADATA_AIR_GAP.name,
@@ -196,7 +196,7 @@ pub fn generic_device<'a>(
     ],
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // Microperforated panel absorber
+    // Plot series for microperforated panel absorber
     DeviceType::MicroperforatedPanelAbsorber => vec![SeriesData {
       name: METADATA_MP_PANEL.name,
       plot_points: draw::splines(
@@ -211,6 +211,6 @@ pub fn generic_device<'a>(
     }],
   };
 
-  trace_boundary(Some(false));
+  trace_boundary(TraceAction::Exit);
   ChartInfo { chart_box, series_data }
 }

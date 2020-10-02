@@ -21,7 +21,7 @@ use crate::utils::maths_functions::*;
 /***********************************************************************************************************************
  * Trace functionality
  */
-use crate::trace::Trace;
+use crate::trace::{Trace, TraceAction};
 
 const LIB_NAME: &str = "calc_engine::porous_absorber";
 const TRACE_ACTIVE: bool = false;
@@ -37,7 +37,7 @@ pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
 
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
 
-  trace_boundary(Some(true));
+  trace_boundary(TraceAction::Enter);
 
   let cavity = &config_set.cavity_config;
   let porous = config_set.porous_config.as_ref().unwrap();
@@ -83,7 +83,7 @@ pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
     },
   );
 
-  trace_boundary(Some(false));
+  trace_boundary(TraceAction::Exit);
   abs_info
 }
 

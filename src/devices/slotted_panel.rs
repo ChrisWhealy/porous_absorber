@@ -19,7 +19,7 @@ use crate::config::{
 /***********************************************************************************************************************
  * Trace functionality
  */
-use crate::Trace;
+use crate::trace::{Trace, TraceAction};
 
 const LIB_NAME: &str = "devices::slotted_panel";
 const TRACE_ACTIVE: bool = false;
@@ -33,7 +33,7 @@ pub fn do_slotted_panel_device(wasm_arg_obj: JsValue) -> JsValue {
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
   let trace = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
 
-  trace_boundary(Some(true));
+  trace_boundary(TraceAction::Enter);
 
   // Parse object received from JavaScript
   let arg_obj: SlottedPanelArgs = wasm_arg_obj.into_serde().unwrap();
@@ -135,7 +135,7 @@ pub fn do_slotted_panel_device(wasm_arg_obj: JsValue) -> JsValue {
     JsValue::from_serde(&error_msgs).unwrap()
   };
 
-  trace_boundary(Some(false));
+  trace_boundary(TraceAction::Exit);
 
   // Return either the {X,Y} values of plot points or the error messages back to JavaScript
   series_data

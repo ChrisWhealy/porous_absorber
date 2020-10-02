@@ -19,7 +19,7 @@ use crate::config::{
 /***********************************************************************************************************************
  * Trace functionality
  */
-use crate::trace::Trace;
+use crate::trace::{Trace, TraceAction};
 
 const LIB_NAME: &str = "chart::render::draw";
 const TRACE_ACTIVE: bool = false;
@@ -45,7 +45,7 @@ pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_ax
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
   let trace = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
 
-  trace_boundary(Some(true));
+  trace_boundary(TraceAction::Enter);
 
   let document = web_sys::window().unwrap().document().unwrap();
   let canvas_el = document.get_element_by_id(render::constants::GRAPH_CANVAS_ID).unwrap();
@@ -278,7 +278,7 @@ pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_ax
     trace("Not drawing panel - zero thickness".to_string());
   }
 
-  trace_boundary(Some(false));
+  trace_boundary(TraceAction::Exit);
 }
 
 /***********************************************************************************************************************
@@ -296,7 +296,7 @@ pub fn title_and_key(
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
   let trace = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
 
-  trace_boundary(Some(true));
+  trace_boundary(TraceAction::Enter);
 
   let ctx = get_2d_context(&canvas);
   ctx.save();
@@ -410,7 +410,7 @@ pub fn title_and_key(
 
   ctx.restore();
 
-  trace_boundary(Some(false));
+  trace_boundary(TraceAction::Exit);
 }
 
 /***********************************************************************************************************************
@@ -428,7 +428,7 @@ pub fn axes(canvas: &web_sys::HtmlCanvasElement, chart_cfg: &ChartConfig, y_axis
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
   let trace = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
 
-  trace_boundary(Some(true));
+  trace_boundary(TraceAction::Enter);
 
   let chart_origin = &PlotPoint {
     x: *y_axis_inset,
@@ -506,7 +506,7 @@ pub fn axes(canvas: &web_sys::HtmlCanvasElement, chart_cfg: &ChartConfig, y_axis
     },
   );
 
-  trace_boundary(Some(false));
+  trace_boundary(TraceAction::Exit);
 
   (
     ChartBox {
@@ -534,7 +534,7 @@ pub fn splines(
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
   let trace = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
 
-  trace_boundary(Some(true));
+  trace_boundary(TraceAction::Enter);
 
   let ctx = get_2d_context(&canvas);
 
@@ -588,7 +588,7 @@ pub fn splines(
   trace("Drawing curve".to_string());
   draw_curved_path(&ctx, &cps, &abs_points, &stroke_colour);
 
-  trace_boundary(Some(false));
+  trace_boundary(TraceAction::Exit);
   abs_points
 }
 
@@ -607,7 +607,7 @@ fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: Axis) -> f64 {
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
   let trace = Trace::make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
 
-  trace_boundary(Some(true));
+  trace_boundary(TraceAction::Enter);
 
   let ctx = get_2d_context(&canvas);
 
@@ -701,7 +701,7 @@ fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: Axis) -> f64 {
   // Write axis title and restore context state
   ctx.fill_text(axis_info.title, 0.0, 0.0).unwrap();
   ctx.restore();
-  trace_boundary(Some(false));
+  trace_boundary(TraceAction::Exit);
 
   widest_tick_label
 }
