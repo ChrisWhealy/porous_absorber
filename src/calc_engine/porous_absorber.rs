@@ -39,8 +39,8 @@ pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
 
   trace_boundary(Some(true));
 
-  let cavity = config_set.cavity_config.as_ref().unwrap();
-  let display = config_set.display_config.as_ref().unwrap();
+  let cavity = &config_set.cavity_config;
+  let display = &config_set.display_config;
   let porous = config_set.porous_config.as_ref().unwrap();
 
   let abs_info = display.frequencies.iter().fold(
@@ -60,7 +60,7 @@ pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
       pf_panel: None,
       mp_panel: None,
       porous_layer: Some(porous),
-      cavity: Some(cavity),
+      cavity: &cavity,
     },
     |mut acc, frequency| {
       let (abs_no_air_gap, abs_air_gap) = do_porous_abs_calc(*frequency, &config_set);
@@ -92,8 +92,8 @@ pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
  * Reducer function to calculate the absorption of a porous absorber at a specific frequency
  */
 fn do_porous_abs_calc(frequency: f64, config_set: &ConfigSet) -> (f64, f64) {
-  let air_cfg = config_set.air_config.as_ref().unwrap();
-  let cavity_cfg = config_set.cavity_config.as_ref().unwrap();
+  let air_cfg = &config_set.air_config;
+  let cavity_cfg = &config_set.cavity_config;
   let sound_cfg = config_set.sound_config.as_ref().unwrap();
   let porous_cfg = config_set.porous_config.as_ref().unwrap();
 
@@ -105,10 +105,10 @@ fn do_porous_abs_calc(frequency: f64, config_set: &ConfigSet) -> (f64, f64) {
   let cos_phi: f64 = cos(angle_rad);
 
   // Wave number in air
-  let k_air = wave_no_in_air(air_cfg, &frequency);
+  let k_air = wave_no_in_air(&air_cfg, &frequency);
 
   // Characteristic absorber impedance and wave number
-  let (z_abs, wave_no_abs) = absorber_props(air_cfg, porous_cfg, &frequency);
+  let (z_abs, wave_no_abs) = absorber_props(&air_cfg, porous_cfg, &frequency);
   let wave_no_abs_y = k_air * sin_phi;
   let wave_no_abs_x = ((wave_no_abs * wave_no_abs) - (wave_no_abs_y * wave_no_abs_y)).sqrt();
 

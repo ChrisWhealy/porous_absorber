@@ -87,25 +87,25 @@ pub fn do_slotted_panel_device(wasm_arg_obj: JsValue) -> JsValue {
   };
 
   let config_set = ConfigSet {
-    air_config: Some(AirConfig::new(air_temp, air_pressure).unwrap_or_else(|err: AirError| {
+    // Required configuration
+    air_config: AirConfig::new(air_temp, air_pressure).unwrap_or_else(|err: AirError| {
       error_msgs.push(err.to_string());
       AirConfig::default()
-    })),
+    }),
 
-    cavity_config: Some(CavityConfig::new(air_gap_mm).unwrap_or_else(|err: CavityError| {
+    cavity_config: CavityConfig::new(air_gap_mm).unwrap_or_else(|err: CavityError| {
       error_msgs.push(err.to_string());
       CavityConfig::default()
-    })),
+    }),
 
-    display_config: Some(
-      DisplayConfig::new(graph_start_freq, smooth_curve, subdivision, show_diagram).unwrap_or_else(
-        |err: DisplayError| {
-          error_msgs.push(err.to_string());
-          DisplayConfig::default()
-        },
-      ),
+    display_config: DisplayConfig::new(graph_start_freq, smooth_curve, subdivision, show_diagram).unwrap_or_else(
+      |err: DisplayError| {
+        error_msgs.push(err.to_string());
+        DisplayConfig::default()
+      },
     ),
 
+    // Variable configuration
     sound_config: None,
 
     panel_config: Some(panel_config_set),
@@ -125,7 +125,7 @@ pub fn do_slotted_panel_device(wasm_arg_obj: JsValue) -> JsValue {
     // Plot the graph
     let chart_info = chart::render::generic_device(
       absorber_info,
-      &config_set.display_config.as_ref().unwrap(),
+      &config_set.display_config,
       chart::constants::CHART_TITLE_NORMAL_INCIDENCE,
     );
 

@@ -36,8 +36,8 @@ pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
 
   trace_boundary(Some(true));
 
-  let cavity = config_set.cavity_config.as_ref().unwrap();
-  let display = config_set.display_config.as_ref().unwrap();
+  let cavity = &config_set.cavity_config;
+  let display = &config_set.display_config;
   let panel = config_set
     .panel_config
     .as_ref()
@@ -78,7 +78,7 @@ pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
       pf_panel: Some(panel),
       mp_panel: None,
       porous_layer: Some(porous),
-      cavity: Some(cavity),
+      cavity: &cavity,
     },
     |mut acc, frequency| {
       let (abs_no_air_gap, abs_against_panel, abs_against_backing) =
@@ -123,8 +123,8 @@ fn do_perforated_panel_calc(frequency: f64, config_set: &ConfigSet, ec_panel_thi
 
   trace_boundary(Some(true));
 
-  let air_cfg = config_set.air_config.as_ref().unwrap();
-  let cavity_cfg = config_set.cavity_config.as_ref().unwrap();
+  let air_cfg = &config_set.air_config;
+  let cavity_cfg = &config_set.cavity_config;
   let panel_cfg = config_set
     .panel_config
     .as_ref()
@@ -139,13 +139,13 @@ fn do_perforated_panel_calc(frequency: f64, config_set: &ConfigSet, ec_panel_thi
   let minus_i: Complex<f64> = Complex::new(0.0, -1.0);
 
   // Wave number in air and angular frequency
-  let k_air = wave_no_in_air(air_cfg, &frequency);
+  let k_air = wave_no_in_air(&air_cfg, &frequency);
   let omega = f_ang(frequency);
   trace(format!("Wave number       = {}", k_air));
   trace(format!("Angular frequency = {}", omega));
 
   // Characteristic absorber impedance and wave number
-  let (z_abs, wave_no_abs) = absorber_props(air_cfg, porous_cfg, &frequency);
+  let (z_abs, wave_no_abs) = absorber_props(&air_cfg, porous_cfg, &frequency);
   trace(format!("Characteristic impedance = {}", z_abs));
   trace(format!("Complex wave number      = {}", wave_no_abs));
 

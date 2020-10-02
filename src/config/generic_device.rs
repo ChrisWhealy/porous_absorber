@@ -32,5 +32,5 @@ pub struct GenericDeviceInfo<'a> {
   pub pf_panel: Option<&'a PerforatedPanelConfig>,
   pub mp_panel: Option<&'a MicroperforatedPanelConfig>,
   pub porous_layer: Option<&'a PorousLayerConfig>,
-  pub cavity: Option<&'a CavityConfig>,
+  pub cavity: &'a CavityConfig,
 }

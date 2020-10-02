@@ -57,7 +57,7 @@ pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_ax
   // One millimetre of device depth will be rendered as one pixel on the canvas up until the point that the device depth
   // exceeds the number of pixels.  After this, the images will be scaled down to fit the available space
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  let air_gap_mm = device.cavity.unwrap().air_gap_mm as f64;
+  let air_gap_mm = device.cavity.air_gap_mm as f64;
 
   let absorber_thickness_mm = match device.porous_layer {
     Some(p) => p.thickness_mm as f64,

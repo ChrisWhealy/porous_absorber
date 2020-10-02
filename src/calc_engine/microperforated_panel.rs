@@ -37,9 +37,9 @@ pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
   let trace_boundary = Trace::make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
   trace_boundary(Some(true));
 
-  let air = config_set.air_config.as_ref().unwrap();
-  let cavity = config_set.cavity_config.as_ref().unwrap();
-  let display = config_set.display_config.as_ref().unwrap();
+  let air = &config_set.air_config;
+  let cavity = &config_set.cavity_config;
+  let display = &config_set.display_config;
   let sound = config_set.sound_config.as_ref().unwrap();
   let panel = config_set
     .panel_config
@@ -62,7 +62,7 @@ pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
       pf_panel: None,
       mp_panel: Some(&panel),
       porous_layer: None,
-      cavity: Some(&cavity),
+      cavity: &cavity,
     },
     |mut acc, frequency| {
       let abs_data = do_microperforated_panel_calc(*frequency, &air, &cavity, &panel, cos_angle);
