@@ -34,7 +34,7 @@ pub const MOD_NAME: &str = "calc_engine::perforated_panel";
 /***********************************************************************************************************************
  * Perforated Panel Calculation
  */
-pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
+pub fn calculate(config_set: &'_ ConfigSet) -> GenericDeviceInfo<'_> {
   const FN_NAME: &str = "calculate";
   let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME.to_string(), FN_NAME.to_string());
   let trace = make_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME.to_string(), FN_NAME.to_string());
