@@ -19,13 +19,15 @@ use crate::config::{
 /***********************************************************************************************************************
  * Trace functionality
  */
-use crate::trace::{
-  function_boundaries::{make_boundary_trace_fn, TraceAction},
-  function_data::make_trace_fn,
+use crate::{
+  config::trace_flags::trace_flag_for,
+  trace::{
+    function_boundaries::{make_boundary_trace_fn, TraceAction},
+    function_data::make_trace_fn,
+  },
 };
 
-const MOD_NAME: &str = "chart::render::draw";
-const TRACE_ACTIVE: bool = false;
+pub const MOD_NAME: &str = "chart::render::draw";
 
 /***********************************************************************************************************************
  * Define a subdivision of an image
@@ -45,8 +47,8 @@ pub const PI_OVER_TWO: f64 = PI / 2.0;
 pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_axis_length: &f64, y_axis_inset: &f64) {
   const FN_NAME: &str = "device_diagram";
 
-  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
-  let trace = make_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
+  let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME.to_string(), FN_NAME.to_string());
+  let trace = make_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME.to_string(), FN_NAME.to_string());
 
   trace_boundary(TraceAction::Enter);
 
@@ -296,8 +298,8 @@ pub fn title_and_key(
 ) {
   const FN_NAME: &str = "title_and_key";
 
-  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
-  let trace = make_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
+  let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME.to_string(), FN_NAME.to_string());
+  let trace = make_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME.to_string(), FN_NAME.to_string());
 
   trace_boundary(TraceAction::Enter);
 
@@ -428,8 +430,8 @@ pub fn title_and_key(
 pub fn axes(canvas: &web_sys::HtmlCanvasElement, chart_cfg: &ChartConfig, y_axis_inset: &f64) -> (ChartBox, f64) {
   const FN_NAME: &str = "axes";
 
-  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
-  let trace = make_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
+  let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME.to_string(), FN_NAME.to_string());
+  let trace = make_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME.to_string(), FN_NAME.to_string());
 
   trace_boundary(TraceAction::Enter);
 
@@ -533,9 +535,10 @@ pub fn splines(
   y_axis_inset: &f64,
 ) -> Vec<PlotAbsPoint> {
   const FN_NAME: &str = "splines";
+  let trace_active = trace_flag_for(MOD_NAME);
 
-  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
-  let trace = make_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
+  let trace_boundary = make_boundary_trace_fn(trace_active, MOD_NAME.to_string(), FN_NAME.to_string());
+  let trace = make_trace_fn(trace_active, MOD_NAME.to_string(), FN_NAME.to_string());
 
   trace_boundary(TraceAction::Enter);
 
@@ -569,7 +572,7 @@ pub fn splines(
     ));
   }
 
-  if TRACE_ACTIVE {
+  if trace_active {
     trace("Control points".to_string());
     for cp in cps.iter() {
       trace(format!("{}", cp));
@@ -584,7 +587,7 @@ pub fn splines(
 
   // If tracing is switched on, also draw the control points
   trace("Drawing control points".to_string());
-  if TRACE_ACTIVE {
+  if trace_active {
     draw_control_points(&ctx, &cps);
   }
 
@@ -607,8 +610,8 @@ pub fn splines(
 fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: Axis) -> f64 {
   const FN_NAME: &str = "draw_axis";
 
-  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
-  let trace = make_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
+  let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME.to_string(), FN_NAME.to_string());
+  let trace = make_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME.to_string(), FN_NAME.to_string());
 
   trace_boundary(TraceAction::Enter);
 

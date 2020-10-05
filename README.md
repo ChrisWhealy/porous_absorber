@@ -136,16 +136,31 @@ Original error: TypeError: Failed to execute 'compile' on 'WebAssembly': Incorre
 
 ### Debug/Trace Output
 
-If you wish switch on debug/trace output, then you need to switch on the `TRACE_ACTIVE` flag in the relevant module.
+Debug/trace output is enabled on a per-module basis.
 
-For each module in which debug/trace output is relevant, locate the line
+If you wish to see the debug/trace output for a given module, set the Boolean flag for the selected module in `config::trace_flags`, recompile using `wasm-pack` and then perform a hard refresh of the browser page.  Debug/trace output will then be visible in the browser console whenever control passes through that particular module.
 
-```rust
-const TRACE_ACTIVE: bool = false;
+For instance, if you switch on debug/trace for the module `calc_engine::perforated_panel`, you would see a large amount of output in the browser console similar to this:
+
+```console
+WASM ---> calc_engine::perforated_panel.calculate()
+WASM      calc_engine::perforated_panel.calculate() End correction delta          = 0.4056544608234196
+WASM      calc_engine::perforated_panel.calculate() End corrected panel thickness = 0.014056544608234196
+WASM ---> calc_engine::perforated_panel.do_perforated_panel_calc()
+WASM      calc_engine::perforated_panel.do_perforated_panel_calc() Wave number       = 1.1436219656127162
+WASM      calc_engine::perforated_panel.do_perforated_panel_calc() Angular frequency = 392.6990816987241
+WASM      calc_engine::perforated_panel.do_perforated_panel_calc() Characteristic impedance = 1787.9810938318747-1860.0733055079756i
+WASM      calc_engine::perforated_panel.do_perforated_panel_calc() Complex wave number      = 6.010782579685053-5.340728208625488i
+
+/// SNIP ///
+
+WASM      calc_engine::perforated_panel.do_perforated_panel_calc() No air gap z1 = 707.6641216476378-2491.209277813604i
+WASM      calc_engine::perforated_panel.do_perforated_panel_calc() No air gap z2 = 707.6641216476378-2436.6102350779433i
+WASM      calc_engine::perforated_panel.do_perforated_panel_calc() No air gap reflection = 0.871126497297388-0.2800858595510562i
+WASM      calc_engine::perforated_panel.do_perforated_panel_calc() No air gap absorption = 0.16
+WASM <--- calc_engine::perforated_panel.do_perforated_panel_calc()
+WASM <--- calc_engine::perforated_panel.calculate()
 ```
-
-Change the value to `true`, recompile using `wasm-pack` and then perform a hard refresh of the browser page.  Debug/trace output will then be visible in the browser console whenever control passes through that particular module.
-
 
 
 <!--------------------------------------------------------------------------------------------------------------------->

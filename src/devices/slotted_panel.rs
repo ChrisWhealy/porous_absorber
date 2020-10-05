@@ -19,13 +19,15 @@ use crate::config::{
 /***********************************************************************************************************************
  * Trace functionality
  */
-use crate::trace::{
-  function_boundaries::{make_boundary_trace_fn, TraceAction},
-  function_data::make_trace_fn,
+use crate::{
+  config::trace_flags::trace_flag_for,
+  trace::{
+    function_boundaries::{make_boundary_trace_fn, TraceAction},
+    function_data::make_trace_fn,
+  },
 };
 
-const MOD_NAME: &str = "devices::slotted_panel";
-const TRACE_ACTIVE: bool = false;
+pub const MOD_NAME: &str = "devices::slotted_panel";
 
 /***********************************************************************************************************************
  * Handle incoming arguments for calculating the absorption of a slotted panel absorption device
@@ -33,8 +35,8 @@ const TRACE_ACTIVE: bool = false;
 pub fn do_slotted_panel_device(wasm_arg_obj: JsValue) -> JsValue {
   const FN_NAME: &str = "do_slotted_panel_device";
 
-  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
-  let trace = make_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
+  let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME.to_string(), FN_NAME.to_string());
+  let trace = make_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME.to_string(), FN_NAME.to_string());
 
   trace_boundary(TraceAction::Enter);
 

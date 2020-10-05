@@ -7,7 +7,7 @@ pub mod constants;
 
 mod bezier;
 mod canvas_utils;
-mod draw;
+pub mod draw;
 
 use wasm_bindgen::{JsCast, JsValue};
 
@@ -20,10 +20,12 @@ use crate::config::{
 /***********************************************************************************************************************
  * Trace functionality
  */
-use crate::trace::function_boundaries::{make_boundary_trace_fn, TraceAction};
+use crate::{
+  config::trace_flags::trace_flag_for,
+  trace::function_boundaries::{make_boundary_trace_fn, TraceAction},
+};
 
-const MOD_NAME: &str = "chart::render";
-const TRACE_ACTIVE: bool = false;
+pub const MOD_NAME: &str = "chart::render";
 
 /***********************************************************************************************************************
  * Plot a chart for a generic device
@@ -35,7 +37,7 @@ pub fn generic_device<'a>(
 ) -> ChartInfo<'a> {
   const FN_NAME: &str = "generic_device";
 
-  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
+  let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME.to_string(), FN_NAME.to_string());
 
   trace_boundary(TraceAction::Enter);
 

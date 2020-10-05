@@ -1,4 +1,5 @@
 pub mod config_set;
+pub mod trace_flags;
 
 pub mod air;
 pub mod cavity;
