@@ -140,7 +140,8 @@ const fetchTabFn =
     (new XMLHttpRequest())
 
 // *********************************************************************************************************************
-// This function must be called every time an input value is changed
+// Update the graph by calling the required WASM function.
+// This function must be called every time user input requires the graph to be recalculated
 // *********************************************************************************************************************
 const updateScreenFn =
   tabName => {
@@ -169,17 +170,7 @@ const updateScreenFn =
 }
 
 // *********************************************************************************************************************
-// Update the graph by calling the required WASM function.
-// This function is called either:
-//  1) When a tab is selected, or
-//  2) The user changes the octave subdivisions
-//  3) The screen width is resized, or
-//  4) The device diagram is hidden/revealed
-//
-//  In all three cases, the graph is redrawn; but in the first two cases, it is due to the fact that the number of plot
-//  points on the graph has changed.  This also requires the mousemove handler for the canvas overlay to be replaced
-//
-//  In the last case, the graph must be redrawn because the canvas size has changed
+// Wrapper around updateScreenFn that additionally rebuilds the overlay mouse handler
 // *********************************************************************************************************************
 const updateScreenAndMouseHandlerFn =
   tabName =>

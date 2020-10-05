@@ -9,21 +9,21 @@
 
           <tr>
             <td class="param_cell desc">Panel thickness (t<sub>p</sub>)</td>
-            <td class="param_cell"><input   id="panel_thickness_mm" type="range" min="1" max="50" step="0.1" value="10" oninput="updateScreen('perforated_panel')"></td>
+            <td class="param_cell"><input   id="panel_thickness_mm" type="range" min="1" max="50" step="0.1" value="10" oninput="updateScreenAndMouseHandler('perforated_panel')"></td>
             <td class="param_cell unit"     id="panel_thickness_mm_value"></td>
             <td class="param_cell alt_unit" id="panel_thickness_mm_alt_units"></td>
           </tr>
 
           <tr>
             <td class="param_cell desc">Holes centred every (D)</td>
-            <td class="param_cell"><input   id="repeat_distance_mm" type="range" min="2" max="300" step="0.1" value="25.4" oninput="limitMax(this, 'hole_radius_mm', 50, half); updateScreen('perforated_panel')"></td>
+            <td class="param_cell"><input   id="repeat_distance_mm" type="range" min="2" max="300" step="0.1" value="25.4" oninput="limitMax(this, 'hole_radius_mm', 50, half); updateScreenAndMouseHandler('perforated_panel')"></td>
             <td class="param_cell unit"     id="repeat_distance_mm_value"></td>
             <td class="param_cell alt_unit" id="repeat_distance_mm_alt_units"></td>
           </tr>
 
           <tr>
             <td class="param_cell desc">Hole radius (a)</td>
-            <td class="param_cell"><input   id="hole_radius_mm" type="range" min="1" max="12.7" step="0.1" value="5" oninput="updateScreen('perforated_panel')"></td>
+            <td class="param_cell"><input   id="hole_radius_mm" type="range" min="1" max="12.7" step="0.1" value="5" oninput="updateScreenAndMouseHandler('perforated_panel')"></td>
             <td class="param_cell unit"     id="hole_radius_mm_value"></td>
             <td class="param_cell alt_unit" id="hole_radius_mm_alt_units"></td>
           </tr>
@@ -43,21 +43,21 @@
 
           <tr>
             <td class="param_cell desc">Absorber flow resistivity (&sigma;)</td>
-            <td class="param_cell"><input   id="flow_resistivity" type="range" min="100" max="100000" step="100" value="16500" oninput="updateScreen('perforated_panel')"></td>
+            <td class="param_cell"><input   id="flow_resistivity" type="range" min="100" max="100000" step="100" value="16500" oninput="updateScreenAndMouseHandler('perforated_panel')"></td>
             <td class="param_cell unit"     id="flow_resistivity_value"></td>
             <td class="param_cell alt_unit" id="flow_resistivity_alt_units"></td>
           </tr>
 
           <tr>
             <td class="param_cell desc">Absorber thickness (t<sub>a</sub>)</td>
-            <td class="param_cell"><input   id="absorber_thickness_mm" type="range" min="5" max="500" step="1" value="30" oninput="updateScreen('perforated_panel')"></td>
+            <td class="param_cell"><input   id="absorber_thickness_mm" type="range" min="5" max="500" step="1" value="30" oninput="updateScreenAndMouseHandler('perforated_panel')"></td>
             <td class="param_cell unit"     id="absorber_thickness_mm_value"></td>
             <td class="param_cell alt_unit" id="absorber_thickness_mm_alt_units"></td>
           </tr>
 
           <tr>
             <td class="param_cell desc">Air gap (d)</td>
-            <td class="param_cell"><input   id="air_gap_mm" type="range" min="0" max="500" step="1" value="100" oninput="updateScreen('perforated_panel')"></td>
+            <td class="param_cell"><input   id="air_gap_mm" type="range" min="0" max="500" step="1" value="100" oninput="updateScreenAndMouseHandler('perforated_panel')"></td>
             <td class="param_cell unit"     id="air_gap_mm_value"></td>
             <td class="param_cell alt_unit" id="air_gap_mm_alt_units"></td>
           </tr>
@@ -76,24 +76,24 @@
           <tr>
             <th class="param_hdr" colspan="4">Plot Options</th>
           </tr>
-  
+
           <tr>
             <td class="param_cell desc">Show diagram</td>
             <td class="param_cell"><input id="show_diagram" type="checkbox" oninput="updateScreenAndMouseHandler('perforated_panel')"></td>
           </tr>
-  
+
           <tr>
             <td class="param_cell desc">Start graph at</td>
-            <td class="param_cell"><input   id="graph_start_freq" type="range" min="20" max="100" step="0.5" value="62.5" oninput="updateScreen('perforated_panel')"></td>
+            <td class="param_cell"><input   id="graph_start_freq" type="range" min="20" max="100" step="0.5" value="62.5" oninput="updateScreenAndMouseHandler('perforated_panel')"></td>
             <td class="param_cell unit"     id="graph_start_freq_value"></td>
             <td class="param_cell alt_unit" id="graph_start_freq_alt_units"></td>
           </tr>
-  
+
           <tr>
             <td class="param_cell desc">Smooth curve</td>
             <td class="param_cell"><input id="smooth_curve" type="checkbox" oninput="updateScreen('perforated_panel')"></td>
           </tr>
-  
+
           <tr>
             <td class="param_cell desc">Subdivisions</td>
             <td class="param_cell">
