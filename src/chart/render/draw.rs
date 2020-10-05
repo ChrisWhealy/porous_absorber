@@ -24,7 +24,7 @@ use crate::trace::{
   function_data::make_trace_fn,
 };
 
-const LIB_NAME: &str = "chart::render::draw";
+const MOD_NAME: &str = "chart::render::draw";
 const TRACE_ACTIVE: bool = false;
 
 /***********************************************************************************************************************
@@ -45,8 +45,8 @@ pub const PI_OVER_TWO: f64 = PI / 2.0;
 pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_axis_length: &f64, y_axis_inset: &f64) {
   const FN_NAME: &str = "device_diagram";
 
-  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
-  let trace = make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
+  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
+  let trace = make_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
 
   trace_boundary(TraceAction::Enter);
 
@@ -296,8 +296,8 @@ pub fn title_and_key(
 ) {
   const FN_NAME: &str = "title_and_key";
 
-  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
-  let trace = make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
+  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
+  let trace = make_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
 
   trace_boundary(TraceAction::Enter);
 
@@ -428,8 +428,8 @@ pub fn title_and_key(
 pub fn axes(canvas: &web_sys::HtmlCanvasElement, chart_cfg: &ChartConfig, y_axis_inset: &f64) -> (ChartBox, f64) {
   const FN_NAME: &str = "axes";
 
-  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
-  let trace = make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
+  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
+  let trace = make_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
 
   trace_boundary(TraceAction::Enter);
 
@@ -534,8 +534,8 @@ pub fn splines(
 ) -> Vec<PlotAbsPoint> {
   const FN_NAME: &str = "splines";
 
-  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
-  let trace = make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
+  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
+  let trace = make_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
 
   trace_boundary(TraceAction::Enter);
 
@@ -607,8 +607,8 @@ pub fn splines(
 fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: Axis) -> f64 {
   const FN_NAME: &str = "draw_axis";
 
-  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
-  let trace = make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
+  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
+  let trace = make_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
 
   trace_boundary(TraceAction::Enter);
 

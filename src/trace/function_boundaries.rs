@@ -25,10 +25,11 @@ pub enum TraceAction {
   Exit,
   EnterExit,
 }
+
 /*********************************************************************************************************************
  * Trace execution flow at function boundaries
  */
-pub fn make_boundary_trace_fn(is_active: bool, lib_name: String, fn_name: String) -> impl Fn(TraceAction) {
+pub fn make_boundary_trace_fn(is_active: bool, mod_name: String, fn_name: String) -> impl Fn(TraceAction) {
   move |action: TraceAction| {
     if is_active {
       let ptr = match action {
@@ -37,7 +38,7 @@ pub fn make_boundary_trace_fn(is_active: bool, lib_name: String, fn_name: String
         TraceAction::EnterExit => IN_OUT_ARROW,
       };
 
-      log(format!("{} {}.{}()", ptr, lib_name, fn_name));
+      log(format!("{} {}.{}()", ptr, mod_name, fn_name));
     }
   }
 }

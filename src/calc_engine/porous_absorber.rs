@@ -23,7 +23,7 @@ use crate::utils::maths_functions::*;
  */
 use crate::trace::function_boundaries::{make_boundary_trace_fn, TraceAction};
 
-const LIB_NAME: &str = "calc_engine::porous_absorber";
+const MOD_NAME: &str = "calc_engine::porous_absorber";
 const TRACE_ACTIVE: bool = false;
 
 /***********************************************************************************************************************
@@ -35,7 +35,7 @@ const ONE_80_OVER_PI: f64 = 180.0 / PI;
 pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
   const FN_NAME: &str = "calculate";
 
-  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
+  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
 
   trace_boundary(TraceAction::Enter);
 

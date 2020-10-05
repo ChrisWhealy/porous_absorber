@@ -25,7 +25,7 @@ use crate::trace::{
   function_data::make_trace_fn,
 };
 
-const LIB_NAME: &str = "devices::porous_absorber";
+const MOD_NAME: &str = "devices::porous_absorber";
 const TRACE_ACTIVE: bool = false;
 
 /***********************************************************************************************************************
@@ -34,8 +34,8 @@ const TRACE_ACTIVE: bool = false;
 pub fn do_porous_absorber_device(wasm_arg_obj: JsValue) -> JsValue {
   const FN_NAME: &str = "do_porous_absorber_device";
 
-  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
-  let trace = make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
+  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
+  let trace = make_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
 
   trace_boundary(TraceAction::Enter);
 

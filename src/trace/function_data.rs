@@ -19,10 +19,10 @@ extern "C" {
 /*********************************************************************************************************************
  * Trace data during execution flow
  */
-pub fn make_trace_fn(is_active: bool, lib_name: String, fn_name: String) -> impl Fn(String) {
+pub fn make_trace_fn(is_active: bool, mod_name: String, fn_name: String) -> impl Fn(String) {
   move |info| {
     if is_active {
-      log(format!("WASM      {}.{}() {}", lib_name, fn_name, info));
+      log(format!("WASM      {}.{}() {}", mod_name, fn_name, info));
     }
   }
 }

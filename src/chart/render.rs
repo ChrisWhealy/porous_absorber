@@ -22,7 +22,7 @@ use crate::config::{
  */
 use crate::trace::function_boundaries::{make_boundary_trace_fn, TraceAction};
 
-const LIB_NAME: &str = "chart::render";
+const MOD_NAME: &str = "chart::render";
 const TRACE_ACTIVE: bool = false;
 
 /***********************************************************************************************************************
@@ -35,7 +35,7 @@ pub fn generic_device<'a>(
 ) -> ChartInfo<'a> {
   const FN_NAME: &str = "generic_device";
 
-  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
+  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
 
   trace_boundary(TraceAction::Enter);
 

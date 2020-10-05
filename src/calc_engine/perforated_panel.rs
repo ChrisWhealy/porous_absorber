@@ -26,7 +26,7 @@ use crate::trace::{
   function_data::make_trace_fn,
 };
 
-const LIB_NAME: &str = "calc_engine::perforated_panel";
+const MOD_NAME: &str = "calc_engine::perforated_panel";
 const TRACE_ACTIVE: bool = false;
 
 /***********************************************************************************************************************
@@ -34,8 +34,8 @@ const TRACE_ACTIVE: bool = false;
  */
 pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
   const FN_NAME: &str = "calculate";
-  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
-  let trace = make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
+  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
+  let trace = make_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
 
   trace_boundary(TraceAction::Enter);
 
@@ -120,8 +120,8 @@ pub fn calculate<'a>(config_set: &'a ConfigSet) -> GenericDeviceInfo<'a> {
 fn do_perforated_panel_calc(frequency: f64, config_set: &ConfigSet, ec_panel_thickness: f64) -> (f64, f64, f64) {
   const FN_NAME: &str = "do_perforated_panel_calc";
 
-  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
-  let trace = make_trace_fn(TRACE_ACTIVE, LIB_NAME.to_string(), FN_NAME.to_string());
+  let trace_boundary = make_boundary_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
+  let trace = make_trace_fn(TRACE_ACTIVE, MOD_NAME.to_string(), FN_NAME.to_string());
 
   trace_boundary(TraceAction::Enter);
 
