@@ -34,22 +34,6 @@ use crate::{
 pub const MOD_NAME: &str = "lib";
 
 /***********************************************************************************************************************
- * Default and main entry points
- *
- * The public function main() prefixed with the #[wasm_bindgen(start)] directive becomes the default enrty point and
- * must be present since it will be called automatically when the WASM module is initialised; however, we do not require
- * any specific functionality to run at this point in time, so this function simply returns "ok"
- *
- * The names of the public functions exposed by the #[wasm_bindgen] directive must exactly match the tab names listed in
- * the tabConfig JavaScript object
- */
-#[wasm_bindgen(start)]
-pub fn main() -> Result<(), JsValue> {
-  (make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME.to_string(), "main".to_string()))(TraceAction::EnterExit);
-  Ok(())
-}
-
-/***********************************************************************************************************************
  * Rigid backed porous absorber
  */
 #[wasm_bindgen]
