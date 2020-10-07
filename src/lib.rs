@@ -16,7 +16,6 @@ mod trace;
 mod utils;
 
 use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsValue;
 
 use devices::{
   microperforated_panel::do_microperforated_panel_device, perforated_panel::do_perforated_panel_device,
