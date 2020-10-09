@@ -7,7 +7,6 @@ extern crate wasm_bindgen;
 
 use libm::{cos, sin};
 use num::complex::Complex;
-use std::f64::consts::PI;
 
 use crate::config::{
   chart::{PlotAbsPoint, SeriesData},
@@ -31,8 +30,8 @@ pub const MOD_NAME: &str = "calc_engine::porous_absorber";
 /***********************************************************************************************************************
  * Rigid Backed Porous Absorber Calculation
  */
-const PI_OVER_180: f64 = PI / 180.0;
-const ONE_80_OVER_PI: f64 = 180.0 / PI;
+const PI_OVER_180: f64 = TAU / 360.0;
+const ONE_80_OVER_PI: f64 = 360.0 / TAU;
 
 pub fn calculate(config_set: &'_ ConfigSet) -> GenericDeviceInfo<'_> {
   const FN_NAME: &str = "calculate";

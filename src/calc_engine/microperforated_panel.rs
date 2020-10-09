@@ -7,7 +7,6 @@ extern crate wasm_bindgen;
 
 use libm::{cos, sin, sqrt};
 use num::complex::Complex;
-use std::f64::consts::PI;
 
 use crate::config::{
   air::{AirConfig, AIR_VISCOSITY},
@@ -53,7 +52,7 @@ pub fn calculate(config_set: &'_ ConfigSet) -> GenericDeviceInfo<'_> {
     .as_ref()
     .unwrap();
 
-  let cos_angle = cos(sound.angle as f64 * PI / 180.0);
+  let cos_angle = cos(sound.angle as f64 * TAU / 360.0);
 
   let abs_info = config_set.chart_config.frequencies.iter().fold(
     GenericDeviceInfo {

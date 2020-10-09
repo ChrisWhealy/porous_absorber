@@ -7,7 +7,6 @@ extern crate wasm_bindgen;
 
 use libm::{log, sin};
 use num::complex::Complex;
-use std::f64::consts::PI;
 
 use crate::config::{
   chart::{PlotAbsPoint, SeriesData},
@@ -54,7 +53,7 @@ pub fn calculate(config_set: &'_ ConfigSet) -> GenericDeviceInfo<'_> {
   let porous = config_set.porous_config.as_ref().unwrap();
 
   // Calculate apparent panel thickness
-  let end_correction_delta = -log(sin(PI * panel.porosity / 2.0)) / PI;
+  let end_correction_delta = -log(sin(TAU * panel.porosity / 4.0)) * 2.0 / TAU;
   let end_corrected_panel_thickness = panel.thickness + (2.0 * panel.slot_width * end_correction_delta);
 
   trace(format!("End correction delta          = {}", &end_correction_delta));

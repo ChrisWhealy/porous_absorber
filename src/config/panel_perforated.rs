@@ -5,11 +5,10 @@
  */
 extern crate num_format;
 
-use std::f64::consts::PI;
 use std::fmt;
 
 use crate::config::{constants, ranges::NamedRange};
-use crate::utils::validation;
+use crate::utils::{maths_functions::TAU, validation};
 
 /***********************************************************************************************************************
  * Range check values
@@ -39,7 +38,7 @@ const RADIUS_RANGE: NamedRange<f64> = NamedRange {
 };
 
 const DEFAULT_POROSITY: f64 =
-  (PI * RADIUS_RANGE.default * RADIUS_RANGE.default) / (CENTRES_RANGE.default * CENTRES_RANGE.default);
+  ((TAU / 2.0) * RADIUS_RANGE.default * RADIUS_RANGE.default) / (CENTRES_RANGE.default * CENTRES_RANGE.default);
 
 /***********************************************************************************************************************
  * Possible errors when creating struct for a perforated panel device

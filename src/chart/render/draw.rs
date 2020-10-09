@@ -3,7 +3,6 @@
  *
  * (c) Chris Whealy 2020
  */
-use std::f64::consts::PI;
 use wasm_bindgen::{JsCast, JsValue};
 
 use crate::chart;
@@ -43,7 +42,7 @@ struct ImageSubdiv {
 /***********************************************************************************************************************
  * Draw the device diagram
  */
-pub const PI_OVER_TWO: f64 = PI / 2.0;
+pub const PI_OVER_TWO: f64 = TAU / 4.0;
 
 pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_axis_length: &f64, y_axis_inset: &f64) {
   const FN_NAME: &str = "device_diagram";
