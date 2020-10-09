@@ -30,8 +30,8 @@ pub const MOD_NAME: &str = "calc_engine::porous_absorber";
 /***********************************************************************************************************************
  * Rigid Backed Porous Absorber Calculation
  */
-const PI_OVER_180: f64 = TAU / 360.0;
-const ONE_80_OVER_PI: f64 = 360.0 / TAU;
+const RADIANS_PER_DEGREE: f64 = TAU / 360.0;
+const DEGREES_PER_RADIAN: f64 = 360.0 / TAU;
 
 pub fn calculate(config_set: &'_ ConfigSet) -> GenericDeviceInfo<'_> {
   const FN_NAME: &str = "calculate";
@@ -100,7 +100,7 @@ fn do_porous_abs_calc(frequency: f64, config_set: &ConfigSet) -> (f64, f64) {
   // Frequently used intermediate values
   let minus_i: Complex<f64> = Complex::new(0.0, -1.0);
 
-  let angle_rad = sound_cfg.angle as f64 * PI_OVER_180;
+  let angle_rad = sound_cfg.angle as f64 * RADIANS_PER_DEGREE;
   let sin_phi: f64 = sin(angle_rad);
   let cos_phi: f64 = cos(angle_rad);
 
@@ -113,7 +113,7 @@ fn do_porous_abs_calc(frequency: f64, config_set: &ConfigSet) -> (f64, f64) {
   let wave_no_abs_x = ((wave_no_abs * wave_no_abs) - (wave_no_abs_y * wave_no_abs_y)).sqrt();
 
   // Angle of propagation within porous layer
-  let beta_porous = sin(cmplx_abs(wave_no_abs_y / wave_no_abs)) * ONE_80_OVER_PI;
+  let beta_porous = sin(cmplx_abs(wave_no_abs_y / wave_no_abs)) * DEGREES_PER_RADIAN;
 
   // Intermediate term for porous impedance calculation
   let porous_wave_no = wave_no_abs * porous_cfg.thickness;
@@ -130,7 +130,7 @@ fn do_porous_abs_calc(frequency: f64, config_set: &ConfigSet) -> (f64, f64) {
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // Impedance values (with air gap)
   // X and Y components of the wave number in the air gap
-  let wave_no_air_y = wave_no_abs * sin(beta_porous * PI_OVER_180);
+  let wave_no_air_y = wave_no_abs * sin(beta_porous * RADIANS_PER_DEGREE);
   let wave_no_air_x = ((k_air * k_air) - (wave_no_air_y * wave_no_air_y)).sqrt();
 
   // Impedance at top of air gap (after passing through porous absorber)
