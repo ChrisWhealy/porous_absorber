@@ -7,13 +7,13 @@ use libm::{fabs, log2, pow};
 use serde::Serialize;
 use std::fmt;
 
-use crate::config::{constants, ranges::Range};
+use crate::config::{constants, ranges::NamedRange};
 use crate::utils::validation;
 
 /***********************************************************************************************************************
  * Graph start frequency and octave subdivision range check values
  */
-const FREQ_RANGE: Range<f64> = Range {
+const FREQ_RANGE: NamedRange<f64> = NamedRange {
   name: constants::TXT_FREQ_RANGE,
   units: constants::UNITS_FREQ,
   min: 20.0,

@@ -8,13 +8,13 @@ extern crate num_format;
 use std::f64::consts::PI;
 use std::fmt;
 
-use crate::config::{constants, ranges::Range};
+use crate::config::{constants, ranges::NamedRange};
 use crate::utils::validation;
 
 /***********************************************************************************************************************
  * Range check values
  */
-const THICKNESS_RANGE: Range<f64> = Range {
+const THICKNESS_RANGE: NamedRange<f64> = NamedRange {
   name: constants::TXT_THICKNESS,
   units: constants::UNITS_THICKNESS,
   min: 1.0,
@@ -22,7 +22,7 @@ const THICKNESS_RANGE: Range<f64> = Range {
   max: 50.0,
 };
 
-const CENTRES_RANGE: Range<f64> = Range {
+const CENTRES_RANGE: NamedRange<f64> = NamedRange {
   name: constants::TXT_CENTRES,
   units: constants::UNITS_CENTRES,
   min: 2.0,
@@ -30,7 +30,7 @@ const CENTRES_RANGE: Range<f64> = Range {
   max: 300.0,
 };
 
-const RADIUS_RANGE: Range<f64> = Range {
+const RADIUS_RANGE: NamedRange<f64> = NamedRange {
   name: constants::TXT_RADIUS,
   units: constants::UNITS_RADIUS,
   min: 1.0,
@@ -50,7 +50,7 @@ pub struct PerforatedPanelError {
 }
 
 impl PerforatedPanelError {
-  pub fn new(range: Range<f64>, err_val: f64) -> PerforatedPanelError {
+  pub fn new(range: NamedRange<f64>, err_val: f64) -> PerforatedPanelError {
     PerforatedPanelError {
       msg: validation::failure_msg(range, err_val),
     }

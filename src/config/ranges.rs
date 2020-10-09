@@ -4,7 +4,7 @@
  * (c) Chris Whealy 2020
  */
 #[derive(Debug)]
-pub struct Range<T> {
+pub struct NamedRange<T> {
   pub name: &'static str,
   pub units: &'static str,
   pub min: T,
@@ -12,25 +12,25 @@ pub struct Range<T> {
   pub max: T,
 }
 
-impl Range<f64> {
+impl NamedRange<f64> {
   pub fn contains(&self, some_val: f64) -> bool {
     some_val >= self.min && some_val <= self.max
   }
 }
 
-impl Range<i16> {
+impl NamedRange<i16> {
   pub fn contains(&self, some_val: i16) -> bool {
     some_val >= self.min && some_val <= self.max
   }
 }
 
-impl Range<u16> {
+impl NamedRange<u16> {
   pub fn contains(&self, some_val: u16) -> bool {
     some_val >= self.min && some_val <= self.max
   }
 }
 
-impl Range<u32> {
+impl NamedRange<u32> {
   pub fn contains(&self, some_val: u32) -> bool {
     some_val >= self.min && some_val <= self.max
   }

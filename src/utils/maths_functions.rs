@@ -7,9 +7,11 @@ extern crate wasm_bindgen;
 
 use libm::{fabs, pow, sqrt};
 use num::complex::Complex;
-use std::f64::consts::PI;
 
 use crate::config::{air::AirConfig, porous_layer::PorousLayerConfig};
+
+// https://tauday.com/tau-manifesto/
+pub const TAU: f64 = 2.0 * std::f64::consts::PI;
 
 pub fn cmplx_abs(cplx: Complex<f64>) -> f64 {
   sqrt(cplx.norm_sqr())
@@ -47,14 +49,14 @@ pub fn absorber_props(
 }
 
 pub fn wave_no_in_air(air_cfg: &AirConfig, frequency: &f64) -> f64 {
-  air_cfg.two_pi_over_c * frequency
+  air_cfg.tau_over_c * frequency
 }
 
 /***********************************************************************************************************************
  * Angular frequency
  */
 pub fn f_ang(frequency: f64) -> f64 {
-  2.0 * PI * frequency
+  TAU * frequency
 }
 
 /***********************************************************************************************************************

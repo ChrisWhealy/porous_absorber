@@ -7,13 +7,13 @@ extern crate num_format;
 
 use std::fmt;
 
-use crate::config::{constants, ranges::Range};
+use crate::config::{constants, ranges::NamedRange};
 use crate::utils::validation;
 
 /***********************************************************************************************************************
- * Range check values
+ * NamedRange check values
  */
-const THICKNESS_RANGE: Range<u16> = Range {
+const THICKNESS_RANGE: NamedRange<u16> = NamedRange {
   name: constants::TXT_THICKNESS,
   units: constants::UNITS_THICKNESS,
   min: 5,
@@ -21,7 +21,7 @@ const THICKNESS_RANGE: Range<u16> = Range {
   max: 500,
 };
 
-const FLOW_RESISTIVITY_RANGE: Range<u32> = Range {
+const FLOW_RESISTIVITY_RANGE: NamedRange<u32> = NamedRange {
   name: constants::TXT_FLOW_RESISTIVITY,
   units: constants::UNITS_THICKNESS,
   min: 1000,
@@ -38,13 +38,13 @@ pub struct PorousLayerError {
 }
 
 impl PorousLayerError {
-  pub fn new_from_u16(range: Range<u16>, err_val: u16) -> PorousLayerError {
+  pub fn new_from_u16(range: NamedRange<u16>, err_val: u16) -> PorousLayerError {
     PorousLayerError {
       msg: validation::failure_msg(range, err_val),
     }
   }
 
-  pub fn new_from_u32(range: Range<u32>, err_val: u32) -> PorousLayerError {
+  pub fn new_from_u32(range: NamedRange<u32>, err_val: u32) -> PorousLayerError {
     PorousLayerError {
       msg: validation::failure_msg(range, err_val),
     }

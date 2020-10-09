@@ -15,6 +15,7 @@ use crate::config::{
   chart::*,
   generic_device::{DeviceType, GenericDeviceInfo},
 };
+use crate::utils::maths_functions::TAU;
 
 /***********************************************************************************************************************
  * Trace functionality
@@ -781,7 +782,7 @@ fn draw_point(ctx: &web_sys::CanvasRenderingContext2d, point: &PlotPoint, fill_s
   // Draw filled circle
   ctx.set_fill_style(fill_style);
   ctx
-    .arc(point.x, point.y, render::constants::PLOT_POINT_RADIUS, 0.0, 2.0 * PI)
+    .arc(point.x, point.y, render::constants::PLOT_POINT_RADIUS, 0.0, TAU)
     .unwrap();
   ctx.fill();
 

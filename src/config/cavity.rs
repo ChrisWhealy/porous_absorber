@@ -5,13 +5,13 @@
  */
 use std::fmt;
 
-use crate::config::{constants, ranges::Range};
+use crate::config::{constants, ranges::NamedRange};
 use crate::utils::validation;
 
 /***********************************************************************************************************************
  * Range check values
  */
-const THICKNESS_RANGE: Range<u16> = Range {
+const THICKNESS_RANGE: NamedRange<u16> = NamedRange {
   name: constants::TXT_AIR_GAP,
   units: constants::UNITS_THICKNESS,
   min: 0,
@@ -28,7 +28,7 @@ pub struct CavityError {
 }
 
 impl CavityError {
-  fn new(range: Range<u16>, err_val: u16) -> CavityError {
+  fn new(range: NamedRange<u16>, err_val: u16) -> CavityError {
     CavityError {
       msg: validation::failure_msg(range, err_val),
     }

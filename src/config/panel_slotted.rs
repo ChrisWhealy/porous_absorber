@@ -7,13 +7,13 @@ extern crate num_format;
 
 use std::fmt;
 
-use crate::config::{constants, ranges::Range};
+use crate::config::{constants, ranges::NamedRange};
 use crate::utils::validation;
 
 /***********************************************************************************************************************
  * Range check values
  */
-const THICKNESS_RANGE: Range<f64> = Range {
+const THICKNESS_RANGE: NamedRange<f64> = NamedRange {
   name: constants::TXT_THICKNESS,
   units: constants::UNITS_THICKNESS,
   min: 1.0,
@@ -21,7 +21,7 @@ const THICKNESS_RANGE: Range<f64> = Range {
   max: 50.0,
 };
 
-const DISTANCE_RANGE: Range<f64> = Range {
+const DISTANCE_RANGE: NamedRange<f64> = NamedRange {
   name: constants::TXT_DISTANCE,
   units: constants::UNITS_DISTANCE,
   min: 2.0,
@@ -29,7 +29,7 @@ const DISTANCE_RANGE: Range<f64> = Range {
   max: 300.0,
 };
 
-const WIDTH_RANGE: Range<f64> = Range {
+const WIDTH_RANGE: NamedRange<f64> = NamedRange {
   name: constants::TXT_WIDTH,
   units: constants::UNITS_WIDTH,
   min: 1.0,
@@ -48,7 +48,7 @@ pub struct SlottedPanelError {
 }
 
 impl SlottedPanelError {
-  pub fn new(range: Range<f64>, err_val: f64) -> SlottedPanelError {
+  pub fn new(range: NamedRange<f64>, err_val: f64) -> SlottedPanelError {
     SlottedPanelError {
       msg: validation::failure_msg(range, err_val),
     }

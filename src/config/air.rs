@@ -3,11 +3,10 @@
  *
  * (c) Chris Whealy 2020
  */
-use std::f64::consts::PI;
 use std::fmt;
 
-use crate::config::{constants, ranges::Range};
-use crate::utils::validation;
+use crate::config::{constants, ranges::NamedRange};
+use crate::utils::{maths_functions::TAU, validation};
 
 /***********************************************************************************************************************
  * Air constants
@@ -31,7 +30,7 @@ pub fn sound_velocity(temp: f64) -> f64 {
 /***********************************************************************************************************************
  * Air pressure and temperature range check values
  */
-const TEMP_RANGE: Range<i16> = Range {
+const TEMP_RANGE: NamedRange<i16> = NamedRange {
   name: constants::TXT_AIR_TEMP,
   units: constants::UNITS_TEMP,
   min: -20,
@@ -39,7 +38,7 @@ const TEMP_RANGE: Range<i16> = Range {
   max: 100,
 };
 
-const PRESSURE_RANGE: Range<f64> = Range {
+const PRESSURE_RANGE: NamedRange<f64> = NamedRange {
   name: constants::TXT_AIR_PRESSURE,
   units: constants::UNITS_PRESSURE,
   min: 0.8,
@@ -56,13 +55,13 @@ pub struct AirError {
 }
 
 impl AirError {
-  fn new_from_f64(range: Range<f64>, err_val: f64) -> AirError {
+  fn new_from_f64(range: NamedRange<f64>, err_val: f64) -> AirError {
     AirError {
       msg: validation::failure_msg(range, err_val),
     }
   }
 
-  fn new_from_i16(range: Range<i16>, err_val: i16) -> AirError {
+  fn new_from_i16(range: NamedRange<i16>, err_val: i16) -> AirError {
     AirError {
       msg: validation::failure_msg(range, err_val),
     }
@@ -85,8 +84,8 @@ pub struct AirConfig {
   pub density: f64,
   pub velocity: f64,
   pub impedance: f64,
-  pub two_pi_over_c: f64,
-  pub c_over_two_pi: f64,
+  pub tau_over_c: f64,
+  pub c_over_tau: f64,
   pub density_over_viscosity: f64,
 }
 
@@ -113,8 +112,8 @@ impl AirConfig {
       density: den,
       velocity: vel,
       impedance: vel * den,
-      two_pi_over_c: (2.0 * PI) / vel,
-      c_over_two_pi: vel / (2.0 * PI),
+      tau_over_c: TAU / vel,
+      c_over_tau: vel / TAU,
       density_over_viscosity: den / AIR_VISCOSITY,
     })
   }

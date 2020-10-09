@@ -5,13 +5,13 @@
  */
 use std::fmt;
 
-use crate::config::{constants, ranges::Range};
+use crate::config::{constants, ranges::NamedRange};
 use crate::utils::validation;
 
 /***********************************************************************************************************************
  * Range check values
  */
-const ANGLE_RANGE: Range<u16> = Range {
+const ANGLE_RANGE: NamedRange<u16> = NamedRange {
   name: constants::TXT_INCIDENT_ANGLE,
   units: constants::UNITS_ANGLE,
   min: 0,
@@ -28,7 +28,7 @@ pub struct SoundError {
 }
 
 impl SoundError {
-  fn new(range: Range<u16>, err_val: u16) -> SoundError {
+  fn new(range: NamedRange<u16>, err_val: u16) -> SoundError {
     SoundError {
       msg: validation::failure_msg(range, err_val),
     }
