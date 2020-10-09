@@ -42,7 +42,7 @@ struct ImageSubdiv {
 /***********************************************************************************************************************
  * Draw the device diagram
  */
-pub const PI_OVER_TWO: f64 = TAU / 4.0;
+const QUARTER_TURN: f64 = TAU / 4.0;
 
 pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_axis_length: &f64, y_axis_inset: &f64) {
   const FN_NAME: &str = "device_diagram";
@@ -641,7 +641,7 @@ fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: Axis) -> f64 {
 
   // For a horizontal axis, the tick labels must be rotated 90° anti-clockwise
   match axis_info.orientation {
-    AxisOrientation::Horizontal => ctx.rotate(-PI_OVER_TWO).unwrap(),
+    AxisOrientation::Horizontal => ctx.rotate(-QUARTER_TURN).unwrap(),
     AxisOrientation::Vertical => (),
   }
 
@@ -685,7 +685,7 @@ fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: Axis) -> f64 {
   // Reposition origin and set rotation based on axis orientation
   match axis_info.orientation {
     AxisOrientation::Horizontal => {
-      ctx.rotate(PI_OVER_TWO).unwrap();
+      ctx.rotate(QUARTER_TURN).unwrap();
       ctx.set_transform(1.0, 0.0, 0.0, 1.0, 0.0, 0.0).unwrap();
       ctx
         .translate(mid_width - (axis_label_width / 2.0), bottom_margin_pos)
@@ -700,7 +700,7 @@ fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: Axis) -> f64 {
           mid_height + (axis_label_width / 2.0),
         )
         .unwrap();
-      ctx.rotate(-PI_OVER_TWO).unwrap();
+      ctx.rotate(-QUARTER_TURN).unwrap();
     }
   }
 
