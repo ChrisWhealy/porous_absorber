@@ -56,17 +56,17 @@ pub fn do_porous_absorber_device(wasm_arg_obj: JsValue) -> JsValue {
   trace(format!("air_temp              = {}", arg_obj.air_temp));
   trace(format!("air_pressure          = {}", arg_obj.air_pressure));
 
-  // Parse arguments to the required data types
-  let absorber_thickness_mm: u16 = arg_obj.absorber_thickness_mm.parse().unwrap();
-  let flow_resistivity: u32 = arg_obj.flow_resistivity.parse().unwrap();
-  let air_gap_mm: u16 = arg_obj.air_gap_mm.parse().unwrap();
-  let angle: u16 = arg_obj.angle.parse().unwrap();
-  let graph_start_freq: f64 = arg_obj.graph_start_freq.parse().unwrap();
-  let smooth_curve: bool = arg_obj.smooth_curve.parse().unwrap();
-  let subdivision: u16 = arg_obj.subdivision.parse().unwrap();
-  let show_diagram: bool = arg_obj.show_diagram.parse().unwrap();
-  let air_temp: i16 = arg_obj.air_temp.parse().unwrap();
-  let air_pressure: f64 = arg_obj.air_pressure.parse().unwrap();
+  // Parse String arguments to the required data types
+  let absorber_thickness_mm = arg_obj.absorber_thickness_mm.parse::<u16>().unwrap();
+  let flow_resistivity = arg_obj.flow_resistivity.parse::<u32>().unwrap();
+  let air_gap_mm = arg_obj.air_gap_mm.parse::<u16>().unwrap();
+  let angle = arg_obj.angle.parse::<u16>().unwrap();
+  let graph_start_freq = arg_obj.graph_start_freq.parse::<f64>().unwrap();
+  let smooth_curve = arg_obj.smooth_curve.parse::<bool>().unwrap();
+  let subdivision = arg_obj.subdivision.parse::<u16>().unwrap();
+  let show_diagram = arg_obj.show_diagram.parse::<bool>().unwrap();
+  let air_temp = arg_obj.air_temp.parse::<i16>().unwrap();
+  let air_pressure = arg_obj.air_pressure.parse::<f64>().unwrap();
 
   // Empty return data structure
   let mut error_msgs: Vec<String> = vec![];

@@ -58,19 +58,19 @@ pub fn do_microperforated_panel_device(wasm_arg_obj: JsValue) -> JsValue {
   trace(format!("air_temp              = {}", arg_obj.air_temp));
   trace(format!("air_pressure          = {}", arg_obj.air_pressure));
 
-  // Parse arguments to the required data types
-  let panel_thickness_mm: f64 = arg_obj.panel_thickness_mm.parse().unwrap();
-  let repeat_distance_mm: f64 = arg_obj.repeat_distance_mm.parse().unwrap();
-  let hole_radius_mm: f64 = arg_obj.hole_radius_mm.parse().unwrap();
-  let porosity: f64 = arg_obj.porosity.parse().unwrap();
-  let air_gap_mm: u16 = arg_obj.air_gap_mm.parse().unwrap();
-  let angle: u16 = arg_obj.angle.parse().unwrap();
-  let graph_start_freq: f64 = arg_obj.graph_start_freq.parse().unwrap();
-  let smooth_curve: bool = arg_obj.smooth_curve.parse().unwrap();
-  let subdivision: u16 = arg_obj.subdivision.parse().unwrap();
-  let show_diagram: bool = arg_obj.show_diagram.parse().unwrap();
-  let air_temp: i16 = arg_obj.air_temp.parse().unwrap();
-  let air_pressure: f64 = arg_obj.air_pressure.parse().unwrap();
+  // Parse String arguments to the required data types
+  let panel_thickness_mm = arg_obj.panel_thickness_mm.parse::<f64>().unwrap();
+  let repeat_distance_mm = arg_obj.repeat_distance_mm.parse::<f64>().unwrap();
+  let hole_radius_mm = arg_obj.hole_radius_mm.parse::<f64>().unwrap();
+  let porosity = arg_obj.porosity.parse::<f64>().unwrap();
+  let air_gap_mm = arg_obj.air_gap_mm.parse::<u16>().unwrap();
+  let angle = arg_obj.angle.parse::<u16>().unwrap();
+  let graph_start_freq = arg_obj.graph_start_freq.parse::<f64>().unwrap();
+  let smooth_curve = arg_obj.smooth_curve.parse::<bool>().unwrap();
+  let subdivision = arg_obj.subdivision.parse::<u16>().unwrap();
+  let show_diagram = arg_obj.show_diagram.parse::<bool>().unwrap();
+  let air_temp = arg_obj.air_temp.parse::<i16>().unwrap();
+  let air_pressure = arg_obj.air_pressure.parse::<f64>().unwrap();
 
   // Empty return data structure
   let mut error_msgs: Vec<String> = vec![];
