@@ -26,7 +26,7 @@ pub const MOD_NAME: &str = "devices::slotted_panel";
 /***********************************************************************************************************************
  * Handle incoming arguments for calculating the absorption of a slotted panel absorption device
  */
-pub fn do_slotted_panel_device(arg_obj: SlottedPanelArgs) -> JsValue {
+pub fn calculate(arg_obj: SlottedPanelArgs) -> JsValue {
     let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, "do_slotted_panel_device");
 
     trace_boundary(TraceAction::Enter);

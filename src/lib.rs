@@ -16,11 +16,6 @@ mod utils;
 
 use wasm_bindgen::prelude::*;
 
-use devices::{
-    microperforated_panel::do_microperforated_panel_device, perforated_panel::do_perforated_panel_device,
-    porous_absorber::do_porous_absorber_device, slotted_panel::do_slotted_panel_device,
-};
-
 /***********************************************************************************************************************
  * Trace functionality
  */
@@ -71,7 +66,7 @@ pub fn porous_absorber(wasm_arg_obj: JsValue) -> JsValue {
     trace(format!("air_temp              = {}", arg_obj.air_temp));
     trace(format!("air_pressure          = {}", arg_obj.air_pressure));
 
-    do_porous_absorber_device(arg_obj)
+    devices::porous_absorber::calculate(arg_obj)
 }
 
 /***********************************************************************************************************************
@@ -120,8 +115,7 @@ pub fn slotted_panel(wasm_arg_obj: JsValue) -> JsValue {
     trace(format!("air_temp              = {}", arg_obj.air_temp));
     trace(format!("air_pressure          = {}", arg_obj.air_pressure));
 
-    make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, FN_NAME)(TraceAction::EnterExit);
-    do_slotted_panel_device(arg_obj)
+    devices::slotted_panel::calculate(arg_obj)
 }
 
 /***********************************************************************************************************************
@@ -170,7 +164,7 @@ pub fn perforated_panel(wasm_arg_obj: JsValue) -> JsValue {
     trace(format!("air_temp              = {}", arg_obj.air_temp));
     trace(format!("air_pressure          = {}", arg_obj.air_pressure));
 
-    do_perforated_panel_device(arg_obj)
+    devices::perforated_panel::calculate(arg_obj)
 }
 
 /***********************************************************************************************************************
@@ -217,5 +211,5 @@ pub fn microperforated_panel(wasm_arg_obj: JsValue) -> JsValue {
     trace(format!("air_temp              = {}", arg_obj.air_temp));
     trace(format!("air_pressure          = {}", arg_obj.air_pressure));
 
-    do_microperforated_panel_device(arg_obj)
+    devices::microperforated_panel::calculate(arg_obj)
 }

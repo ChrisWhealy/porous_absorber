@@ -27,7 +27,7 @@ pub const MOD_NAME: &str = "devices::microperforated_panel";
 /***********************************************************************************************************************
  * Handle incoming arguments for calculating the absorption of a micro-perforated panel absorption device
  */
-pub fn do_microperforated_panel_device(arg_obj: MicroperforatedPanelArgs) -> JsValue {
+pub fn calculate(arg_obj: MicroperforatedPanelArgs) -> JsValue {
     let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, "do_microperforated_panel_device");
     trace_boundary(TraceAction::Enter);
 

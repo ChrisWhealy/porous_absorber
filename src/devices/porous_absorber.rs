@@ -20,7 +20,7 @@ pub const MOD_NAME: &str = "devices::porous_absorber";
 /***********************************************************************************************************************
  * Handle incoming arguments for calculating the absorption of a rigid backed porous absorption device
  */
-pub fn do_porous_absorber_device(arg_obj: PorousAbsorberArgs) -> JsValue {
+pub fn calculate(arg_obj: PorousAbsorberArgs) -> JsValue {
     let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, "do_porous_absorber_device");
     trace_boundary(TraceAction::Enter);
 
