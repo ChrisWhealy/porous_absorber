@@ -50,7 +50,6 @@ pub fn porous_absorber(wasm_arg_obj: JsValue) -> JsValue {
 
     make_boundary_trace_fn(trace_active, MOD_NAME, FN_NAME)(TraceAction::EnterExit);
 
-    // Parse object received from JavaScript
     let arg_obj: PorousAbsorberArgs = serde_wasm_bindgen::from_value(wasm_arg_obj).unwrap();
 
     // What values did we receive from JavaScript?
@@ -96,7 +95,6 @@ pub fn slotted_panel(wasm_arg_obj: JsValue) -> JsValue {
 
     make_boundary_trace_fn(trace_active, MOD_NAME, FN_NAME)(TraceAction::EnterExit);
 
-    // Parse object received from JavaScript
     let arg_obj: SlottedPanelArgs = serde_wasm_bindgen::from_value(wasm_arg_obj).unwrap();
 
     // What values did we receive from JavaScript?
@@ -145,7 +143,6 @@ pub fn perforated_panel(wasm_arg_obj: JsValue) -> JsValue {
 
     make_boundary_trace_fn(trace_active, MOD_NAME, FN_NAME)(TraceAction::EnterExit);
 
-    // Parse object received from JavaScript
     let arg_obj: PerforatedPanelArgs = serde_wasm_bindgen::from_value(wasm_arg_obj).unwrap();
 
     // What values did we receive from JavaScript?
@@ -193,7 +190,6 @@ pub fn microperforated_panel(wasm_arg_obj: JsValue) -> JsValue {
 
     make_boundary_trace_fn(trace_active, MOD_NAME, FN_NAME)(TraceAction::EnterExit);
 
-    // Parse object received from JavaScript
     let arg_obj: MicroperforatedPanelArgs = serde_wasm_bindgen::from_value(wasm_arg_obj).unwrap();
 
     // What values did we receive from JavaScript?

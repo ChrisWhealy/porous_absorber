@@ -65,7 +65,8 @@ const getFloat = getParsedElementValue(parseFloat)
 const getInt = getParsedElementValue(parseInt)
 const getText = getParsedElementValue(idiot)
 
-const getInnerHTML = elementId => $id(elementId).innerHTML
+// Inner HTML value needs to be coerced to a number
+const getInnerHTML = elementId => +$id(elementId).innerHTML
 const getCheckbox = elementId => $id(elementId).checked
 
 const getRadio =

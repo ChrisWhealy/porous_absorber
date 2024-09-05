@@ -31,20 +31,6 @@ pub fn calculate(arg_obj: MicroperforatedPanelArgs) -> JsValue {
     let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, "do_microperforated_panel_device");
     trace_boundary(TraceAction::Enter);
 
-    // Parse String arguments to the required data types
-    // let panel_thickness_mm = arg_obj.panel_thickness_mm.parse::<f64>().unwrap();
-    // let repeat_distance_mm = arg_obj.repeat_distance_mm.parse::<f64>().unwrap();
-    // let hole_radius_mm = arg_obj.hole_radius_mm.parse::<f64>().unwrap();
-    // let porosity = arg_obj.porosity.parse::<f64>().unwrap();
-    // let air_gap_mm = arg_obj.air_gap_mm.parse::<u16>().unwrap();
-    // let angle = arg_obj.angle.parse::<u16>().unwrap();
-    // let graph_start_freq = arg_obj.graph_start_freq.parse::<f64>().unwrap();
-    // let smooth_curve = arg_obj.smooth_curve.parse::<bool>().unwrap();
-    // let subdivision = arg_obj.subdivision.parse::<u16>().unwrap();
-    // let show_diagram = arg_obj.show_diagram.parse::<bool>().unwrap();
-    // let air_temp = arg_obj.air_temp.parse::<i16>().unwrap();
-    // let air_pressure = arg_obj.air_pressure.parse::<f64>().unwrap();
-
     // Empty return data structure
     let mut error_msgs: Vec<String> = vec![];
 
