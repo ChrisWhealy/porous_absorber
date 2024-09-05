@@ -110,7 +110,7 @@ These instructions assume you have already installed Rust and `wasm-pack`, and t
 
 ### Testing
 
-To test this app locally, run the shell script `./test_server.sh` then visit <http://0.0.0.0:8000>
+To test this app locally, run the shell script `./test_server.sh` then visit <http://localhost:8000>
 
 The purpose of this shell script is simply to ensure that the Python Webserver serves files of type `.wasm` with the correct MIME type of `application/wasm`.
 
