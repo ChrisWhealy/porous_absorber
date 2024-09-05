@@ -1,13 +1,13 @@
-#!/usr/bin/env python
-import BaseHTTPServer, SimpleHTTPServer
+#!/usr/bin/env python3
+import http.server
 
 port=8000
-print "Porous absorber test webserver listening on port %d" % port
+print("Porous absorber test webserver listening on port %d" % port)
 
-SimpleHTTPServer.SimpleHTTPRequestHandler.extensions_map['.wasm'] = 'application/wasm'
+http.server.SimpleHTTPRequestHandler.extensions_map['.wasm'] = 'application/wasm'
 
-httpd = BaseHTTPServer.HTTPServer(('localhost', port), SimpleHTTPServer.SimpleHTTPRequestHandler)
+httpd = http.server.HTTPServer(('localhost', port), http.server.SimpleHTTPRequestHandler)
 
-print "Mapping \".wasm\" to \"%s\"" % SimpleHTTPServer.SimpleHTTPRequestHandler.extensions_map['.wasm']
+print( "Mapping \".wasm\" to \"%s\"" % http.server.SimpleHTTPRequestHandler.extensions_map['.wasm'])
 
 httpd.serve_forever()

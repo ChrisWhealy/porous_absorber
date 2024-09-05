@@ -5,26 +5,20 @@
 */
 use wasm_bindgen::JsValue;
 
-use crate::calc_engine::slotted_panel;
-use crate::chart;
-use crate::config::{
-  air::{AirConfig, AirError},
-  cavity::{CavityConfig, CavityError},
-  chart::{ChartConfig, ChartError},
-  config_set::{ConfigSet, PanelConfigSet},
-  panel_slotted::{SlottedPanelConfig, SlottedPanelError},
-  porous_layer::{PorousLayerConfig, PorousLayerError},
-};
-
-/***********************************************************************************************************************
- * Trace functionality
- */
 use crate::{
-  config::trace_flags::trace_flag_for,
-  trace::{
-    function_boundaries::{make_boundary_trace_fn, TraceAction},
-    function_data::make_trace_fn,
-  },
+    calc_engine::slotted_panel,
+    config::{
+        air::AirConfig,
+        cavity::CavityConfig,
+        chart::ChartConfig,
+        config_set::{ConfigSet, PanelConfigSet},
+        panel_slotted::SlottedPanelConfig,
+        porous_layer::PorousLayerConfig,
+        trace_flags::trace_flag_for,
+        GenericError,
+    },
+    trace::*,
+    SlottedPanelArgs,
 };
 
 pub const MOD_NAME: &str = "devices::slotted_panel";
@@ -32,136 +26,94 @@ pub const MOD_NAME: &str = "devices::slotted_panel";
 /***********************************************************************************************************************
  * Handle incoming arguments for calculating the absorption of a slotted panel absorption device
  */
-pub fn do_slotted_panel_device(wasm_arg_obj: JsValue) -> JsValue {
-  const FN_NAME: &str = "do_slotted_panel_device";
+pub fn do_slotted_panel_device(arg_obj: SlottedPanelArgs) -> JsValue {
+    let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, "do_slotted_panel_device");
 
-  let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME.to_string(), FN_NAME.to_string());
-  let trace = make_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME.to_string(), FN_NAME.to_string());
+    trace_boundary(TraceAction::Enter);
 
-  trace_boundary(TraceAction::Enter);
+    // Parse String arguments to the required data types
+    let panel_thickness_mm = arg_obj.panel_thickness_mm.parse::<f64>().unwrap();
+    let slot_distance_mm = arg_obj.slot_distance_mm.parse::<f64>().unwrap();
+    let slot_width_mm = arg_obj.slot_width_mm.parse::<f64>().unwrap();
+    let slotted_porosity = arg_obj.slotted_porosity.parse::<f64>().unwrap();
+    let absorber_thickness_mm = arg_obj.absorber_thickness_mm.parse::<u16>().unwrap();
+    let flow_resistivity = arg_obj.flow_resistivity.parse::<u32>().unwrap();
+    let air_gap_mm = arg_obj.air_gap_mm.parse::<u16>().unwrap();
+    let graph_start_freq = arg_obj.graph_start_freq.parse::<f64>().unwrap();
+    let smooth_curve = arg_obj.smooth_curve.parse::<bool>().unwrap();
+    let subdivision = arg_obj.subdivision.parse::<u16>().unwrap();
+    let show_diagram = arg_obj.show_diagram.parse::<bool>().unwrap();
+    let air_temp = arg_obj.air_temp.parse::<i16>().unwrap();
+    let air_pressure = arg_obj.air_pressure.parse::<f64>().unwrap();
 
-  // Parse object received from JavaScript
-  let arg_obj: SlottedPanelArgs = wasm_arg_obj.into_serde().unwrap();
+    // Empty return data structure
+    let mut error_msgs: Vec<String> = vec![];
 
-  // What values did we receive from JavaScript?
-  trace(format!("panel_thickness_mm    = {}", arg_obj.panel_thickness_mm));
-  trace(format!("slot_distance_mm      = {}", arg_obj.slot_distance_mm));
-  trace(format!("slot_width_mm         = {}", arg_obj.slot_width_mm));
-  trace(format!("slotted_porosity      = {}", arg_obj.slotted_porosity));
-  trace(format!("absorber_thickness_mm = {}", arg_obj.absorber_thickness_mm));
-  trace(format!("flow_resistivity      = {}", arg_obj.flow_resistivity));
-  trace(format!("air_gap_mm            = {}", arg_obj.air_gap_mm));
-  trace(format!("graph_start_freq      = {}", arg_obj.graph_start_freq));
-  trace(format!("smooth_curve          = {}", arg_obj.smooth_curve));
-  trace(format!("subdivision           = {}", arg_obj.subdivision));
-  trace(format!("show_diagram          = {}", arg_obj.show_diagram));
-  trace(format!("air_temp              = {}", arg_obj.air_temp));
-  trace(format!("air_pressure          = {}", arg_obj.air_pressure));
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Construct set of configuration structs
+    let panel_config_set = PanelConfigSet {
+        panel_microperforated: None,
+        panel_perforated: None,
+        panel_slotted: Some(
+            SlottedPanelConfig::new(panel_thickness_mm, slot_distance_mm, slot_width_mm, slotted_porosity)
+                .unwrap_or_else(|err: GenericError| {
+                    error_msgs.push(err.to_string());
+                    SlottedPanelConfig::default()
+                }),
+        ),
+    };
 
-  // Parse String arguments to the required data types
-  let panel_thickness_mm = arg_obj.panel_thickness_mm.parse::<f64>().unwrap();
-  let slot_distance_mm = arg_obj.slot_distance_mm.parse::<f64>().unwrap();
-  let slot_width_mm = arg_obj.slot_width_mm.parse::<f64>().unwrap();
-  let slotted_porosity = arg_obj.slotted_porosity.parse::<f64>().unwrap();
-  let absorber_thickness_mm = arg_obj.absorber_thickness_mm.parse::<u16>().unwrap();
-  let flow_resistivity = arg_obj.flow_resistivity.parse::<u32>().unwrap();
-  let air_gap_mm = arg_obj.air_gap_mm.parse::<u16>().unwrap();
-  let graph_start_freq = arg_obj.graph_start_freq.parse::<f64>().unwrap();
-  let smooth_curve = arg_obj.smooth_curve.parse::<bool>().unwrap();
-  let subdivision = arg_obj.subdivision.parse::<u16>().unwrap();
-  let show_diagram = arg_obj.show_diagram.parse::<bool>().unwrap();
-  let air_temp = arg_obj.air_temp.parse::<i16>().unwrap();
-  let air_pressure = arg_obj.air_pressure.parse::<f64>().unwrap();
+    let config_set = ConfigSet {
+        // Required configuration
+        air_config: AirConfig::new(air_temp, air_pressure).unwrap_or_else(|err: GenericError| {
+            error_msgs.push(err.to_string());
+            AirConfig::default()
+        }),
 
-  // Empty return data structure
-  let mut error_msgs: Vec<String> = vec![];
+        cavity_config: CavityConfig::new(air_gap_mm).unwrap_or_else(|err: GenericError| {
+            error_msgs.push(err.to_string());
+            CavityConfig::default()
+        }),
 
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  // Construct set of configuration structs
-  let panel_config_set = PanelConfigSet {
-    panel_microperforated: None,
-    panel_perforated: None,
-    panel_slotted: Some(
-      SlottedPanelConfig::new(panel_thickness_mm, slot_distance_mm, slot_width_mm, slotted_porosity).unwrap_or_else(
-        |err: SlottedPanelError| {
-          error_msgs.push(err.to_string());
-          SlottedPanelConfig::default()
-        },
-      ),
-    ),
-  };
+        chart_config: ChartConfig::new(graph_start_freq, smooth_curve, subdivision, show_diagram).unwrap_or_else(
+            |err: GenericError| {
+                error_msgs.push(err.to_string());
+                ChartConfig::default()
+            },
+        ),
 
-  let config_set = ConfigSet {
-    // Required configuration
-    air_config: AirConfig::new(air_temp, air_pressure).unwrap_or_else(|err: AirError| {
-      error_msgs.push(err.to_string());
-      AirConfig::default()
-    }),
+        // Variable configuration
+        sound_config: None,
 
-    cavity_config: CavityConfig::new(air_gap_mm).unwrap_or_else(|err: CavityError| {
-      error_msgs.push(err.to_string());
-      CavityConfig::default()
-    }),
+        panel_config: Some(panel_config_set),
+        porous_config: Some(PorousLayerConfig::new(absorber_thickness_mm, flow_resistivity).unwrap_or_else(
+            |err: GenericError| {
+                error_msgs.push(err.to_string());
+                PorousLayerConfig::default()
+            },
+        )),
+    };
 
-    chart_config: ChartConfig::new(graph_start_freq, smooth_curve, subdivision, show_diagram).unwrap_or_else(
-      |err: ChartError| {
-        error_msgs.push(err.to_string());
-        ChartConfig::default()
-      },
-    ),
+    // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
+    // value "Ok", else return the array of error messages
+    let series_data = if error_msgs.is_empty() {
+        let absorber_info = slotted_panel::calculate(&config_set);
 
-    // Variable configuration
-    sound_config: None,
+        // Plot the graph
+        let chart_info = crate::chart::render::generic_device(
+            absorber_info,
+            &config_set.chart_config,
+            crate::chart::constants::CHART_TITLE_NORMAL_INCIDENCE,
+        );
 
-    panel_config: Some(panel_config_set),
-    porous_config: Some(
-      PorousLayerConfig::new(absorber_thickness_mm, flow_resistivity).unwrap_or_else(|err: PorousLayerError| {
-        error_msgs.push(err.to_string());
-        PorousLayerConfig::default()
-      }),
-    ),
-  };
+        JsValue::from_serde(&chart_info).unwrap()
+    } else {
+        // Serialize the error message(s)
+        JsValue::from_serde(&error_msgs).unwrap()
+    };
 
-  // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
-  // value "Ok", else return the array of error messages
-  let series_data = if error_msgs.is_empty() {
-    let absorber_info = slotted_panel::calculate(&config_set);
+    trace_boundary(TraceAction::Exit);
 
-    // Plot the graph
-    let chart_info = chart::render::generic_device(
-      absorber_info,
-      &config_set.chart_config,
-      chart::constants::CHART_TITLE_NORMAL_INCIDENCE,
-    );
-
-    JsValue::from_serde(&chart_info).unwrap()
-  } else {
-    // Serialize the error message(s)
-    JsValue::from_serde(&error_msgs).unwrap()
-  };
-
-  trace_boundary(TraceAction::Exit);
-
-  // Return either the {X,Y} values of plot points or the error messages back to JavaScript
-  series_data
-}
-
-/***********************************************************************************************************************
- * Arguments required by function do_slotted_panel_device
- */
-#[derive(Deserialize)]
-struct SlottedPanelArgs {
-  panel_thickness_mm: String,    // Internally treated as f64
-  slot_distance_mm: String,      // Internally treated as f64
-  slot_width_mm: String,         // Internally treated as f64
-  slotted_porosity: String,      // Internally treated as f64
-  absorber_thickness_mm: String, // Internally treated as u16
-  flow_resistivity: String,      // Internally treated as u32
-  air_gap_mm: String,            // Internally treated as u16
-  graph_start_freq: String,      // Internally treated as f64
-  smooth_curve: String,          // Internally treated as bool
-  subdivision: String,           // Internally treated as u16
-  show_diagram: String,          // Internally treated as bool
-  air_temp: String,              // Internally treated as i16
-  air_pressure: String,          // Internally treated as f64
+    // Return either the {X,Y} values of plot points or the error messages back to JavaScript
+    series_data
 }

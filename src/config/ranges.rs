@@ -5,33 +5,15 @@
  */
 #[derive(Debug)]
 pub struct NamedRange<T> {
-  pub name: &'static str,
-  pub units: &'static str,
-  pub min: T,
-  pub default: T,
-  pub max: T,
+    pub name: &'static str,
+    pub units: &'static str,
+    pub min: T,
+    pub default: T,
+    pub max: T,
 }
 
-impl NamedRange<f64> {
-  pub fn contains(&self, some_val: f64) -> bool {
-    some_val >= self.min && some_val <= self.max
-  }
-}
-
-impl NamedRange<i16> {
-  pub fn contains(&self, some_val: i16) -> bool {
-    some_val >= self.min && some_val <= self.max
-  }
-}
-
-impl NamedRange<u16> {
-  pub fn contains(&self, some_val: u16) -> bool {
-    some_val >= self.min && some_val <= self.max
-  }
-}
-
-impl NamedRange<u32> {
-  pub fn contains(&self, some_val: u32) -> bool {
-    some_val >= self.min && some_val <= self.max
-  }
+impl<T> NamedRange<T> where T: PartialEq + PartialOrd {
+    pub fn contains(&self, some_val: T) -> bool {
+        some_val >= self.min && some_val <= self.max
+    }
 }

@@ -1,8 +1,8 @@
 [package]
 name = "porous_absorber_calculator"
-version = "1.1.0"
+version = "1.2.0"
 authors = ["Chris Whealy <chris@whealy.com>"]
-edition = "2018"
+edition = "2021"
 description = "Calculates the acoustic absorption curve of various porous absorber devices"
 license-file = "LICENSE"
 repository = "https://github.com/ChrisWhealy/porous_absorber"
@@ -11,13 +11,13 @@ repository = "https://github.com/ChrisWhealy/porous_absorber"
 crate-type = ["cdylib"]
 
 [dependencies]
-num-complex = "^0.2"
-num-format = "^0.4.0"
-num = "^0.2.0"
-libm = "^0.1.4"
-serde = { version = "^1.0.80", features = ["derive"] }
-serde_json = "^1.0.32"
-serde_derive = "^1.0.80"
+num-complex = "0.4"
+num-format = "0.4"
+num = "0.4"
+libm = "0.2"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_derive = "1.0"
 
 [dependencies.wasm-bindgen]
 version = "^0.2"
@@ -25,12 +25,4 @@ features = ["serde-serialize"]
 
 [dependencies.web-sys]
 version = "^0.3.4"
-features = [
-  'CanvasRenderingContext2d'
-, 'Document'
-, 'Element'
-, 'HtmlCanvasElement'
-, 'HtmlImageElement'
-, 'TextMetrics'
-, 'Window'
-]
+features = ['CanvasRenderingContext2d', 'Document', 'Element', 'HtmlCanvasElement', 'HtmlImageElement', 'TextMetrics', 'Window']

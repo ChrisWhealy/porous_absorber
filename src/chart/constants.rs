@@ -33,44 +33,44 @@ pub const CHART_TITLE_OVERALL_ABS: &str = "Overall Absorption";
 pub const CHART_TITLE_NORMAL_INCIDENCE: &str = "Normal Incidence Absorption";
 
 pub fn chart_title_at_incident_angle(title: &str, angle: u16) -> String {
-  format!("{} at {}°", title, angle)
+    format!("{} at {}°", title, angle)
 }
 /***********************************************************************************************************************
  * Chart series and font metadata
  */
 pub const METADATA_AIR_GAP: SeriesMetadata = SeriesMetadata {
-  name: TXT_AIR_GAP,
-  plot_colour: RGB_PINK,
+    name: TXT_AIR_GAP,
+    plot_colour: RGB_PINK,
 };
 
 pub const METADATA_NO_AIR_GAP: SeriesMetadata = SeriesMetadata {
-  name: TXT_NO_AIR_GAP,
-  plot_colour: RGB_GREEN,
+    name: TXT_NO_AIR_GAP,
+    plot_colour: RGB_GREEN,
 };
 
 pub const METADATA_ABS_PANEL: SeriesMetadata = SeriesMetadata {
-  name: TXT_ABS_AGAINST_PANEL,
-  plot_colour: RGB_DARK_BLUE,
+    name: TXT_ABS_AGAINST_PANEL,
+    plot_colour: RGB_DARK_BLUE,
 };
 
 pub const METADATA_ABS_BACKING: SeriesMetadata = SeriesMetadata {
-  name: TXT_ABS_AGAINST_BACKING,
-  plot_colour: RGB_PINK,
+    name: TXT_ABS_AGAINST_BACKING,
+    plot_colour: RGB_PINK,
 };
 
 pub const METADATA_MP_PANEL: SeriesMetadata = SeriesMetadata {
-  name: TXT_MP_PANEL,
-  plot_colour: RGB_DARK_BLUE,
+    name: TXT_MP_PANEL,
+    plot_colour: RGB_DARK_BLUE,
 };
 
 pub const FONT_METADATA_TITLE: FontMetadata = FontMetadata {
-  typeface: &BASE_TYPEFACE,
-  font_size: TITLE_FONT_SIZE,
-  stroke_style: RGB_BLACK,
+    typeface: &BASE_TYPEFACE,
+    font_size: TITLE_FONT_SIZE,
+    stroke_style: RGB_BLACK,
 };
 
 pub const FONT_METADATA_LABEL: FontMetadata = FontMetadata {
-  typeface: &BASE_TYPEFACE,
-  font_size: LABEL_FONT_SIZE,
-  stroke_style: RGB_BLACK,
+    typeface: &BASE_TYPEFACE,
+    font_size: LABEL_FONT_SIZE,
+    stroke_style: RGB_BLACK,
 };

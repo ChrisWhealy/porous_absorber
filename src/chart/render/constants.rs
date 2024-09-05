@@ -32,5 +32,5 @@ pub const TITLE_KEY_GAP: f64 = 50.0;
 pub const KEY_SYMBOL_LENGTH: f64 = 30.0;
 pub const SYMBOL_TEXT_GAP: f64 = 10.0;
 
-// Scale factor for magnifying the holes in a microperforated panel
+// Scale factor for magnifying the holes in a micro-perforated panel
 pub const MP_SCALE_FACTOR: f64 = 20.0;
