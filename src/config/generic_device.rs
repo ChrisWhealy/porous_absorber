@@ -3,7 +3,7 @@
  *
  * (c) Chris Whealy 2020
  */
-use serde::Serialize;
+use serde_derive::{Serialize};
 
 use crate::config::{
     cavity::CavityConfig, chart::SeriesData, panel_microperforated::MicroperforatedPanelConfig,

@@ -3,6 +3,7 @@
  *
  * (c) Chris Whealy 2020
  */
+use serde_derive::{Deserialize, Serialize};
 use super::GenericError;
 use crate::{
     config::{constants, ranges::NamedRange},
@@ -50,7 +51,7 @@ const PRESSURE_RANGE: NamedRange<f64> = NamedRange {
 /***********************************************************************************************************************
  * Air properties
  */
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct AirConfig {
     pub temperature: i16,
     pub pressure: f64,

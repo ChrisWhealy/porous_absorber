@@ -3,9 +3,7 @@
  *
  * (c) Chris Whealy 2020
  */
-#[macro_use]
-extern crate serde_derive;
-extern crate wasm_bindgen;
+extern crate serde_wasm_bindgen;
 
 mod calc_engine;
 mod chart;
@@ -14,6 +12,7 @@ mod devices;
 mod trace;
 mod utils;
 
+use serde::Deserialize;
 use wasm_bindgen::prelude::*;
 
 /***********************************************************************************************************************
@@ -31,16 +30,16 @@ pub const MOD_NAME: &str = "lib";
  */
 #[derive(Deserialize)]
 pub struct PorousAbsorberArgs {
-    pub absorber_thickness_mm: String, // Parsed to u16
-    pub flow_resistivity: String,      // Parsed to u32
-    pub air_gap_mm: String,            // Parsed to u16
-    pub angle: String,                 // Parsed to u16
-    pub graph_start_freq: String,      // Parsed to f64
-    pub smooth_curve: String,          // Parsed to bool
-    pub subdivision: String,           // Parsed to u16
-    pub show_diagram: String,          // Parsed to bool
-    pub air_temp: String,              // Parsed to i16
-    pub air_pressure: String,          // Parsed to f64
+    pub absorber_thickness_mm: u16,
+    pub flow_resistivity: u32,
+    pub air_gap_mm: u16,
+    pub angle: u16,
+    pub graph_start_freq: f64,
+    pub smooth_curve: bool,
+    pub subdivision: u16,
+    pub show_diagram: bool,
+    pub air_temp: i16,
+    pub air_pressure: f64,
 }
 
 #[wasm_bindgen]
@@ -52,7 +51,7 @@ pub fn porous_absorber(wasm_arg_obj: JsValue) -> JsValue {
     make_boundary_trace_fn(trace_active, MOD_NAME, FN_NAME)(TraceAction::EnterExit);
 
     // Parse object received from JavaScript
-    let arg_obj: PorousAbsorberArgs = wasm_arg_obj.into_serde().unwrap();
+    let arg_obj: PorousAbsorberArgs = serde_wasm_bindgen::from_value(wasm_arg_obj).unwrap();
 
     // What values did we receive from JavaScript?
     trace(format!("absorber_thickness_mm = {}", arg_obj.absorber_thickness_mm));
@@ -74,19 +73,19 @@ pub fn porous_absorber(wasm_arg_obj: JsValue) -> JsValue {
  */
 #[derive(Deserialize)]
 pub struct SlottedPanelArgs {
-    pub panel_thickness_mm: String,    // Parsed to f64
-    pub slot_distance_mm: String,      // Parsed to f64
-    pub slot_width_mm: String,         // Parsed to f64
-    pub slotted_porosity: String,      // Parsed to f64
-    pub absorber_thickness_mm: String, // Parsed to u16
-    pub flow_resistivity: String,      // Parsed to u32
-    pub air_gap_mm: String,            // Parsed to u16
-    pub graph_start_freq: String,      // Parsed to f64
-    pub smooth_curve: String,          // Parsed to bool
-    pub subdivision: String,           // Parsed to u16
-    pub show_diagram: String,          // Parsed to bool
-    pub air_temp: String,              // Parsed to i16
-    pub air_pressure: String,          // Parsed to f64
+    pub panel_thickness_mm: f64,
+    pub slot_distance_mm: f64,
+    pub slot_width_mm: f64,
+    pub slotted_porosity: f64,
+    pub absorber_thickness_mm: u16,
+    pub flow_resistivity: u32,
+    pub air_gap_mm: u16,
+    pub graph_start_freq: f64,
+    pub smooth_curve: bool,
+    pub subdivision: u16,
+    pub show_diagram: bool,
+    pub air_temp: i16,
+    pub air_pressure: f64,
 }
 
 #[wasm_bindgen]
@@ -98,7 +97,7 @@ pub fn slotted_panel(wasm_arg_obj: JsValue) -> JsValue {
     make_boundary_trace_fn(trace_active, MOD_NAME, FN_NAME)(TraceAction::EnterExit);
 
     // Parse object received from JavaScript
-    let arg_obj: SlottedPanelArgs = wasm_arg_obj.into_serde().unwrap();
+    let arg_obj: SlottedPanelArgs = serde_wasm_bindgen::from_value(wasm_arg_obj).unwrap();
 
     // What values did we receive from JavaScript?
     trace(format!("panel_thickness_mm    = {}", arg_obj.panel_thickness_mm));
@@ -123,19 +122,19 @@ pub fn slotted_panel(wasm_arg_obj: JsValue) -> JsValue {
  */
 #[derive(Deserialize)]
 pub struct PerforatedPanelArgs {
-    pub panel_thickness_mm: String,    // Parsed to f64
-    pub repeat_distance_mm: String,    // Parsed to f64
-    pub hole_radius_mm: String,        // Parsed to f64
-    pub porosity: String,              // Parsed to f64
-    pub absorber_thickness_mm: String, // Parsed to u16
-    pub flow_resistivity: String,      // Parsed to u32
-    pub air_gap_mm: String,            // Parsed to u16
-    pub graph_start_freq: String,      // Parsed to f64
-    pub smooth_curve: String,          // Parsed to bool
-    pub subdivision: String,           // Parsed to u16
-    pub show_diagram: String,          // Parsed to bool
-    pub air_temp: String,              // Parsed to i16
-    pub air_pressure: String,          // Parsed to f64
+    pub panel_thickness_mm: f64,
+    pub repeat_distance_mm: f64,
+    pub hole_radius_mm: f64,
+    pub porosity: f64,
+    pub absorber_thickness_mm: u16,
+    pub flow_resistivity: u32,
+    pub air_gap_mm: u16,
+    pub graph_start_freq: f64,
+    pub smooth_curve: bool,
+    pub subdivision: u16,
+    pub show_diagram: bool,
+    pub air_temp: i16,
+    pub air_pressure: f64,
 }
 
 #[wasm_bindgen]
@@ -147,7 +146,7 @@ pub fn perforated_panel(wasm_arg_obj: JsValue) -> JsValue {
     make_boundary_trace_fn(trace_active, MOD_NAME, FN_NAME)(TraceAction::EnterExit);
 
     // Parse object received from JavaScript
-    let arg_obj: PerforatedPanelArgs = wasm_arg_obj.into_serde().unwrap();
+    let arg_obj: PerforatedPanelArgs = serde_wasm_bindgen::from_value(wasm_arg_obj).unwrap();
 
     // What values did we receive from JavaScript?
     trace(format!("panel_thickness_mm    = {}", arg_obj.panel_thickness_mm));
@@ -172,18 +171,18 @@ pub fn perforated_panel(wasm_arg_obj: JsValue) -> JsValue {
  */
 #[derive(Deserialize)]
 pub struct MicroperforatedPanelArgs {
-    pub panel_thickness_mm: String, // Parsed to f64
-    pub repeat_distance_mm: String, // Parsed to f64
-    pub hole_radius_mm: String,     // Parsed to f64
-    pub porosity: String,           // Parsed to f64
-    pub air_gap_mm: String,         // Parsed to u16
-    pub angle: String,              // Parsed to u16
-    pub graph_start_freq: String,   // Parsed to f64
-    pub smooth_curve: String,       // Parsed to bool
-    pub subdivision: String,        // Parsed to u16
-    pub show_diagram: String,       // Parsed to bool
-    pub air_temp: String,           // Parsed to i16
-    pub air_pressure: String,       // Parsed to f64
+    pub panel_thickness_mm: f64,
+    pub repeat_distance_mm: f64,
+    pub hole_radius_mm: f64,
+    pub porosity: f64,
+    pub air_gap_mm: u16,
+    pub angle: u16,
+    pub graph_start_freq: f64,
+    pub smooth_curve: bool,
+    pub subdivision: u16,
+    pub show_diagram: bool,
+    pub air_temp: i16,
+    pub air_pressure: f64,
 }
 
 #[wasm_bindgen]
@@ -195,7 +194,7 @@ pub fn microperforated_panel(wasm_arg_obj: JsValue) -> JsValue {
     make_boundary_trace_fn(trace_active, MOD_NAME, FN_NAME)(TraceAction::EnterExit);
 
     // Parse object received from JavaScript
-    let arg_obj: MicroperforatedPanelArgs = wasm_arg_obj.into_serde().unwrap();
+    let arg_obj: MicroperforatedPanelArgs = serde_wasm_bindgen::from_value(wasm_arg_obj).unwrap();
 
     // What values did we receive from JavaScript?
     trace(format!("panel_thickness_mm    = {}", arg_obj.panel_thickness_mm));

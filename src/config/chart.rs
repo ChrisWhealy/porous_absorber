@@ -4,7 +4,7 @@
  * (c) Chris Whealy 2020
  */
 use libm::{fabs, log2, pow};
-use serde::Serialize;
+use serde_derive::Serialize;
 use std::fmt;
 
 use super::GenericError;

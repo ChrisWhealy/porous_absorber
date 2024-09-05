@@ -13,29 +13,21 @@
  * (c) Chris Whealy 2020
  **********************************************************************************************************************/
 
-import { doTraceFnBoundary, doTraceInfo } from "./trace.js"
+import {doTraceFnBoundary, doTraceInfo} from "./trace.js"
 
 const JS_MODULE_TRACE_FLAGS = {
-  "domAccess"      : false
-, "localStorage"   : false
-, "main"           : false
-, "tabManager"     : false
-, "unitConversion" : false
+    "domAccess":      false,
+    "localStorage":   false,
+    "main":           false,
+    "tabManager":     false,
+    "unitConversion": false
 }
 
 const MIN_CANVAS_WIDTH = 1000
 
-
-
 // *********************************************************************************************************************
-// *********************************************************************************************************************
-//
 //                                                  P U B L I C   A P I
-//
 // *********************************************************************************************************************
-// *********************************************************************************************************************
-
-
 
 // *********************************************************************************************************************
 // Function defineTrace acts as the API to the trace functionality that is [en|dis]abled using the trace flags defined
@@ -134,12 +126,12 @@ const MIN_CANVAS_WIDTH = 1000
 //
 // *********************************************************************************************************************
 const defineTrace =
-  modName => ({
-    "traceFnBoundary" : doTraceFnBoundary(JS_MODULE_TRACE_FLAGS[modName])(modName)
-  , "traceInfo"       :       doTraceInfo(JS_MODULE_TRACE_FLAGS[modName])(modName)
-  })
+    modName => ({
+        "traceFnBoundary": doTraceFnBoundary(JS_MODULE_TRACE_FLAGS[modName])(modName),
+        "traceInfo": doTraceInfo(JS_MODULE_TRACE_FLAGS[modName])(modName)
+    })
 
 export {
-  defineTrace as default
-, MIN_CANVAS_WIDTH
+    defineTrace as default,
+    MIN_CANVAS_WIDTH
 }

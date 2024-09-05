@@ -32,18 +32,18 @@ pub fn calculate(arg_obj: MicroperforatedPanelArgs) -> JsValue {
     trace_boundary(TraceAction::Enter);
 
     // Parse String arguments to the required data types
-    let panel_thickness_mm = arg_obj.panel_thickness_mm.parse::<f64>().unwrap();
-    let repeat_distance_mm = arg_obj.repeat_distance_mm.parse::<f64>().unwrap();
-    let hole_radius_mm = arg_obj.hole_radius_mm.parse::<f64>().unwrap();
-    let porosity = arg_obj.porosity.parse::<f64>().unwrap();
-    let air_gap_mm = arg_obj.air_gap_mm.parse::<u16>().unwrap();
-    let angle = arg_obj.angle.parse::<u16>().unwrap();
-    let graph_start_freq = arg_obj.graph_start_freq.parse::<f64>().unwrap();
-    let smooth_curve = arg_obj.smooth_curve.parse::<bool>().unwrap();
-    let subdivision = arg_obj.subdivision.parse::<u16>().unwrap();
-    let show_diagram = arg_obj.show_diagram.parse::<bool>().unwrap();
-    let air_temp = arg_obj.air_temp.parse::<i16>().unwrap();
-    let air_pressure = arg_obj.air_pressure.parse::<f64>().unwrap();
+    // let panel_thickness_mm = arg_obj.panel_thickness_mm.parse::<f64>().unwrap();
+    // let repeat_distance_mm = arg_obj.repeat_distance_mm.parse::<f64>().unwrap();
+    // let hole_radius_mm = arg_obj.hole_radius_mm.parse::<f64>().unwrap();
+    // let porosity = arg_obj.porosity.parse::<f64>().unwrap();
+    // let air_gap_mm = arg_obj.air_gap_mm.parse::<u16>().unwrap();
+    // let angle = arg_obj.angle.parse::<u16>().unwrap();
+    // let graph_start_freq = arg_obj.graph_start_freq.parse::<f64>().unwrap();
+    // let smooth_curve = arg_obj.smooth_curve.parse::<bool>().unwrap();
+    // let subdivision = arg_obj.subdivision.parse::<u16>().unwrap();
+    // let show_diagram = arg_obj.show_diagram.parse::<bool>().unwrap();
+    // let air_temp = arg_obj.air_temp.parse::<i16>().unwrap();
+    // let air_pressure = arg_obj.air_pressure.parse::<f64>().unwrap();
 
     // Empty return data structure
     let mut error_msgs: Vec<String> = vec![];
@@ -52,7 +52,7 @@ pub fn calculate(arg_obj: MicroperforatedPanelArgs) -> JsValue {
     // Construct set of configuration structs
     let panel_config_set = PanelConfigSet {
         panel_microperforated: Some(
-            MicroperforatedPanelConfig::new(panel_thickness_mm, repeat_distance_mm, hole_radius_mm, porosity)
+            MicroperforatedPanelConfig::new(arg_obj.panel_thickness_mm, arg_obj.repeat_distance_mm, arg_obj.hole_radius_mm, arg_obj.porosity)
                 .unwrap_or_else(|err: GenericError| {
                     error_msgs.push(err.to_string());
                     MicroperforatedPanelConfig::default()
@@ -65,24 +65,24 @@ pub fn calculate(arg_obj: MicroperforatedPanelArgs) -> JsValue {
 
     let config_set = ConfigSet {
         // Required configuration
-        air_config: AirConfig::new(air_temp, air_pressure).unwrap_or_else(|err: GenericError| {
+        air_config: AirConfig::new(arg_obj.air_temp, arg_obj.air_pressure).unwrap_or_else(|err: GenericError| {
             error_msgs.push(err.to_string());
             AirConfig::default()
         }),
 
-        cavity_config: CavityConfig::new(air_gap_mm).unwrap_or_else(|err: GenericError| {
+        cavity_config: CavityConfig::new(arg_obj.air_gap_mm).unwrap_or_else(|err: GenericError| {
             error_msgs.push(err.to_string());
             CavityConfig::default()
         }),
 
-        chart_config: ChartConfig::new(graph_start_freq, smooth_curve, subdivision, show_diagram).unwrap_or_else(
+        chart_config: ChartConfig::new(arg_obj.graph_start_freq, arg_obj.smooth_curve, arg_obj.subdivision, arg_obj.show_diagram).unwrap_or_else(
             |err: GenericError| {
                 error_msgs.push(err.to_string());
                 ChartConfig::default()
             },
         ),
 
-        sound_config: Some(SoundConfig::new(angle).unwrap_or_else(|err: GenericError| {
+        sound_config: Some(SoundConfig::new(arg_obj.angle).unwrap_or_else(|err: GenericError| {
             error_msgs.push(err.to_string());
             SoundConfig::default()
         })),
@@ -107,10 +107,10 @@ pub fn calculate(arg_obj: MicroperforatedPanelArgs) -> JsValue {
             ),
         );
 
-        JsValue::from_serde(&chart_info).unwrap()
+        serde_wasm_bindgen::to_value(&chart_info).unwrap()
     } else {
         // Serialize the error message(s)
-        JsValue::from_serde(&error_msgs).unwrap()
+        serde_wasm_bindgen::to_value(&error_msgs).unwrap()
     };
 
     trace_boundary(TraceAction::Exit);
