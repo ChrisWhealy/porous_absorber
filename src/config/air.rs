@@ -3,19 +3,22 @@
  *
  * (c) Chris Whealy 2020
  */
-use serde_derive::{Deserialize, Serialize};
 use super::GenericError;
 use crate::{
     config::{constants, ranges::NamedRange},
     utils::maths_functions::TAU,
 };
+use serde_derive::{Deserialize, Serialize};
 
 /***********************************************************************************************************************
  * Air constants
  */
-const GAS_CONSTANT: f64 = 287.05; // Gas constant (J/Kg.K)
-const GAMMA: f64 = 1.402; // Specific heat ratio
-const AIR_DENSITY_0: f64 = 1.293; // Air density at 0C (Kg.m^-3)
+// Gas constant (J/Kg.K)
+const GAS_CONSTANT: f64 = 287.05;
+// Specific heat ratio
+// const GAMMA: f64 = 1.402;
+// Air density at 0C (Kg.m^-3)
+// const AIR_DENSITY_0: f64 = 1.293;
 const ONE_ATM: f64 = 101325.0; // One atmosphere (Pa)
 const KELVIN_OFFSET: f64 = 273.15; // Zero celsius in degrees Kelvin
 
@@ -26,7 +29,8 @@ pub fn air_density(pressure: f64, temp: i16) -> f64 {
 }
 
 pub fn sound_velocity(temp: f64) -> f64 {
-    ((GAMMA * ONE_ATM) / AIR_DENSITY_0).sqrt() * (1.0 + (temp / KELVIN_OFFSET)).sqrt()
+    // ((GAMMA * ONE_ATM) / AIR_DENSITY_0).sqrt() = 331.4614688
+    331.4614688 * (1.0 + (temp / KELVIN_OFFSET)).sqrt()
 }
 
 /***********************************************************************************************************************
