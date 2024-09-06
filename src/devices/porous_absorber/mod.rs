@@ -6,6 +6,7 @@
 pub mod calc_engine;
 pub mod config;
 
+use serde_derive::Deserialize;
 use calc_engine::calculate_plot_points;
 use wasm_bindgen::JsValue;
 pub use config::PorousLayerConfig;
@@ -18,11 +19,27 @@ use crate::{
         GenericError,
     },
     trace::*,
-    PorousAbsorberArgs,
 };
 use crate::trace::trace_flags::trace_flag_for;
 
 pub const MOD_NAME: &str = "devices::porous_absorber";
+
+/***********************************************************************************************************************
+ * Values received from the client
+ */
+#[derive(Debug, Deserialize)]
+pub struct PorousAbsorberArgs {
+    pub absorber_thickness_mm: u16,
+    pub flow_resistivity: u32,
+    pub air_gap_mm: u16,
+    pub angle: u16,
+    pub graph_start_freq: f64,
+    pub smooth_curve: bool,
+    pub subdivision: u16,
+    pub show_diagram: bool,
+    pub air_temp: i16,
+    pub air_pressure: f64,
+}
 
 /***********************************************************************************************************************
  * Handle incoming arguments for calculating the absorption of a rigid backed porous absorption device

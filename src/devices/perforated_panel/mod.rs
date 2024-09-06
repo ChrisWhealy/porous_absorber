@@ -6,9 +6,10 @@
 pub mod calc_engine;
 pub mod config;
 
+use serde_derive::Deserialize;
 use calc_engine::calculate_plot_points;
-use wasm_bindgen::JsValue;
 pub use config::PerforatedPanelConfig;
+use wasm_bindgen::JsValue;
 
 use crate::{
     config::{
@@ -19,12 +20,30 @@ use crate::{
         GenericError,
     },
     devices::porous_absorber::PorousLayerConfig,
-    trace::*,
-    PerforatedPanelArgs,
+    trace::{trace_flags::trace_flag_for, *},
 };
-use crate::trace::trace_flags::trace_flag_for;
 
 pub const MOD_NAME: &str = "devices::perforated_panel";
+
+/***********************************************************************************************************************
+ * Values received from the client
+ */
+#[derive(Debug, Deserialize)]
+pub struct PerforatedPanelArgs {
+    pub panel_thickness_mm: f64,
+    pub repeat_distance_mm: f64,
+    pub hole_radius_mm: f64,
+    pub porosity: f64,
+    pub absorber_thickness_mm: u16,
+    pub flow_resistivity: u32,
+    pub air_gap_mm: u16,
+    pub graph_start_freq: f64,
+    pub smooth_curve: bool,
+    pub subdivision: u16,
+    pub show_diagram: bool,
+    pub air_temp: i16,
+    pub air_pressure: f64,
+}
 
 /***********************************************************************************************************************
  * Handle incoming arguments for calculating the absorption of a perforated panel absorption device

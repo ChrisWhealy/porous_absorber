@@ -6,23 +6,44 @@
 pub mod calc_engine;
 pub mod config;
 
+use serde_derive::Deserialize;
 use calc_engine::calculate_plot_points;
-use wasm_bindgen::JsValue;
 pub use config::MicroperforatedPanelConfig;
+use wasm_bindgen::JsValue;
 
 use crate::{
     chart::constants::chart_title_at_incident_angle,
     config::{
-        air::AirConfig, cavity::CavityConfig, chart::ChartConfig, config_set::{ConfigSet, PanelConfigSet},
+        air::AirConfig,
+        cavity::CavityConfig,
+        chart::ChartConfig,
+        config_set::{ConfigSet, PanelConfigSet},
         sound::SoundConfig,
         GenericError,
     },
-    trace::*,
-    MicroperforatedPanelArgs,
+    trace::{trace_flags::trace_flag_for, *},
 };
-use crate::trace::trace_flags::trace_flag_for;
 
 pub const MOD_NAME: &str = "devices::microperforated_panel";
+
+/***********************************************************************************************************************
+ * Values receive from the client
+ */
+#[derive(Debug, Deserialize)]
+pub struct MicroperforatedPanelArgs {
+    pub panel_thickness_mm: f64,
+    pub repeat_distance_mm: f64,
+    pub hole_radius_mm: f64,
+    pub porosity: f64,
+    pub air_gap_mm: u16,
+    pub angle: u16,
+    pub graph_start_freq: f64,
+    pub smooth_curve: bool,
+    pub subdivision: u16,
+    pub show_diagram: bool,
+    pub air_temp: i16,
+    pub air_pressure: f64,
+}
 
 /***********************************************************************************************************************
  * Handle incoming arguments for calculating the absorption of a micro-perforated panel absorption device
@@ -44,10 +65,10 @@ pub fn prepare(arg_obj: MicroperforatedPanelArgs) -> JsValue {
                 arg_obj.hole_radius_mm,
                 arg_obj.porosity,
             )
-                .unwrap_or_else(|err: GenericError| {
-                    error_msgs.push(err.to_string());
-                    MicroperforatedPanelConfig::default()
-                }),
+            .unwrap_or_else(|err: GenericError| {
+                error_msgs.push(err.to_string());
+                MicroperforatedPanelConfig::default()
+            }),
         ),
 
         panel_perforated: None,
@@ -72,10 +93,10 @@ pub fn prepare(arg_obj: MicroperforatedPanelArgs) -> JsValue {
             arg_obj.subdivision,
             arg_obj.show_diagram,
         )
-            .unwrap_or_else(|err: GenericError| {
-                error_msgs.push(err.to_string());
-                ChartConfig::default()
-            }),
+        .unwrap_or_else(|err: GenericError| {
+            error_msgs.push(err.to_string());
+            ChartConfig::default()
+        }),
 
         sound_config: Some(SoundConfig::new(arg_obj.angle).unwrap_or_else(|err: GenericError| {
             error_msgs.push(err.to_string());
