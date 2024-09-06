@@ -23,20 +23,27 @@ const toImperial = (units, val) => {
 
     switch (units) {
         // Metres to feet and inches
-        case "m":
-            let m_as_inches = val * 39.3701
-            result = `(${Math.floor(m_as_inches / 12)} ft ${Number.parseFloat(m_as_inches % 12).toFixed(2)} in)`
+        case "m": {
+            let m_in_inches = val * 39.3701
+            let feet = Math.floor(m_in_inches / 12)
+            let inches = m_in_inches % 12
+            result = `(${feet} ft ${inches.toFixed(2)} in)`
             break
+        }
 
         // Millimetres to inches
-        case "mm":
-            result = `(${Number.parseFloat(val / 25.4).toFixed(3)} in)`
+        case "mm": {
+            let inches = (val / 25.4).toFixed(3)
+            result = `(${inches} in)`
             break
+        }
 
         // Degrees Centigrade to degrees Fahrenheit
-        case "°C":
-            result = `(${Number.parseFloat((val * 9.0 / 5.0) + 32.0).toFixed(1)}°F)`
+        case "°C": {
+            let fahrenheit = ((val * 9.0 / 5.0) + 32.0).toFixed(1)
+            result = `(${fahrenheit}°F)`
             break
+        }
 
         default:
     }
@@ -57,8 +64,8 @@ const showValueFn =
                     fn === "imperial"
                         ? toImperial(field_config.units, val)
                         : field_config.units === "each"
-                            ? `${val.toLocaleString('en')}`
-                            : `${val.toLocaleString('en')} ${field_config.units}`
+                            ? `${val.toLocaleString()}`
+                            : `${val.toLocaleString()} ${field_config.units}`
         }
 
 const showValue = traceFnBoundary("showValue", showValueFn)
@@ -72,7 +79,7 @@ const convertUnits = showValue("_alt_units", "imperial")
 // Display range slider value unit conversion if necessary
 const showAndConvertUnitsFn =
     field_config => {
-        let displayValue = null
+        let displayValue
 
         switch (field_config.id) {
             case "porosity":
