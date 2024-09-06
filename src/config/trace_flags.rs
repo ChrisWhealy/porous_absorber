@@ -11,17 +11,17 @@ use crate::{
 type TraceConfig<'a> = (bool, &'a str);
 
 const TRACE_CONFIG: [TraceConfig; 11] = [
-    (true, crate::MOD_NAME),
-    (true, chart::render::MOD_NAME),
-    (true, chart::render::draw::MOD_NAME),
-    (true, microperforated_panel::MOD_NAME),
-    (true, microperforated_panel::calc_engine::MOD_NAME),
-    (true, perforated_panel::MOD_NAME),
-    (true, perforated_panel::calc_engine::MOD_NAME),
-    (true, porous_absorber::MOD_NAME),
-    (true, porous_absorber::calc_engine::MOD_NAME),
-    (true, slotted_panel::MOD_NAME),
-    (true, slotted_panel::calc_engine::MOD_NAME),
+    (false, crate::MOD_NAME),
+    (false, chart::render::MOD_NAME),
+    (false, chart::render::draw::MOD_NAME),
+    (false, microperforated_panel::MOD_NAME),
+    (false, microperforated_panel::calc_engine::MOD_NAME),
+    (false, perforated_panel::MOD_NAME),
+    (false, perforated_panel::calc_engine::MOD_NAME),
+    (false, porous_absorber::MOD_NAME),
+    (false, porous_absorber::calc_engine::MOD_NAME),
+    (false, slotted_panel::MOD_NAME),
+    (false, slotted_panel::calc_engine::MOD_NAME),
 ];
 
 pub fn trace_flag_for(mod_name: &str) -> bool {
