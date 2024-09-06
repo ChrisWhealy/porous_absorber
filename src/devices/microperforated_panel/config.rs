@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
 * Porous Absorber Calculator - Microperforated panel properties
 *
-* (c) Chris Whealy 2020
+* (c) Chris Whealy 2020, 2024
 */
 use serde_derive::{Deserialize, Serialize};
 use super::GenericError;

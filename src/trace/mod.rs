@@ -3,7 +3,7 @@
  *
  * FYI: The rust-analyzer might flag the calls to the `log` function as unsafe; however, the code compiles fine
  *
- * (c) Chris Whealy 2020
+ * (c) Chris Whealy 2020, 2024
  */
 use std::fmt::Formatter;
 use wasm_bindgen::prelude::*;

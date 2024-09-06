@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
  * Porous Absorber Calculator - HTML Canvas Utilities
  *
- * (c) Chris Whealy 2020
+ * (c) Chris Whealy 2020, 2024
  */
 use libm::{pow, sqrt};
 use wasm_bindgen::JsCast;

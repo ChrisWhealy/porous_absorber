@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
  * Porous Absorber Calculation Engine - Slotted Panel
  *
- * (c) Chris Whealy 2020
+ * (c) Chris Whealy 2020, 2024
  */
 use libm::{log, sin};
 use num::complex::Complex;

@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
  * Porous Absorber Calculator - Display properties
  *
- * (c) Chris Whealy 2020
+ * (c) Chris Whealy 2020, 2024
  */
 use libm::{fabs, log2, pow};
 use serde_derive::Serialize;

@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
  * Porous Absorber Calculator - Air properties
  *
- * (c) Chris Whealy 2020
+ * (c) Chris Whealy 2020, 2024
  */
 use super::GenericError;
 use crate::{

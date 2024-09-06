@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
  * Porous Absorber Calculator - Chart Renderer
  *
- * (c) Chris Whealy 2020
+ * (c) Chris Whealy 2020, 2024
  */
 mod bezier;
 mod canvas_utils;

@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
  * Porous Absorber Calculation Engine - Microperforated Panel
  *
- * (c) Chris Whealy 2020
+ * (c) Chris Whealy 2020, 2024
  */
 use libm::{cos, sin, sqrt};
 use num::complex::Complex;

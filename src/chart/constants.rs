@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
  * Porous Absorber Calculator - Chart Series, Axis Label, Font metadata
  *
- * (c) Chris Whealy 2020
+ * (c) Chris Whealy 2020, 2024
  */
 use crate::config::chart::{FontMetadata, SeriesMetadata};
 

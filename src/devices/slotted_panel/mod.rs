@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
 * Porous Absorber Calculator - Slotted Panel Absorption Device
 *
-* (c) Chris Whealy 2020
+* (c) Chris Whealy 2020, 2024
 */
 pub mod calc_engine;
 pub mod config;

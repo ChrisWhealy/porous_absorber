@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
  * Mathematical function used by the Porous Absorber Calculation Engine
  *
- * (c) Chris Whealy 2020
+ * (c) Chris Whealy 2020, 2024
  */
 use libm::{fabs, pow, sqrt};
 use num::complex::Complex;

@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
 * Porous Absorber Calculator - Beziér control points
 *
-* (c) Chris Whealy 2020
+* (c) Chris Whealy 2020, 2024
 */
 use crate::{
     chart::render::canvas_utils::distance,

@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
  * Generic validation failure message functions
  *
- * (c) Chris Whealy 2020
+ * (c) Chris Whealy 2020, 2024
  */
 use crate::config::ranges::NamedRange;
 

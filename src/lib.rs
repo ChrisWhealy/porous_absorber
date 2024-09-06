@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
  * Porous Absorber Calculator - Public entry points from browser
  *
- * (c) Chris Whealy 2020
+ * (c) Chris Whealy 2020, 2024
  */
 mod chart;
 mod config;
@@ -12,10 +12,10 @@ mod utils;
 use wasm_bindgen::prelude::*;
 
 use {
-    devices::microperforated_panel::MicroperforatedPanelArgs,
-    devices::perforated_panel::PerforatedPanelArgs,
-    devices::porous_absorber::PorousAbsorberArgs,
-    devices::slotted_panel::SlottedPanelArgs,
+    devices::{
+        microperforated_panel::MicroperforatedPanelArgs, perforated_panel::PerforatedPanelArgs,
+        porous_absorber::PorousAbsorberArgs, slotted_panel::SlottedPanelArgs,
+    },
     trace::{make_boundary_trace_fn, make_trace_fn, trace_flags::trace_flag_for, TraceAction},
 };
 
