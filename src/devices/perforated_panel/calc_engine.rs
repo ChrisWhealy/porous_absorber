@@ -8,13 +8,8 @@ use num::complex::Complex;
 
 use crate::devices::generic_device::{DeviceType, GenericDeviceInfo};
 use crate::{
-    chart::{constants, render},
-    config::{
-        air::AIR_VISCOSITY,
-        chart::{PlotAbsPoint, SeriesData},
-        config_set::ConfigSet,
-        trace_flags::trace_flag_for,
-    },
+    chart::render,
+    config::{air::AIR_VISCOSITY, chart::PlotAbsPoint, config_set::ConfigSet, trace_flags::trace_flag_for},
     trace::*,
     utils::maths_functions::*,
 };
@@ -43,28 +38,14 @@ pub fn calculate_plot_points(config_set: &'_ ConfigSet) -> GenericDeviceInfo<'_>
     trace(format!("End corrected panel thickness = {}", &end_corrected_panel_thickness));
 
     let abs_info = config_set.chart_config.frequencies.iter().fold(
-        GenericDeviceInfo {
-            device_type: DeviceType::PerforatedPanelAbsorber,
-            abs_series: vec![
-                SeriesData {
-                    name: constants::TXT_NO_AIR_GAP,
-                    plot_points: vec![],
-                },
-                SeriesData {
-                    name: constants::TXT_ABS_AGAINST_PANEL,
-                    plot_points: vec![],
-                },
-                SeriesData {
-                    name: constants::TXT_ABS_AGAINST_BACKING,
-                    plot_points: vec![],
-                },
-            ],
-            sl_panel: None,
-            pf_panel: Some(panel),
-            mp_panel: None,
-            porous_layer: Some(porous),
-            cavity: &cavity,
-        },
+        GenericDeviceInfo::new(
+            DeviceType::PerforatedPanelAbsorber,
+            None,
+            Some(panel),
+            None,
+            Some(porous),
+            &cavity,
+        ),
         |mut acc, frequency| {
             let (abs_no_air_gap, abs_against_panel, abs_against_backing) =
                 calculate_plot_point(*frequency, &config_set, end_corrected_panel_thickness);

@@ -8,12 +8,8 @@ use num::complex::Complex;
 
 use crate::devices::generic_device::{DeviceType, GenericDeviceInfo};
 use crate::{
-    chart::{constants, render},
-    config::{
-        chart::{PlotAbsPoint, SeriesData},
-        config_set::ConfigSet,
-        trace_flags::trace_flag_for,
-    },
+    chart::render,
+    config::{chart::PlotAbsPoint, config_set::ConfigSet, trace_flags::trace_flag_for},
     trace::*,
     utils::maths_functions::*,
 };
@@ -34,24 +30,7 @@ pub fn calculate_plot_points(config_set: &'_ ConfigSet) -> GenericDeviceInfo<'_>
     let porous = config_set.porous_config.as_ref().unwrap();
 
     let abs_info = config_set.chart_config.frequencies.iter().fold(
-        GenericDeviceInfo {
-            device_type: DeviceType::RigidBackedPorousAbsorber,
-            abs_series: vec![
-                SeriesData {
-                    name: constants::TXT_AIR_GAP,
-                    plot_points: vec![],
-                },
-                SeriesData {
-                    name: constants::TXT_NO_AIR_GAP,
-                    plot_points: vec![],
-                },
-            ],
-            sl_panel: None,
-            pf_panel: None,
-            mp_panel: None,
-            porous_layer: Some(porous),
-            cavity: &cavity,
-        },
+        GenericDeviceInfo::new(DeviceType::RigidBackedPorousAbsorber, None, None, None, Some(porous), &cavity),
         |mut acc, frequency| {
             let (abs_no_air_gap, abs_air_gap) = calculate_plot_point(*frequency, &config_set);
 

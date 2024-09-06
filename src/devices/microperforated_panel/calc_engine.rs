@@ -11,11 +11,11 @@ use crate::devices::{
     microperforated_panel::config::MicroperforatedPanelConfig,
 };
 use crate::{
-    chart::{constants, render},
+    chart::render,
     config::{
         air::{AirConfig, AIR_VISCOSITY},
         cavity::CavityConfig,
-        chart::{PlotAbsPoint, SeriesData},
+        chart::PlotAbsPoint,
         config_set::ConfigSet,
         trace_flags::trace_flag_for,
     },
@@ -46,18 +46,14 @@ pub fn calculate_plot_points(config_set: &'_ ConfigSet) -> GenericDeviceInfo<'_>
     let cos_angle = cos(sound.angle as f64 * TAU / 360.0);
 
     let abs_info = config_set.chart_config.frequencies.iter().fold(
-        GenericDeviceInfo {
-            device_type: DeviceType::MicroperforatedPanelAbsorber,
-            abs_series: vec![SeriesData {
-                name: constants::TXT_MP_PANEL,
-                plot_points: vec![],
-            }],
-            sl_panel: None,
-            pf_panel: None,
-            mp_panel: Some(&panel),
-            porous_layer: None,
-            cavity: &cavity,
-        },
+        GenericDeviceInfo::new(
+            DeviceType::MicroperforatedPanelAbsorber,
+            None,
+            None,
+            Some(&panel),
+            None,
+            &cavity,
+        ),
         |mut acc, frequency| {
             let abs_data = calculate_plot_point(*frequency, &air, &cavity, &panel, cos_angle);
             acc.abs_series[0].plot_points.push(PlotAbsPoint {
