@@ -22,14 +22,18 @@ import {
   * The WASM function name exposed in lib.rs via the #[wasm_bindgen] directive determines the name of both the tabConfig
   * property listed below, and the HTML page fragment name
   *
-  * Each tabName property is an object that holds an array of the HTML elements that exist on that particular page
+  * Each tabName property is an object that holds an array of the HTML elements that exist on that particular page.
+  * These values form the argument list passed to the WASM function and the value received by Rust is expected to be
+  * numeric - E.G. don't send "air_gap_mm" : "25.4"; instead send "air_gap_mm" : 25.4
   *
   * The "id" property must match the corresponding id of the input field in the DOM
   *
-  * The "units" property is for metric to imperial conversion but must be maintained for all fields.
-  * Use the value "each" if "units" has no particular meaning for this property
+  * The "units" property is for metric to imperial conversion but must be maintained for all fields even if this
+  * distinction is not relevant (E.G. for degrees or start frequency)
+  * For dimensionless properties, set the value of "units" to "each"
   *
-  * The "getter" and "setter" properties are the function names in utils.js that get/set that particular dataype
+  * The "getter" and "setter" properties are the function names in utils.js that get/set that particular data type.
+  * Rust expects these functions to return numeric values
   *
   * The configuration tab is always present in the DOM even if the user has not explicitly selected that tab.  This
   * means that these values are always available even if those fields are not currently visible.

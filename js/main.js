@@ -39,7 +39,7 @@ window.onresize = () => {
   TAB_MAN.cacheValues()
 
   // Rebuild the active tab
-  for (var tablink of $class("tabButton")) {
+  for (let tablink of $class("tabButton")) {
     if (tablink.className.search("active") > -1)
       TAB_MAN.updateScreenAndMouseHandler(tablink.id.replace("tab_button_", ""))
   }
@@ -61,6 +61,8 @@ window.perforated_panel      = perforated_panel
 window.microperforated_panel = microperforated_panel
 window.configuration         = no_op
 
+// Need to ignore the promise returned here otherwise an attempt will be made to access local storage before the page
+// has initialised
 startWASM()
 
 // *********************************************************************************************************************
@@ -91,7 +93,7 @@ async function startTabsFn() {
   await TAB_MAN.fetchTab("configuration")
 
   // Select the default tab
-  for (var tablink of $class("tabButton")) {
+  for (let tablink of $class("tabButton")) {
     if (tablink.getAttribute("default") === "true") tablink.click()
   }
 }
