@@ -16,13 +16,13 @@ use crate::{
         cavity::CavityConfig,
         chart::ChartConfig,
         config_set::{ConfigSet, PanelConfigSet},
-        trace_flags::trace_flag_for,
         GenericError,
     },
     devices::porous_absorber::PorousLayerConfig,
     trace::*,
     SlottedPanelArgs,
 };
+use crate::trace::trace_flags::trace_flag_for;
 
 pub const MOD_NAME: &str = "devices::slotted_panel";
 

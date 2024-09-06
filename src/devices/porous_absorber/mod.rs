@@ -14,12 +14,13 @@ use crate::{
     config::{
         air::AirConfig, cavity::CavityConfig, chart::ChartConfig,
         config_set::ConfigSet,
-        sound::SoundConfig, trace_flags::trace_flag_for,
+        sound::SoundConfig,
         GenericError,
     },
     trace::*,
     PorousAbsorberArgs,
 };
+use crate::trace::trace_flags::trace_flag_for;
 
 pub const MOD_NAME: &str = "devices::porous_absorber";
 

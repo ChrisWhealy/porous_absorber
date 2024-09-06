@@ -8,7 +8,6 @@ pub mod config_set;
 pub mod constants;
 pub mod ranges;
 pub mod sound;
-pub mod trace_flags;
 
 /**********************************************************************************************************************/
 #[derive(Debug)]

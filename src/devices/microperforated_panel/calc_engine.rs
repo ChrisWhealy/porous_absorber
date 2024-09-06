@@ -17,11 +17,11 @@ use crate::{
         cavity::CavityConfig,
         chart::PlotAbsPoint,
         config_set::ConfigSet,
-        trace_flags::trace_flag_for,
     },
     trace::*,
     utils::maths_functions::*,
 };
+use crate::trace::trace_flags::trace_flag_for;
 
 pub const MOD_NAME: &str = "devices::microperforated_panel::calc_engine";
 

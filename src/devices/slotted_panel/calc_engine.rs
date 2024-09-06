@@ -9,10 +9,11 @@ use num::complex::Complex;
 use crate::devices::generic_device::{DeviceType, GenericDeviceInfo};
 use crate::{
     chart::render,
-    config::{chart::PlotAbsPoint, config_set::ConfigSet, trace_flags::trace_flag_for},
+    config::{chart::PlotAbsPoint, config_set::ConfigSet},
     trace::*,
     utils::maths_functions::*,
 };
+use crate::trace::trace_flags::trace_flag_for;
 
 pub const MOD_NAME: &str = "devices::slotted_panel::calc_engine";
 

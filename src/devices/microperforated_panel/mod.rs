@@ -14,12 +14,13 @@ use crate::{
     chart::constants::chart_title_at_incident_angle,
     config::{
         air::AirConfig, cavity::CavityConfig, chart::ChartConfig, config_set::{ConfigSet, PanelConfigSet},
-        sound::SoundConfig, trace_flags::trace_flag_for,
+        sound::SoundConfig,
         GenericError,
     },
     trace::*,
     MicroperforatedPanelArgs,
 };
+use crate::trace::trace_flags::trace_flag_for;
 
 pub const MOD_NAME: &str = "devices::microperforated_panel";
 

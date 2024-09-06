@@ -16,11 +16,9 @@ use crate::config::chart::{ChartConfig, ChartInfo, SeriesData};
 /***********************************************************************************************************************
  * Trace functionality
  */
-use crate::{
-    config::trace_flags::trace_flag_for,
-    trace::*,
-};
+use crate::trace::*;
 use crate::devices::generic_device::{DeviceType, GenericDeviceInfo};
+use crate::trace::trace_flags::trace_flag_for;
 
 pub const MOD_NAME: &str = "chart::render";
 
