@@ -3,8 +3,6 @@
  *
  * (c) Chris Whealy 2020
  */
-extern crate wasm_bindgen;
-
 use libm::{cos, sin, sqrt};
 use num::complex::Complex;
 

@@ -3,8 +3,6 @@
  *
  * (c) Chris Whealy 2020
  */
-extern crate wasm_bindgen;
-
 use libm::{log, sin};
 use num::complex::Complex;
 

@@ -3,8 +3,6 @@
  *
  * (c) Chris Whealy 2020
  */
-extern crate serde_wasm_bindgen;
-
 mod chart;
 mod config;
 mod devices;
