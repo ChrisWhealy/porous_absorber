@@ -13,23 +13,13 @@ use crate::{
 /***********************************************************************************************************************
  * Air constants
  */
-// Gas constant in Joules per kilo kelvin (J/Kg.K)
-const GAS_CONSTANT: f64 = 287.05;
+const GAS_CONSTANT: f64 = 287.05; // Gas constant (J/Kg.K)
+const GAMMA: f64 = 1.402; // Specific heat ratio
+const AIR_DENSITY_0: f64 = 1.293; // Air density at 0C (Kg.m^-3)
+const ONE_ATM: f64 = 101325.0; // One atmosphere (Pa)
+const KELVIN_OFFSET: f64 = 273.15; // Zero celsius in degrees Kelvin
 
-// Specific heat ratio
-// const GAMMA: f64 = 1.402;
-
-// Air density at 0C in kilos per cubic metre (Kg.m^-3)
-// const AIR_DENSITY_0: f64 = 1.293;
-
-// One atmosphere in Pascals
-const ONE_ATM: f64 = 101325.0;
-
-// Zero celsius in degrees Kelvin
-const KELVIN_OFFSET: f64 = 273.15;
-
-// Kinemetric viscosity of air (m^2/s)
-pub const AIR_VISCOSITY: f64 = 0.0000185;
+pub const AIR_VISCOSITY: f64 = 0.0000185; // Kinemetric viscosity of air (m^2/s)
 
 pub fn air_density(pressure: f64, temp: i16) -> f64 {
     (pressure * ONE_ATM) / (GAS_CONSTANT * (temp as f64 + KELVIN_OFFSET))
