@@ -4,6 +4,8 @@
  * (c) Chris Whealy 2020
  */
 extern crate serde_wasm_bindgen;
+extern crate wasm_bindgen;
+extern crate num_format;
 
 mod chart;
 mod config;
@@ -13,14 +15,11 @@ mod utils;
 
 use serde::Deserialize;
 use wasm_bindgen::prelude::*;
-
+use trace::trace_flags::trace_flag_for;
 /***********************************************************************************************************************
  * Trace functionality
  */
-use crate::{
-    config::trace_flags::trace_flag_for,
-    trace::{make_boundary_trace_fn, make_trace_fn, TraceAction},
-};
+use crate::trace::{make_boundary_trace_fn, make_trace_fn, TraceAction};
 
 pub const MOD_NAME: &str = "lib";
 

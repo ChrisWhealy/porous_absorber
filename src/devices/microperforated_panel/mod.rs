@@ -4,9 +4,11 @@
  * (c) Chris Whealy 2020
  */
 pub mod calc_engine;
+pub mod config;
 
 use wasm_bindgen::JsValue;
 use calc_engine::calculate_plot_points;
+use config::MicroperforatedPanelConfig;
 
 use crate::{
     chart::constants::chart_title_at_incident_angle,
@@ -14,15 +16,14 @@ use crate::{
         air::AirConfig,
         cavity::CavityConfig,
         chart::ChartConfig,
-        config_set::{ConfigSet, PanelConfigSet},
-        panel_microperforated::MicroperforatedPanelConfig,
         sound::SoundConfig,
-        trace_flags::trace_flag_for,
         GenericError,
     },
+    devices::{ConfigSet, PanelConfigSet},
     trace::*,
     MicroperforatedPanelArgs,
 };
+use crate::trace::trace_flags::trace_flag_for;
 
 pub const MOD_NAME: &str = "devices::microperforated_panel";
 

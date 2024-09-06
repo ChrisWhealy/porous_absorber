@@ -1,15 +1,13 @@
 /***********************************************************************************************************************
- * Porous Absorber Calculator - Perforated panel properties
- *
- * (c) Chris Whealy 2020
- */
-extern crate num_format;
-
+* Porous Absorber Calculator - Microperforated panel properties
+*
+* (c) Chris Whealy 2020
+*/
 use serde_derive::{Deserialize, Serialize};
 use super::GenericError;
 use crate::{
     config::{constants, ranges::NamedRange},
-    utils::{maths_functions::TAU},
+    utils::maths_functions::TAU,
 };
 
 /***********************************************************************************************************************
@@ -18,25 +16,25 @@ use crate::{
 const THICKNESS_RANGE: NamedRange<f64> = NamedRange {
     name: constants::TXT_THICKNESS,
     units: constants::UNITS_THICKNESS,
-    min: 1.0,
-    default: 10.0,
-    max: 50.0,
+    min: 0.5,
+    default: 1.0,
+    max: 10.0,
 };
 
 const CENTRES_RANGE: NamedRange<f64> = NamedRange {
     name: constants::TXT_CENTRES,
     units: constants::UNITS_CENTRES,
-    min: 2.0,
-    default: 25.4,
-    max: 300.0,
+    min: 0.5,
+    default: 5.0,
+    max: 10.0,
 };
 
 const RADIUS_RANGE: NamedRange<f64> = NamedRange {
     name: constants::TXT_RADIUS,
     units: constants::UNITS_RADIUS,
-    min: 1.0,
-    default: 12.7,
-    max: 50.0,
+    min: 0.05,
+    default: 0.25,
+    max: 0.5,
 };
 
 const DEFAULT_POROSITY: f64 =
@@ -46,7 +44,7 @@ const DEFAULT_POROSITY: f64 =
  * Perforated panel configuration
  */
 #[derive(Serialize, Deserialize, Debug)]
-pub struct PerforatedPanelConfig {
+pub struct MicroperforatedPanelConfig {
     pub thickness_mm: f64,
     pub thickness: f64,
     pub hole_centres: f64,
@@ -56,15 +54,15 @@ pub struct PerforatedPanelConfig {
     pub porosity: f64,
 }
 
-impl PerforatedPanelConfig {
-    pub fn default() -> PerforatedPanelConfig {
-        PerforatedPanelConfig::new(
+impl MicroperforatedPanelConfig {
+    pub fn default() -> MicroperforatedPanelConfig {
+        MicroperforatedPanelConfig::new(
             THICKNESS_RANGE.default,
             CENTRES_RANGE.default,
             RADIUS_RANGE.default,
             DEFAULT_POROSITY,
         )
-        .unwrap()
+            .unwrap()
     }
 
     pub fn new(
@@ -72,20 +70,20 @@ impl PerforatedPanelConfig {
         centres_arg: f64,
         radius_arg: f64,
         porosity_arg: f64,
-    ) -> Result<PerforatedPanelConfig, GenericError> {
-        if thickness_arg < THICKNESS_RANGE.min || thickness_arg > THICKNESS_RANGE.max {
+    ) -> Result<MicroperforatedPanelConfig, GenericError> {
+        if !THICKNESS_RANGE.contains(thickness_arg) {
             return Err(GenericError::new_from_f64(THICKNESS_RANGE, thickness_arg));
         }
 
-        if centres_arg < CENTRES_RANGE.min || centres_arg > CENTRES_RANGE.max {
+        if !CENTRES_RANGE.contains(centres_arg) {
             return Err(GenericError::new_from_f64(CENTRES_RANGE, centres_arg));
         }
 
-        if radius_arg < RADIUS_RANGE.min || radius_arg > RADIUS_RANGE.max {
+        if !RADIUS_RANGE.contains(radius_arg) {
             return Err(GenericError::new_from_f64(RADIUS_RANGE, radius_arg));
         }
 
-        Ok(PerforatedPanelConfig {
+        Ok(MicroperforatedPanelConfig {
             thickness_mm: thickness_arg,
             thickness: thickness_arg / 1000.0,
             hole_centres_mm: centres_arg,

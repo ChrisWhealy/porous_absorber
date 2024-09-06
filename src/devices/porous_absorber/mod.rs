@@ -4,18 +4,22 @@
  * (c) Chris Whealy 2020
  */
 pub mod calc_engine;
+pub mod config;
 
-use wasm_bindgen::JsValue;
 use calc_engine::calculate_plot_points;
+use config::PorousLayerConfig;
+use wasm_bindgen::JsValue;
 
 use crate::{
     config::{
-        air::AirConfig, cavity::CavityConfig, chart::ChartConfig, config_set::ConfigSet,
-        porous_layer::PorousLayerConfig, sound::SoundConfig, trace_flags::trace_flag_for, GenericError,
+        air::AirConfig, cavity::CavityConfig, chart::ChartConfig, sound::SoundConfig,
+        GenericError,
     },
+    devices::ConfigSet,
     trace::*,
     PorousAbsorberArgs,
 };
+use crate::trace::trace_flags::trace_flag_for;
 
 pub const MOD_NAME: &str = "devices::porous_absorber";
 
