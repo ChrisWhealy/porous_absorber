@@ -9,8 +9,8 @@
 
 import {isNullOrUndef, no_op} from "./utils.js"
 
-const ENTRY_ARROW  = "--->"
-const EXIT_ARROW   = "<---"
+const ENTRY_ARROW = "--->"
+const EXIT_ARROW = "<---"
 const IN_OUT_ARROW = "<-->"
 
 // *********************************************************************************************************************
@@ -35,23 +35,22 @@ const arrow = mayBeBool => isNullOrUndef(mayBeBool) ? IN_OUT_ARROW : mayBeBool ?
 //   Writes the supplied information to the browser console labelled with module name, function name and trace data
 //
 // * traceActive === false
-//   Returns a unit function
+//   Returns a function that invokes the unit function (I.E. does absolutely nothing)
 // *********************************************************************************************************************
 const doTraceInfo =
-    traceActive =>
-        modName =>
-            traceActive
-                ? fnName => (...args) => writeTraceText("    ", modName, fnName, args.join(", "))
-                : () => no_op
+    (traceActive, modName) =>
+        traceActive
+            ? fnName => (...args) => writeTraceText("    ", modName, fnName, args.join(", "))
+            : () => no_op
 
 // *********************************************************************************************************************
 // Partial function that, given a trace flag and a module name, returns a partial function that when called with a
 // function name, will do one of two things:
 //
 // * traceActive === true
-//   1) Function boundary logging on entry labelled with the module and function names
+//   1) Logs crossing a function boundary on entry labelled with the module and function names
 //   2) Calls the function supplied as argument fn
-//   3) Function boundary logging on exit labelled with the module and function names
+//   3) Logs crossing a function boundary on exit labelled with the module and function names
 //
 // * traceActive === false
 //   Simply calls the function supplied in argument fn
@@ -59,17 +58,16 @@ const doTraceInfo =
 // See the comments in appConfig.js for a full description of how these generated trace functions are used
 // *********************************************************************************************************************
 const doTraceFnBoundary =
-    traceActive =>
-        modName =>
-            traceActive
-                ? (fnName, fn) =>
-                    (...args) => {
-                        writeTraceText(arrow(true), modName, fnName)
-                        let retVal = fn.apply(null, args)
-                        writeTraceText(arrow(false), modName, fnName)
-                        return retVal
-                    }
-                : (_, fn) => (...args) => fn.apply(null, args)
+    (traceActive, modName) =>
+        traceActive
+            ? (fnName, fn) =>
+                (...args) => {
+                    writeTraceText(arrow(true), modName, fnName)
+                    let retVal = fn.apply(null, args)
+                    writeTraceText(arrow(false), modName, fnName)
+                    return retVal
+                }
+            : (_, fn) => (...args) => fn.apply(null, args)
 
 export {
     doTraceFnBoundary,

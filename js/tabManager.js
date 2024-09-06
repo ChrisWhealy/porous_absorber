@@ -153,17 +153,16 @@ const updateScreenAndMouseHandlerFn =
             // The chart_box property defines the bounding box within which the cross hairs should appear
             if (tabName !== "configuration") {
                 $id(GRAPH_OVERLAY).onmousemove = canvasMouseOverHandler(
-                    $id(GRAPH_OVERLAY)
-                    , wasm_response.chart_box
-                    , invertPlotData(wasm_response.series_data)
+                    $id(GRAPH_OVERLAY),
+                    wasm_response.chart_box,
+                    invertPlotData(wasm_response.series_data)
                 )
             }
         } else {
             if (isNotNullOrUndef(wasm_response))
-                console.warn(`That's weird - got the unexpected value "${wasm_response}" back from WASM`)
+                console.warn(`That's weird - WASM return the unexpected value "${wasm_response}"`)
         }
     }
-
 
 // *********************************************************************************************************************
 //                                                  P U B L I C   A P I
