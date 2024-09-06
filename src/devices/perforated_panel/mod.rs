@@ -4,9 +4,11 @@
  * (c) Chris Whealy 2020
  */
 pub mod calc_engine;
+pub mod config;
 
 use calc_engine::calculate_plot_points;
 use wasm_bindgen::JsValue;
+pub use config::PerforatedPanelConfig;
 
 use crate::{
     config::{
@@ -14,11 +16,10 @@ use crate::{
         cavity::CavityConfig,
         chart::ChartConfig,
         config_set::{ConfigSet, PanelConfigSet},
-        panel_perforated::PerforatedPanelConfig,
-        porous_layer::PorousLayerConfig,
         trace_flags::trace_flag_for,
         GenericError,
     },
+    devices::porous_absorber::PorousLayerConfig,
     trace::*,
     PerforatedPanelArgs,
 };
@@ -40,11 +41,16 @@ pub fn prepare(arg_obj: PerforatedPanelArgs) -> JsValue {
     let panel_config_set = PanelConfigSet {
         panel_microperforated: None,
         panel_perforated: Some(
-            PerforatedPanelConfig::new(arg_obj.panel_thickness_mm, arg_obj.repeat_distance_mm, arg_obj.hole_radius_mm, arg_obj.porosity)
-                .unwrap_or_else(|err: GenericError| {
-                    error_msgs.push(err.to_string());
-                    PerforatedPanelConfig::default()
-                }),
+            PerforatedPanelConfig::new(
+                arg_obj.panel_thickness_mm,
+                arg_obj.repeat_distance_mm,
+                arg_obj.hole_radius_mm,
+                arg_obj.porosity,
+            )
+            .unwrap_or_else(|err: GenericError| {
+                error_msgs.push(err.to_string());
+                PerforatedPanelConfig::default()
+            }),
         ),
         panel_slotted: None,
     };
@@ -61,23 +67,29 @@ pub fn prepare(arg_obj: PerforatedPanelArgs) -> JsValue {
             CavityConfig::default()
         }),
 
-        chart_config: ChartConfig::new(arg_obj.graph_start_freq, arg_obj.smooth_curve, arg_obj.subdivision, arg_obj.show_diagram).unwrap_or_else(
-            |err: GenericError| {
-                error_msgs.push(err.to_string());
-                ChartConfig::default()
-            },
-        ),
+        chart_config: ChartConfig::new(
+            arg_obj.graph_start_freq,
+            arg_obj.smooth_curve,
+            arg_obj.subdivision,
+            arg_obj.show_diagram,
+        )
+        .unwrap_or_else(|err: GenericError| {
+            error_msgs.push(err.to_string());
+            ChartConfig::default()
+        }),
 
         // Variable configuration
         sound_config: None,
 
         panel_config: Some(panel_config_set),
-        porous_config: Some(PorousLayerConfig::new(arg_obj.absorber_thickness_mm, arg_obj.flow_resistivity).unwrap_or_else(
-            |err: GenericError| {
-                error_msgs.push(err.to_string());
-                PorousLayerConfig::default()
-            },
-        )),
+        porous_config: Some(
+            PorousLayerConfig::new(arg_obj.absorber_thickness_mm, arg_obj.flow_resistivity).unwrap_or_else(
+                |err: GenericError| {
+                    error_msgs.push(err.to_string());
+                    PorousLayerConfig::default()
+                },
+            ),
+        ),
     };
 
     // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder

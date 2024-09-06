@@ -8,12 +8,12 @@ extern crate wasm_bindgen;
 use libm::{cos, sin};
 use num::complex::Complex;
 
+use crate::devices::generic_device::{DeviceType, GenericDeviceInfo};
 use crate::{
     chart::{constants, render},
     config::{
         chart::{PlotAbsPoint, SeriesData},
         config_set::ConfigSet,
-        generic_device::{DeviceType, GenericDeviceInfo},
         trace_flags::trace_flag_for,
     },
     trace::*,

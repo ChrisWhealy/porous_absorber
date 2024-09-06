@@ -12,12 +12,12 @@ use crate::{
     },
     config::{
         chart::*,
-        generic_device::{DeviceType, GenericDeviceInfo},
         trace_flags::trace_flag_for,
     },
     trace::*,
     utils::maths_functions::TAU,
 };
+use crate::devices::generic_device::{DeviceType, GenericDeviceInfo};
 
 pub const MOD_NAME: &str = "chart::render::draw";
 

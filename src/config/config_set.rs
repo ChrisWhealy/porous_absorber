@@ -1,14 +1,19 @@
-/***********************************************************************************************************************
- * Porous Absorber Calculator - Set of optional configuration structs
- *
- * (c) Chris Whealy 2020
- */
-use crate::config::{
-    air::AirConfig, cavity::CavityConfig, chart::ChartConfig, panel_microperforated::MicroperforatedPanelConfig,
-    panel_perforated::PerforatedPanelConfig, panel_slotted::SlottedPanelConfig, porous_layer::PorousLayerConfig,
-    sound::SoundConfig,
+use crate::{
+    config::{
+        air::AirConfig, cavity::CavityConfig, chart::ChartConfig,
+        sound::SoundConfig,
+    },
+    devices::{
+        microperforated_panel::config::MicroperforatedPanelConfig,
+        perforated_panel::config::PerforatedPanelConfig,
+        porous_absorber::config::PorousLayerConfig,
+        slotted_panel::config::SlottedPanelConfig,
+    },
 };
 
+/***********************************************************************************************************************
+ * Config for device with a surface panel
+ */
 pub struct PanelConfigSet {
     pub panel_microperforated: Option<MicroperforatedPanelConfig>,
     pub panel_perforated: Option<PerforatedPanelConfig>,

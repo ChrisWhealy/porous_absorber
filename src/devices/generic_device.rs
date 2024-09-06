@@ -3,11 +3,18 @@
  *
  * (c) Chris Whealy 2020
  */
-use serde_derive::{Serialize};
+use serde_derive::Serialize;
 
-use crate::config::{
-    cavity::CavityConfig, chart::SeriesData, panel_microperforated::MicroperforatedPanelConfig,
-    panel_perforated::PerforatedPanelConfig, panel_slotted::SlottedPanelConfig, porous_layer::PorousLayerConfig,
+use crate::{
+    config::{
+        cavity::CavityConfig, chart::SeriesData,
+    },
+    devices::{
+        microperforated_panel::config::MicroperforatedPanelConfig,
+        perforated_panel::config::PerforatedPanelConfig,
+        porous_absorber::config::PorousLayerConfig,
+        slotted_panel::config::SlottedPanelConfig,
+    },
 };
 
 /***********************************************************************************************************************

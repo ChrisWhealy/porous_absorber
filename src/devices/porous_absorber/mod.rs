@@ -4,14 +4,18 @@
  * (c) Chris Whealy 2020
  */
 pub mod calc_engine;
+pub mod config;
 
-use wasm_bindgen::JsValue;
 use calc_engine::calculate_plot_points;
+use wasm_bindgen::JsValue;
+pub use config::PorousLayerConfig;
 
 use crate::{
     config::{
-        air::AirConfig, cavity::CavityConfig, chart::ChartConfig, config_set::ConfigSet,
-        porous_layer::PorousLayerConfig, sound::SoundConfig, trace_flags::trace_flag_for, GenericError,
+        air::AirConfig, cavity::CavityConfig, chart::ChartConfig,
+        config_set::ConfigSet,
+        sound::SoundConfig, trace_flags::trace_flag_for,
+        GenericError,
     },
     trace::*,
     PorousAbsorberArgs,
@@ -49,10 +53,10 @@ pub fn prepare(arg_obj: PorousAbsorberArgs) -> JsValue {
             arg_obj.subdivision,
             arg_obj.show_diagram,
         )
-        .unwrap_or_else(|err: GenericError| {
-            error_msgs.push(err.to_string());
-            ChartConfig::default()
-        }),
+            .unwrap_or_else(|err: GenericError| {
+                error_msgs.push(err.to_string());
+                ChartConfig::default()
+            }),
 
         // Variable configuration
         sound_config: Some(SoundConfig::new(arg_obj.angle).unwrap_or_else(|err: GenericError| {

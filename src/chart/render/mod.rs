@@ -11,10 +11,7 @@ pub mod draw;
 use wasm_bindgen::{JsCast, JsValue};
 
 use super::{constants::*, render::constants::*};
-use crate::config::{
-    chart::{ChartConfig, ChartInfo, SeriesData},
-    generic_device::{DeviceType, GenericDeviceInfo},
-};
+use crate::config::chart::{ChartConfig, ChartInfo, SeriesData};
 
 /***********************************************************************************************************************
  * Trace functionality
@@ -23,6 +20,7 @@ use crate::{
     config::trace_flags::trace_flag_for,
     trace::*,
 };
+use crate::devices::generic_device::{DeviceType, GenericDeviceInfo};
 
 pub const MOD_NAME: &str = "chart::render";
 

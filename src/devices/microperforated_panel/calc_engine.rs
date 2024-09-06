@@ -8,6 +8,10 @@ extern crate wasm_bindgen;
 use libm::{cos, sin, sqrt};
 use num::complex::Complex;
 
+use crate::devices::{
+    generic_device::{DeviceType, GenericDeviceInfo},
+    microperforated_panel::config::MicroperforatedPanelConfig,
+};
 use crate::{
     chart::{constants, render},
     config::{
@@ -15,8 +19,6 @@ use crate::{
         cavity::CavityConfig,
         chart::{PlotAbsPoint, SeriesData},
         config_set::ConfigSet,
-        generic_device::{DeviceType, GenericDeviceInfo},
-        panel_microperforated::MicroperforatedPanelConfig,
         trace_flags::trace_flag_for,
     },
     trace::*,

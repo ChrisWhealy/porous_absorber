@@ -4,9 +4,11 @@
 * (c) Chris Whealy 2020
 */
 pub mod calc_engine;
+pub mod config;
 
-use wasm_bindgen::JsValue;
 use calc_engine::calculate_plot_points;
+use wasm_bindgen::JsValue;
+pub use config::SlottedPanelConfig;
 
 use crate::{
     config::{
@@ -14,11 +16,10 @@ use crate::{
         cavity::CavityConfig,
         chart::ChartConfig,
         config_set::{ConfigSet, PanelConfigSet},
-        panel_slotted::SlottedPanelConfig,
-        porous_layer::PorousLayerConfig,
         trace_flags::trace_flag_for,
         GenericError,
     },
+    devices::porous_absorber::PorousLayerConfig,
     trace::*,
     SlottedPanelArgs,
 };
@@ -48,10 +49,10 @@ pub fn prepare(arg_obj: SlottedPanelArgs) -> JsValue {
                 arg_obj.slot_width_mm,
                 arg_obj.slotted_porosity,
             )
-            .unwrap_or_else(|err: GenericError| {
-                error_msgs.push(err.to_string());
-                SlottedPanelConfig::default()
-            }),
+                .unwrap_or_else(|err: GenericError| {
+                    error_msgs.push(err.to_string());
+                    SlottedPanelConfig::default()
+                }),
         ),
     };
 
@@ -73,10 +74,10 @@ pub fn prepare(arg_obj: SlottedPanelArgs) -> JsValue {
             arg_obj.subdivision,
             arg_obj.show_diagram,
         )
-        .unwrap_or_else(|err: GenericError| {
-            error_msgs.push(err.to_string());
-            ChartConfig::default()
-        }),
+            .unwrap_or_else(|err: GenericError| {
+                error_msgs.push(err.to_string());
+                ChartConfig::default()
+            }),
 
         // Variable configuration
         sound_config: None,

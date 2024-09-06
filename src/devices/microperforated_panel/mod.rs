@@ -4,20 +4,17 @@
  * (c) Chris Whealy 2020
  */
 pub mod calc_engine;
+pub mod config;
 
-use wasm_bindgen::JsValue;
 use calc_engine::calculate_plot_points;
+use wasm_bindgen::JsValue;
+pub use config::MicroperforatedPanelConfig;
 
 use crate::{
     chart::constants::chart_title_at_incident_angle,
     config::{
-        air::AirConfig,
-        cavity::CavityConfig,
-        chart::ChartConfig,
-        config_set::{ConfigSet, PanelConfigSet},
-        panel_microperforated::MicroperforatedPanelConfig,
-        sound::SoundConfig,
-        trace_flags::trace_flag_for,
+        air::AirConfig, cavity::CavityConfig, chart::ChartConfig, config_set::{ConfigSet, PanelConfigSet},
+        sound::SoundConfig, trace_flags::trace_flag_for,
         GenericError,
     },
     trace::*,
@@ -40,7 +37,12 @@ pub fn prepare(arg_obj: MicroperforatedPanelArgs) -> JsValue {
     // Construct set of configuration structs
     let panel_config_set = PanelConfigSet {
         panel_microperforated: Some(
-            MicroperforatedPanelConfig::new(arg_obj.panel_thickness_mm, arg_obj.repeat_distance_mm, arg_obj.hole_radius_mm, arg_obj.porosity)
+            MicroperforatedPanelConfig::new(
+                arg_obj.panel_thickness_mm,
+                arg_obj.repeat_distance_mm,
+                arg_obj.hole_radius_mm,
+                arg_obj.porosity,
+            )
                 .unwrap_or_else(|err: GenericError| {
                     error_msgs.push(err.to_string());
                     MicroperforatedPanelConfig::default()
@@ -63,12 +65,16 @@ pub fn prepare(arg_obj: MicroperforatedPanelArgs) -> JsValue {
             CavityConfig::default()
         }),
 
-        chart_config: ChartConfig::new(arg_obj.graph_start_freq, arg_obj.smooth_curve, arg_obj.subdivision, arg_obj.show_diagram).unwrap_or_else(
-            |err: GenericError| {
+        chart_config: ChartConfig::new(
+            arg_obj.graph_start_freq,
+            arg_obj.smooth_curve,
+            arg_obj.subdivision,
+            arg_obj.show_diagram,
+        )
+            .unwrap_or_else(|err: GenericError| {
                 error_msgs.push(err.to_string());
                 ChartConfig::default()
-            },
-        ),
+            }),
 
         sound_config: Some(SoundConfig::new(arg_obj.angle).unwrap_or_else(|err: GenericError| {
             error_msgs.push(err.to_string());

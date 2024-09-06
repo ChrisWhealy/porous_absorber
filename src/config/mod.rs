@@ -1,22 +1,14 @@
 use crate::{config::ranges::NamedRange, utils::validation};
 use std::fmt;
 
-pub mod config_set;
-pub mod trace_flags;
-
 pub mod air;
 pub mod cavity;
 pub mod chart;
-pub mod porous_layer;
-pub mod sound;
-
-pub mod panel_microperforated;
-pub mod panel_perforated;
-pub mod panel_slotted;
-
+pub mod config_set;
 pub mod constants;
-pub mod generic_device;
 pub mod ranges;
+pub mod sound;
+pub mod trace_flags;
 
 /**********************************************************************************************************************/
 #[derive(Debug)]
@@ -25,18 +17,18 @@ pub struct GenericError {
 }
 
 impl GenericError {
-    fn new_from_f64(range: NamedRange<f64>, err_val: f64) -> GenericError {
+    pub fn new_from_f64(range: NamedRange<f64>, err_val: f64) -> GenericError {
         GenericError {
             msg: validation::failure_msg(range, err_val),
         }
     }
 
-    fn new_from_u16(range: NamedRange<u16>, err_val: u16) -> GenericError {
+    pub fn new_from_u16(range: NamedRange<u16>, err_val: u16) -> GenericError {
         GenericError {
             msg: validation::failure_msg(range, err_val),
         }
     }
-    fn new_from_i16(range: NamedRange<i16>, err_val: i16) -> GenericError {
+    pub fn new_from_i16(range: NamedRange<i16>, err_val: i16) -> GenericError {
         GenericError {
             msg: validation::failure_msg(range, err_val),
         }
@@ -48,7 +40,7 @@ impl GenericError {
         }
     }
 
-    fn new_chart_err(err_type: chart::ErrType, err_val: f64) -> GenericError {
+    pub fn new_chart_err(err_type: chart::ErrType, err_val: f64) -> GenericError {
         match err_type {
             chart::ErrType::Graph => GenericError {
                 msg: format!(
