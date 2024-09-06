@@ -22,23 +22,22 @@ const {traceInfo} = defineTrace("domAccess")
 // Partial function to fetch, then parse a DOM element value
 const getParsedElementValue =
     parseFn =>
-        elementId =>
-            (el =>
-                    el ? parseFn(el.value)
-                        : traceInfo("getParsedElementValue")(`Element '${elementId}' not found`)
-            )
-            ($id(elementId))
-
+        elementId => {
+            let el = $id(elementId)
+            return el
+                ? parseFn(el.value)
+                : traceInfo("getParsedElementValue")(`Element '${elementId}' not found`)
+        }
 
 // *********************************************************************************************************************
 // Write values to DOM elements
 const setDomElementProperty =
-    (elementId, propName, parsedVal) =>
-        (el =>
-            el ? el[propName] = parsedVal
-               : traceInfo("setDomElementProperty")(`DOM element '${elementId}' not found`)
-        )
-        ($id(elementId))
+    (elementId, propName, parsedVal) => {
+        let el = $id(elementId)
+        return el
+            ? el[propName] = parsedVal
+            : traceInfo("setDomElementProperty")(`DOM element '${elementId}' not found`)
+    }
 
 // *********************************************************************************************************************
 //                                                  P U B L I C   A P I
@@ -71,7 +70,7 @@ const getCheckbox = elementId => $id(elementId).checked
 
 const getRadio =
     elementId => {
-        for (var rButton of $name(elementId)) {
+        for (let rButton of $name(elementId)) {
             if (rButton.checked) {
                 // The radio button string value must be coerced to a number
                 return +rButton.value
@@ -90,7 +89,7 @@ const setCheckbox = (elementId, val) => setDomElementProperty(elementId, "checke
 
 // Set radio button - the numeric argument value must be coerced to a string
 const setRadio = (elementId, val) => {
-    for (var rButton of $name(elementId)) {
+    for (let rButton of $name(elementId)) {
         rButton.checked = (rButton.value === val + "")
     }
 }
@@ -99,7 +98,7 @@ const setRadio = (elementId, val) => {
 // Fetch air temperature and pressure config values from the DOM
 // *********************************************************************************************************************
 const fetchConfigFromDom = () => ({
-    "air_temp":     $id("air_temp").value,
+    "air_temp": $id("air_temp").value,
     "air_pressure": $id("air_pressure").value
 })
 

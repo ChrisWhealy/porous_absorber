@@ -51,7 +51,8 @@ const showAbsInfo = (ctx, mousePos, canvasWidth, plotPoint) => {
         txtWidth + mousePos.x + ABS_INFO_OFFSET < canvasWidth
             ? mousePos.x + ABS_INFO_OFFSET
             : mousePos.x - ABS_INFO_OFFSET - txtWidth,
-        mousePos.y - ABS_INFO_OFFSET)
+        mousePos.y - ABS_INFO_OFFSET
+    )
 }
 
 // *********************************************************************************************************************
@@ -61,43 +62,46 @@ const showAbsInfo = (ctx, mousePos, canvasWidth, plotPoint) => {
 // *********************************************************************************************************************
 // Calculate mouse position when over a canvas element
 const mousePositionOnCanvas =
-    e =>
-        isNaN(e.offsetX)
-            ? mousePositionViaElementHierarchy(e)
-            : (el =>
-                    ({
-                        "x": e.offsetX * (el.width / el.offsetWidth || 1)
-                        , "y": e.offsetY * (el.height / el.offsetHeight || 1)
-                    })
-            )
-            (e.target)
+    e => {
+        if (isNaN(e.offsetX)) {
+            return mousePositionViaElementHierarchy(e)
+        } else {
+            let el = e.target
+            return ({
+                "x": e.offsetX * (el.width / el.offsetWidth || 1),
+                "y": e.offsetY * (el.height / el.offsetHeight || 1)
+            })
+        }
+    }
 
 const mousePositionViaElementHierarchy =
-    e =>
-        ((x, y, el) => {
-            do {
-                x -= el.offsetLeft
-                y -= el.offsetTop
-                el = el.offsetParent
-            }
-                // Stop when we reach the top of the DOM hierarchy
-            while (el)
+    e => {
+        let x = e.pageX
+        let y = e.pageY
+        let el = e.target
 
-            return {
-                "x": x * (el.width / el.offsetWidth || 1)
-                , "y": y * (el.height / el.offsetHeight || 1)
-            }
-        })
-        (e.pageX, e.pageY, e.target)
+        // Stop when we reach the top of the DOM hierarchy
+        do {
+            x -= el.offsetLeft
+            y -= el.offsetTop
+            el = el.offsetParent
+        }
+        while (el)
+
+        return {
+            "x": x * (el.width / el.offsetWidth || 1),
+            "y": y * (el.height / el.offsetHeight || 1)
+        }
+    }
 
 // *********************************************************************************************************************
 // Draw horizontal and vertical grid lines on the canvas within the chart boundary and create information popup when the
 // mouse pointer hovers over an absorption plot point
-// These cross hairs are drawn in the canvas overlay element, not the canvas containing the actual graph.
+// These cross-hairs are drawn in the canvas overlay element, not the canvas containing the actual graph.
 // These two canvas elements must sit exactly on top of each other
 const canvasMouseOverHandler =
     (canvas, chartBox, seriesData) => {
-        // Pass a function to determine whether the mouse pointer's current location is within the chart box area
+        // Generate a function to determine whether the mouse pointer's current location is within the chart box area
         let boxContains = isInsideRect(chartBox.top_left.x, chartBox.top_left.y, chartBox.bottom_right.x, chartBox.bottom_right.y)
         let ctx = canvas.getContext("2d")
 
@@ -117,27 +121,26 @@ const canvasMouseOverHandler =
             Object
                 .keys(seriesData)
                 .map(
-                    xValStr =>
-                        (xVal =>
-                                // Does the mouse pointer's current X position fall within the width of a plot point?
-                                (isBetween(xVal + PLOT_POINT_RADIUS, xVal - PLOT_POINT_RADIUS, mousePos.x))
-                                    // Yup, so check mouse pointer Y position
-                                    ? seriesData[xValStr].map(
-                                        plotPoint =>
-                                            (yVal =>
-                                                    // Does the mouse pointer's current Y position also fall within the height of a plot point?
-                                                    isBetween(yVal + PLOT_POINT_RADIUS, yVal - PLOT_POINT_RADIUS, mousePos.y)
-                                                        // Yup, so display the absorption information
-                                                        ? showAbsInfo(ctx, mousePos, canvas.width, plotPoint)
-                                                        // Nope...
-                                                        : null
-                                            )
-                                            (parseFloat(plotPoint.y))
-                                    )
-                                    // Nope...
-                                    : null
-                        )
-                        (parseFloat(xValStr))
+                    xValStr => {
+                        let xVal = parseFloat(xValStr)
+
+                        // Does the mouse pointer's current X position fall within the width of a plot point?
+                        return (isBetween(xVal + PLOT_POINT_RADIUS, xVal - PLOT_POINT_RADIUS, mousePos.x))
+                            // Yup, so check mouse pointer Y position
+                            ? seriesData[xValStr].map(
+                                plotPoint => {
+                                    let yVal = parseFloat(plotPoint.y)
+                                    // Does the mouse pointer's current Y position also fall within the height of a plot point?
+                                    return isBetween(yVal + PLOT_POINT_RADIUS, yVal - PLOT_POINT_RADIUS, mousePos.y)
+                                        // Yup, so display the absorption information
+                                        ? showAbsInfo(ctx, mousePos, canvas.width, plotPoint)
+                                        // Nope...
+                                        : null
+                                }
+                            )
+                            // Nope...
+                            : null
+                    }
                 )
         }
     }
@@ -146,11 +149,16 @@ const canvasMouseOverHandler =
 // Set canvas size and maintain aspect ratio of 21:9
 const setCanvasSize =
     canvas => {
-        let screen_width = Math.max(MIN_CANVAS_WIDTH, parseInt(window.getComputedStyle(document.body).width) - 2)
+        let screen_width = Math.max(
+            MIN_CANVAS_WIDTH,
+            parseInt(window.getComputedStyle(document.body).width) - 2
+        )
 
         // Only resize the canvas if the screen width has changed
         // The canvas height does not need to change if only the screen height changes
-        return (canvas.width !== screen_width) ? (canvas.width = screen_width, canvas.height = (canvas.width / 21) * 9) : null
+        return canvas.width !== screen_width
+            ? (canvas.width = screen_width, canvas.height = (canvas.width / 21) * 9)
+            : null
     }
 
 export {

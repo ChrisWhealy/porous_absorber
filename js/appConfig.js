@@ -77,7 +77,7 @@ const MIN_CANVAS_WIDTH = 1000
 //
 //         Otherwise, traceInfo becomes a wrapper function around the no_op() function defined in the util.js module
 //
-//         () => () => no_op()
+//         () => no_op
 //
 // 3) For any function within module "main" whose boundary crossings (entry and exit points) need to logged:
 //
