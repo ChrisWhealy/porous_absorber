@@ -23,14 +23,13 @@ use crate::{
     utils::maths_functions::*,
 };
 
-pub const MOD_NAME: &str = "calc_engine::microperforated_panel";
+pub const MOD_NAME: &str = "devices::microperforated_panel::calc_engine";
 
 /***********************************************************************************************************************
  * Microperforated Panel Calculation
  */
-pub fn calculate(config_set: &'_ ConfigSet) -> GenericDeviceInfo<'_> {
-    const FN_NAME: &str = "calculate";
-    let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, FN_NAME);
+pub fn calculate_plot_points(config_set: &'_ ConfigSet) -> GenericDeviceInfo<'_> {
+    let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, "calculate_plot_points");
     trace_boundary(TraceAction::Enter);
 
     let air = &config_set.air_config;
@@ -60,7 +59,7 @@ pub fn calculate(config_set: &'_ ConfigSet) -> GenericDeviceInfo<'_> {
             cavity: &cavity,
         },
         |mut acc, frequency| {
-            let abs_data = do_microperforated_panel_calc(*frequency, &air, &cavity, &panel, cos_angle);
+            let abs_data = calculate_plot_point(*frequency, &air, &cavity, &panel, cos_angle);
             acc.abs_series[0].plot_points.push(PlotAbsPoint {
                 at: render::constants::ORIGIN,
                 freq: *frequency,
@@ -78,15 +77,14 @@ pub fn calculate(config_set: &'_ ConfigSet) -> GenericDeviceInfo<'_> {
 /***********************************************************************************************************************
  * Reducer function to calculate the absorption of a microperforated panel absorber at a specific frequency
  */
-fn do_microperforated_panel_calc(
+fn calculate_plot_point(
     frequency: f64,
     air_cfg: &AirConfig,
     cavity_cfg: &CavityConfig,
     panel_cfg: &MicroperforatedPanelConfig,
     cos_angle: f64,
 ) -> f64 {
-    const FN_NAME: &str = "do_microperforated_panel_calc";
-
+    const FN_NAME: &str = "calculate_plot_point";
     let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, FN_NAME);
     let trace = make_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, FN_NAME);
 

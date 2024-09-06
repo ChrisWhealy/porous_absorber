@@ -3,10 +3,12 @@
  *
  * (c) Chris Whealy 2020
  */
+pub mod calc_engine;
+
 use wasm_bindgen::JsValue;
+use calc_engine::calculate_plot_points;
 
 use crate::{
-    calc_engine::porous_absorber,
     config::{
         air::AirConfig, cavity::CavityConfig, chart::ChartConfig, config_set::ConfigSet,
         porous_layer::PorousLayerConfig, sound::SoundConfig, trace_flags::trace_flag_for, GenericError,
@@ -20,8 +22,8 @@ pub const MOD_NAME: &str = "devices::porous_absorber";
 /***********************************************************************************************************************
  * Handle incoming arguments for calculating the absorption of a rigid backed porous absorption device
  */
-pub fn calculate(arg_obj: PorousAbsorberArgs) -> JsValue {
-    let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, "do_porous_absorber_device");
+pub fn prepare(arg_obj: PorousAbsorberArgs) -> JsValue {
+    let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, "prepare");
     trace_boundary(TraceAction::Enter);
 
     // Empty return data structure
@@ -41,12 +43,16 @@ pub fn calculate(arg_obj: PorousAbsorberArgs) -> JsValue {
             CavityConfig::default()
         }),
 
-        chart_config: ChartConfig::new(arg_obj.graph_start_freq, arg_obj.smooth_curve, arg_obj.subdivision, arg_obj.show_diagram).unwrap_or_else(
-            |err: GenericError| {
-                error_msgs.push(err.to_string());
-                ChartConfig::default()
-            },
-        ),
+        chart_config: ChartConfig::new(
+            arg_obj.graph_start_freq,
+            arg_obj.smooth_curve,
+            arg_obj.subdivision,
+            arg_obj.show_diagram,
+        )
+        .unwrap_or_else(|err: GenericError| {
+            error_msgs.push(err.to_string());
+            ChartConfig::default()
+        }),
 
         // Variable configuration
         sound_config: Some(SoundConfig::new(arg_obj.angle).unwrap_or_else(|err: GenericError| {
@@ -56,18 +62,20 @@ pub fn calculate(arg_obj: PorousAbsorberArgs) -> JsValue {
 
         panel_config: None,
 
-        porous_config: Some(PorousLayerConfig::new(arg_obj.absorber_thickness_mm, arg_obj.flow_resistivity).unwrap_or_else(
-            |err: GenericError| {
-                error_msgs.push(err.to_string());
-                PorousLayerConfig::default()
-            },
-        )),
+        porous_config: Some(
+            PorousLayerConfig::new(arg_obj.absorber_thickness_mm, arg_obj.flow_resistivity).unwrap_or_else(
+                |err: GenericError| {
+                    error_msgs.push(err.to_string());
+                    PorousLayerConfig::default()
+                },
+            ),
+        ),
     };
 
     // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
     // value "Ok", else return the array of error messages
     let series_data = if error_msgs.is_empty() {
-        let absorber_info = porous_absorber::calculate(&config_set);
+        let absorber_info = calculate_plot_points(&config_set);
 
         // Plot the graph
         let chart_info = crate::chart::render::generic_device(

@@ -1,33 +1,36 @@
 /***********************************************************************************************************************
- * Porous Absorber Calculator - Perforated Panel Absorption Device
- *
- * (c) Chris Whealy 2020
- */
+* Porous Absorber Calculator - Slotted Panel Absorption Device
+*
+* (c) Chris Whealy 2020
+*/
+pub mod calc_engine;
+
 use wasm_bindgen::JsValue;
+use calc_engine::calculate_plot_points;
 
 use crate::{
-    calc_engine::perforated_panel,
     config::{
         air::AirConfig,
         cavity::CavityConfig,
         chart::ChartConfig,
         config_set::{ConfigSet, PanelConfigSet},
-        panel_perforated::PerforatedPanelConfig,
+        panel_slotted::SlottedPanelConfig,
         porous_layer::PorousLayerConfig,
         trace_flags::trace_flag_for,
         GenericError,
     },
     trace::*,
-    PerforatedPanelArgs,
+    SlottedPanelArgs,
 };
 
-pub const MOD_NAME: &str = "devices::perforated_panel";
+pub const MOD_NAME: &str = "devices::slotted_panel";
 
 /***********************************************************************************************************************
- * Handle incoming arguments for calculating the absorption of a perforated panel absorption device
+ * Handle incoming arguments for calculating the absorption of a slotted panel absorption device
  */
-pub fn calculate(arg_obj: PerforatedPanelArgs) -> JsValue {
-    let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, "do_perforated_panel_device");
+pub fn prepare(arg_obj: SlottedPanelArgs) -> JsValue {
+    let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, "prepare");
+
     trace_boundary(TraceAction::Enter);
 
     // Empty return data structure
@@ -37,14 +40,19 @@ pub fn calculate(arg_obj: PerforatedPanelArgs) -> JsValue {
     // Construct set of configuration structs
     let panel_config_set = PanelConfigSet {
         panel_microperforated: None,
-        panel_perforated: Some(
-            PerforatedPanelConfig::new(arg_obj.panel_thickness_mm, arg_obj.repeat_distance_mm, arg_obj.hole_radius_mm, arg_obj.porosity)
-                .unwrap_or_else(|err: GenericError| {
-                    error_msgs.push(err.to_string());
-                    PerforatedPanelConfig::default()
-                }),
+        panel_perforated: None,
+        panel_slotted: Some(
+            SlottedPanelConfig::new(
+                arg_obj.panel_thickness_mm,
+                arg_obj.slot_distance_mm,
+                arg_obj.slot_width_mm,
+                arg_obj.slotted_porosity,
+            )
+            .unwrap_or_else(|err: GenericError| {
+                error_msgs.push(err.to_string());
+                SlottedPanelConfig::default()
+            }),
         ),
-        panel_slotted: None,
     };
 
     let config_set = ConfigSet {
@@ -59,29 +67,35 @@ pub fn calculate(arg_obj: PerforatedPanelArgs) -> JsValue {
             CavityConfig::default()
         }),
 
-        chart_config: ChartConfig::new(arg_obj.graph_start_freq, arg_obj.smooth_curve, arg_obj.subdivision, arg_obj.show_diagram).unwrap_or_else(
-            |err: GenericError| {
-                error_msgs.push(err.to_string());
-                ChartConfig::default()
-            },
-        ),
+        chart_config: ChartConfig::new(
+            arg_obj.graph_start_freq,
+            arg_obj.smooth_curve,
+            arg_obj.subdivision,
+            arg_obj.show_diagram,
+        )
+        .unwrap_or_else(|err: GenericError| {
+            error_msgs.push(err.to_string());
+            ChartConfig::default()
+        }),
 
         // Variable configuration
         sound_config: None,
 
         panel_config: Some(panel_config_set),
-        porous_config: Some(PorousLayerConfig::new(arg_obj.absorber_thickness_mm, arg_obj.flow_resistivity).unwrap_or_else(
-            |err: GenericError| {
-                error_msgs.push(err.to_string());
-                PorousLayerConfig::default()
-            },
-        )),
+        porous_config: Some(
+            PorousLayerConfig::new(arg_obj.absorber_thickness_mm, arg_obj.flow_resistivity).unwrap_or_else(
+                |err: GenericError| {
+                    error_msgs.push(err.to_string());
+                    PorousLayerConfig::default()
+                },
+            ),
+        ),
     };
 
     // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
     // value "Ok", else return the array of error messages
     let series_data = if error_msgs.is_empty() {
-        let absorber_info = perforated_panel::calculate(&config_set);
+        let absorber_info = calculate_plot_points(&config_set);
 
         // Plot the graph
         let chart_info = crate::chart::render::generic_device(

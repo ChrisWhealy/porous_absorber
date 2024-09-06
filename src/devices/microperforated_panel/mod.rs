@@ -1,34 +1,36 @@
 /***********************************************************************************************************************
-* Porous Absorber Calculator - Slotted Panel Absorption Device
-*
-* (c) Chris Whealy 2020
-*/
+ * Porous Absorber Calculator - Microperforated Panel Absorption Device
+ *
+ * (c) Chris Whealy 2020
+ */
+pub mod calc_engine;
+
 use wasm_bindgen::JsValue;
+use calc_engine::calculate_plot_points;
 
 use crate::{
-    calc_engine::slotted_panel,
+    chart::constants::chart_title_at_incident_angle,
     config::{
         air::AirConfig,
         cavity::CavityConfig,
         chart::ChartConfig,
         config_set::{ConfigSet, PanelConfigSet},
-        panel_slotted::SlottedPanelConfig,
-        porous_layer::PorousLayerConfig,
+        panel_microperforated::MicroperforatedPanelConfig,
+        sound::SoundConfig,
         trace_flags::trace_flag_for,
         GenericError,
     },
     trace::*,
-    SlottedPanelArgs,
+    MicroperforatedPanelArgs,
 };
 
-pub const MOD_NAME: &str = "devices::slotted_panel";
+pub const MOD_NAME: &str = "devices::microperforated_panel";
 
 /***********************************************************************************************************************
- * Handle incoming arguments for calculating the absorption of a slotted panel absorption device
+ * Handle incoming arguments for calculating the absorption of a micro-perforated panel absorption device
  */
-pub fn calculate(arg_obj: SlottedPanelArgs) -> JsValue {
-    let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, "do_slotted_panel_device");
-
+pub fn prepare(arg_obj: MicroperforatedPanelArgs) -> JsValue {
+    let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, "prepare");
     trace_boundary(TraceAction::Enter);
 
     // Empty return data structure
@@ -37,15 +39,16 @@ pub fn calculate(arg_obj: SlottedPanelArgs) -> JsValue {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Construct set of configuration structs
     let panel_config_set = PanelConfigSet {
-        panel_microperforated: None,
-        panel_perforated: None,
-        panel_slotted: Some(
-            SlottedPanelConfig::new(arg_obj.panel_thickness_mm, arg_obj.slot_distance_mm, arg_obj.slot_width_mm, arg_obj.slotted_porosity)
+        panel_microperforated: Some(
+            MicroperforatedPanelConfig::new(arg_obj.panel_thickness_mm, arg_obj.repeat_distance_mm, arg_obj.hole_radius_mm, arg_obj.porosity)
                 .unwrap_or_else(|err: GenericError| {
                     error_msgs.push(err.to_string());
-                    SlottedPanelConfig::default()
+                    MicroperforatedPanelConfig::default()
                 }),
         ),
+
+        panel_perforated: None,
+        panel_slotted: None,
     };
 
     let config_set = ConfigSet {
@@ -67,28 +70,29 @@ pub fn calculate(arg_obj: SlottedPanelArgs) -> JsValue {
             },
         ),
 
-        // Variable configuration
-        sound_config: None,
+        sound_config: Some(SoundConfig::new(arg_obj.angle).unwrap_or_else(|err: GenericError| {
+            error_msgs.push(err.to_string());
+            SoundConfig::default()
+        })),
 
         panel_config: Some(panel_config_set),
-        porous_config: Some(PorousLayerConfig::new(arg_obj.absorber_thickness_mm, arg_obj.flow_resistivity).unwrap_or_else(
-            |err: GenericError| {
-                error_msgs.push(err.to_string());
-                PorousLayerConfig::default()
-            },
-        )),
+        porous_config: None,
     };
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // If there are no error messages, then calculate the absorption values, plot the graph and return the placeholder
     // value "Ok", else return the array of error messages
     let series_data = if error_msgs.is_empty() {
-        let absorber_info = slotted_panel::calculate(&config_set);
+        let absorber_info = calculate_plot_points(&config_set);
 
         // Plot the graph
         let chart_info = crate::chart::render::generic_device(
             absorber_info,
             &config_set.chart_config,
-            crate::chart::constants::CHART_TITLE_NORMAL_INCIDENCE,
+            &chart_title_at_incident_angle(
+                crate::chart::constants::CHART_TITLE_OVERALL_ABS,
+                config_set.sound_config.as_ref().unwrap().angle,
+            ),
         );
 
         serde_wasm_bindgen::to_value(&chart_info).unwrap()

@@ -5,7 +5,6 @@
  */
 extern crate serde_wasm_bindgen;
 
-mod calc_engine;
 mod chart;
 mod config;
 mod devices;
@@ -20,7 +19,7 @@ use wasm_bindgen::prelude::*;
  */
 use crate::{
     config::trace_flags::trace_flag_for,
-    trace::*,
+    trace::{make_boundary_trace_fn, make_trace_fn, TraceAction},
 };
 
 pub const MOD_NAME: &str = "lib";
@@ -28,7 +27,7 @@ pub const MOD_NAME: &str = "lib";
 /***********************************************************************************************************************
  * Rigid backed porous absorber
  */
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct PorousAbsorberArgs {
     pub absorber_thickness_mm: u16,
     pub flow_resistivity: u32,
@@ -46,31 +45,24 @@ pub struct PorousAbsorberArgs {
 pub fn porous_absorber(wasm_arg_obj: JsValue) -> JsValue {
     const FN_NAME: &str = "porous_absorber";
     let trace_active = trace_flag_for(MOD_NAME);
-    let trace = make_trace_fn(trace_active, MOD_NAME, FN_NAME);
-
     make_boundary_trace_fn(trace_active, MOD_NAME, FN_NAME)(TraceAction::EnterExit);
 
-    let arg_obj: PorousAbsorberArgs = serde_wasm_bindgen::from_value(wasm_arg_obj).unwrap();
-
-    // What values did we receive from JavaScript?
-    trace(format!("absorber_thickness_mm = {}", arg_obj.absorber_thickness_mm));
-    trace(format!("flow_resistivity      = {}", arg_obj.flow_resistivity));
-    trace(format!("air_gap_mm            = {}", arg_obj.air_gap_mm));
-    trace(format!("angle                 = {}", arg_obj.angle));
-    trace(format!("graph_start_freq      = {}", arg_obj.graph_start_freq));
-    trace(format!("smooth_curve          = {}", arg_obj.smooth_curve));
-    trace(format!("subdivision           = {}", arg_obj.subdivision));
-    trace(format!("show_diagram          = {}", arg_obj.show_diagram));
-    trace(format!("air_temp              = {}", arg_obj.air_temp));
-    trace(format!("air_pressure          = {}", arg_obj.air_pressure));
-
-    devices::porous_absorber::calculate(arg_obj)
+    match serde_wasm_bindgen::from_value::<PorousAbsorberArgs>(wasm_arg_obj) {
+        Ok(arg_obj) => {
+            make_trace_fn(trace_active, MOD_NAME, FN_NAME)(format!("{:?}", arg_obj));
+            devices::porous_absorber::prepare(arg_obj)
+        },
+        Err(err) => {
+            trace::error(err.to_string());
+            JsValue::undefined()
+        },
+    }
 }
 
 /***********************************************************************************************************************
  * Slotted panel
  */
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct SlottedPanelArgs {
     pub panel_thickness_mm: f64,
     pub slot_distance_mm: f64,
@@ -91,34 +83,24 @@ pub struct SlottedPanelArgs {
 pub fn slotted_panel(wasm_arg_obj: JsValue) -> JsValue {
     const FN_NAME: &str = "slotted_panel";
     let trace_active = trace_flag_for(MOD_NAME);
-    let trace = make_trace_fn(trace_active, MOD_NAME, FN_NAME);
-
     make_boundary_trace_fn(trace_active, MOD_NAME, FN_NAME)(TraceAction::EnterExit);
 
-    let arg_obj: SlottedPanelArgs = serde_wasm_bindgen::from_value(wasm_arg_obj).unwrap();
-
-    // What values did we receive from JavaScript?
-    trace(format!("panel_thickness_mm    = {}", arg_obj.panel_thickness_mm));
-    trace(format!("slot_distance_mm      = {}", arg_obj.slot_distance_mm));
-    trace(format!("slot_width_mm         = {}", arg_obj.slot_width_mm));
-    trace(format!("slotted_porosity      = {}", arg_obj.slotted_porosity));
-    trace(format!("absorber_thickness_mm = {}", arg_obj.absorber_thickness_mm));
-    trace(format!("flow_resistivity      = {}", arg_obj.flow_resistivity));
-    trace(format!("air_gap_mm            = {}", arg_obj.air_gap_mm));
-    trace(format!("graph_start_freq      = {}", arg_obj.graph_start_freq));
-    trace(format!("smooth_curve          = {}", arg_obj.smooth_curve));
-    trace(format!("subdivision           = {}", arg_obj.subdivision));
-    trace(format!("show_diagram          = {}", arg_obj.show_diagram));
-    trace(format!("air_temp              = {}", arg_obj.air_temp));
-    trace(format!("air_pressure          = {}", arg_obj.air_pressure));
-
-    devices::slotted_panel::calculate(arg_obj)
+    match serde_wasm_bindgen::from_value::<SlottedPanelArgs>(wasm_arg_obj) {
+        Ok(arg_obj) => {
+            make_trace_fn(trace_active, MOD_NAME, FN_NAME)(format!("{:?}", arg_obj));
+            devices::slotted_panel::prepare(arg_obj)
+        }
+        Err(err) => {
+            trace::error(err.to_string());
+            JsValue::undefined()
+        }
+    }
 }
 
 /***********************************************************************************************************************
  * Perforated panel
  */
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct PerforatedPanelArgs {
     pub panel_thickness_mm: f64,
     pub repeat_distance_mm: f64,
@@ -139,34 +121,24 @@ pub struct PerforatedPanelArgs {
 pub fn perforated_panel(wasm_arg_obj: JsValue) -> JsValue {
     const FN_NAME: &str = "perforated_panel";
     let trace_active = trace_flag_for(MOD_NAME);
-    let trace = make_trace_fn(trace_active, MOD_NAME, FN_NAME);
-
     make_boundary_trace_fn(trace_active, MOD_NAME, FN_NAME)(TraceAction::EnterExit);
 
-    let arg_obj: PerforatedPanelArgs = serde_wasm_bindgen::from_value(wasm_arg_obj).unwrap();
-
-    // What values did we receive from JavaScript?
-    trace(format!("panel_thickness_mm    = {}", arg_obj.panel_thickness_mm));
-    trace(format!("repeat_distance_mm    = {}", arg_obj.repeat_distance_mm));
-    trace(format!("hole_radius_mm        = {}", arg_obj.hole_radius_mm));
-    trace(format!("porosity              = {}", arg_obj.porosity));
-    trace(format!("absorber_thickness_mm = {}", arg_obj.absorber_thickness_mm));
-    trace(format!("flow_resistivity      = {}", arg_obj.flow_resistivity));
-    trace(format!("air_gap_mm            = {}", arg_obj.air_gap_mm));
-    trace(format!("graph_start_freq      = {}", arg_obj.graph_start_freq));
-    trace(format!("smooth_curve          = {}", arg_obj.smooth_curve));
-    trace(format!("subdivision           = {}", arg_obj.subdivision));
-    trace(format!("show_diagram          = {}", arg_obj.show_diagram));
-    trace(format!("air_temp              = {}", arg_obj.air_temp));
-    trace(format!("air_pressure          = {}", arg_obj.air_pressure));
-
-    devices::perforated_panel::calculate(arg_obj)
+    match serde_wasm_bindgen::from_value::<PerforatedPanelArgs>(wasm_arg_obj) {
+        Ok(arg_obj) => {
+            make_trace_fn(trace_active, MOD_NAME, FN_NAME)(format!("{:?}", arg_obj));
+            devices::perforated_panel::prepare(arg_obj)
+        }
+        Err(err) => {
+            trace::error(err.to_string());
+            JsValue::undefined()
+        }
+    }
 }
 
 /***********************************************************************************************************************
  * Microperforated panel
  */
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct MicroperforatedPanelArgs {
     pub panel_thickness_mm: f64,
     pub repeat_distance_mm: f64,
@@ -186,25 +158,16 @@ pub struct MicroperforatedPanelArgs {
 pub fn microperforated_panel(wasm_arg_obj: JsValue) -> JsValue {
     const FN_NAME: &str = "microperforated_panel";
     let trace_active = trace_flag_for(MOD_NAME);
-    let trace = make_trace_fn(trace_active, MOD_NAME, FN_NAME);
-
     make_boundary_trace_fn(trace_active, MOD_NAME, FN_NAME)(TraceAction::EnterExit);
 
-    let arg_obj: MicroperforatedPanelArgs = serde_wasm_bindgen::from_value(wasm_arg_obj).unwrap();
-
-    // What values did we receive from JavaScript?
-    trace(format!("panel_thickness_mm    = {}", arg_obj.panel_thickness_mm));
-    trace(format!("repeat_distance_mm    = {}", arg_obj.repeat_distance_mm));
-    trace(format!("hole_radius_mm        = {}", arg_obj.hole_radius_mm));
-    trace(format!("porosity              = {}", arg_obj.porosity));
-    trace(format!("air_gap_mm            = {}", arg_obj.air_gap_mm));
-    trace(format!("angle                 = {}", arg_obj.angle));
-    trace(format!("graph_start_freq      = {}", arg_obj.graph_start_freq));
-    trace(format!("smooth_curve          = {}", arg_obj.smooth_curve));
-    trace(format!("subdivisions          = {}", arg_obj.subdivision));
-    trace(format!("show_diagram          = {}", arg_obj.show_diagram));
-    trace(format!("air_temp              = {}", arg_obj.air_temp));
-    trace(format!("air_pressure          = {}", arg_obj.air_pressure));
-
-    devices::microperforated_panel::calculate(arg_obj)
+    match serde_wasm_bindgen::from_value::<MicroperforatedPanelArgs>(wasm_arg_obj) {
+        Ok(arg_obj) => {
+            make_trace_fn(trace_active, MOD_NAME, FN_NAME)(format!("{:?}", arg_obj));
+            devices::microperforated_panel::prepare(arg_obj)
+        }
+        Err(err) => {
+            trace::error(err.to_string());
+            JsValue::undefined()
+        }
+    }
 }

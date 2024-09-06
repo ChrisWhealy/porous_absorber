@@ -15,6 +15,8 @@ use wasm_bindgen::prelude::*;
 extern "C" {
     #[wasm_bindgen(js_namespace = console)]
     pub fn log(s: String);
+    #[wasm_bindgen(js_namespace = console)]
+    pub fn error(s: String);
 }
 
 pub enum TraceAction {

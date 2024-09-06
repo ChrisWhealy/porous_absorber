@@ -55,6 +55,7 @@ fn gen_frequencies(graph_start_freq: &f64, subdivisions: &u16) -> Vec<f64> {
 /***********************************************************************************************************************
  * Display configuration
  */
+#[allow(dead_code)]
 pub struct ChartConfig {
     pub graph_start_freq: f64,
     pub smooth_curve: bool,

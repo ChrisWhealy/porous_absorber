@@ -3,22 +3,25 @@
  *
  * (c) Chris Whealy 2020
  */
-use crate::{devices, calc_engine, chart};
+use crate::{
+    chart,
+    devices::{microperforated_panel, perforated_panel, porous_absorber, slotted_panel},
+};
 
 type TraceConfig<'a> = (bool, &'a str);
 
 const TRACE_CONFIG: [TraceConfig; 11] = [
-    (false, crate::MOD_NAME),
-    (false, calc_engine::microperforated_panel::MOD_NAME),
-    (false, calc_engine::perforated_panel::MOD_NAME),
-    (false, calc_engine::porous_absorber::MOD_NAME),
-    (false, calc_engine::slotted_panel::MOD_NAME),
-    (false, chart::render::MOD_NAME),
-    (false, chart::render::draw::MOD_NAME),
-    (false, devices::microperforated_panel::MOD_NAME),
-    (false, devices::perforated_panel::MOD_NAME),
-    (false, devices::porous_absorber::MOD_NAME),
-    (false, devices::slotted_panel::MOD_NAME),
+    (true, crate::MOD_NAME),
+    (true, chart::render::MOD_NAME),
+    (true, chart::render::draw::MOD_NAME),
+    (true, microperforated_panel::MOD_NAME),
+    (true, microperforated_panel::calc_engine::MOD_NAME),
+    (true, perforated_panel::MOD_NAME),
+    (true, perforated_panel::calc_engine::MOD_NAME),
+    (true, porous_absorber::MOD_NAME),
+    (true, porous_absorber::calc_engine::MOD_NAME),
+    (true, slotted_panel::MOD_NAME),
+    (true, slotted_panel::calc_engine::MOD_NAME),
 ];
 
 pub fn trace_flag_for(mod_name: &str) -> bool {
