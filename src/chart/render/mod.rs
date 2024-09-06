@@ -10,7 +10,7 @@ pub mod draw;
 
 use wasm_bindgen::{JsCast, JsValue};
 
-use crate::chart::{constants::*, render::constants::*};
+use super::{constants::*, render::constants::*};
 use crate::config::{
     chart::{ChartConfig, ChartInfo, SeriesData},
     generic_device::{DeviceType, GenericDeviceInfo},

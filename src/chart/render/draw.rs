@@ -38,9 +38,9 @@ const QUARTER_TURN: f64 = TAU / 4.0;
 
 pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_axis_length: &f64, y_axis_inset: &f64) {
     const FN_NAME: &str = "device_diagram";
-
-    let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, FN_NAME);
-    let trace = make_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, FN_NAME);
+    let trace_active = trace_flag_for(MOD_NAME);
+    let trace_boundary = make_boundary_trace_fn(trace_active, MOD_NAME, FN_NAME);
+    let trace = make_trace_fn(trace_active, MOD_NAME, FN_NAME);
 
     trace_boundary(TraceAction::Enter);
 
@@ -49,11 +49,10 @@ pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_ax
     let canvas = canvas_el.dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
     let ctx = get_2d_context(&canvas);
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Calculate the overall depth of the device in mm
-    // One millimetre of device depth will be rendered as one pixel on the canvas up until the point that the device depth
-    // exceeds the number of pixels.  After this, the images will be scaled down to fit the available space
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // One millimetre of device depth will be rendered as one pixel on the canvas up until the point that the device
+    // depth exceeds the number of pixels.  After this, the images will be scaled down to fit the available space
     let air_gap_mm = device.cavity.air_gap_mm as f64;
 
     let absorber_thickness_mm = match device.porous_layer {
@@ -99,16 +98,14 @@ pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_ax
     trace(format!("Available space for diagram = {} px", available_pxls));
     trace(format!("Pixels per mm = {}", horiz_pixels_per_mm));
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Fetch image elements from the DOM
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     let wall_img = fetch_image(&document, render::constants::WALL_IMG_ID);
     let panel_img = fetch_image(&document, render::constants::PANEL_IMG_ID);
     let absorber_img = fetch_image(&document, render::constants::ABSORBER_IMG_ID);
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Draw fixed wall image
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     let wall_pos_x = render::constants::LEFT_MARGIN_INSET - render::constants::WALL_IMG_WIDTH;
     let wall_pos_y = render::constants::X_AXIS_INSET;
 
@@ -124,10 +121,9 @@ pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_ax
         },
     );
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Draw an optional absorber layer - this layer is absent for the microperforated panel device
     // Firefox crashes if you attempt to draw a zero-width image, but Chrome and Brave are fine with this
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     let half_height = *y_axis_length / 2.0;
 
     let abs_pos_x = render::constants::LEFT_MARGIN_INSET + (air_gap_mm * horiz_pixels_per_mm);
@@ -203,10 +199,9 @@ pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_ax
         trace("Not drawing absorber - zero thickness".to_string());
     }
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Draw an optional panel - this layer is absent for the rigid backed porous absorber device
     // Firefox crashes if you attempt to draw a zero-width image, but Chrome and Brave are fine with this
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     let panel_width_px = panel_thickness_mm * horiz_pixels_per_mm;
     let panel_pos_x = abs_pos_x + abs_width_px;
     let panel_pos_y = render::constants::X_AXIS_INSET;
@@ -233,8 +228,8 @@ pub fn device_diagram(device: &GenericDeviceInfo, widest_y_tick_label: f64, y_ax
             },
         );
 
-        // On the microperforated panel, the hole diameter is so small that without the use of a scale factor to magnify
-        // them, the holes would be almost invisible
+        // On the microperforated panel, the holes are so small that without the use of a scale factor to magnify them,
+        // they would be almost invisible
         let scale_factor = match device.device_type {
             DeviceType::MicroperforatedPanelAbsorber => render::constants::MP_SCALE_FACTOR,
             _ => 1.0,
@@ -273,16 +268,16 @@ pub fn title_and_key(
     series_list: Vec<&SeriesMetadata>,
 ) {
     const FN_NAME: &str = "title_and_key";
-
-    let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, FN_NAME);
-    let trace = make_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, FN_NAME);
+    let trace_active = trace_flag_for(MOD_NAME);
+    let trace_boundary = make_boundary_trace_fn(trace_active, MOD_NAME, FN_NAME);
+    let trace = make_trace_fn(trace_active, MOD_NAME, FN_NAME);
 
     trace_boundary(TraceAction::Enter);
 
     let ctx = get_2d_context(&canvas);
     ctx.save();
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Set font and stroke colour, then measure title width
     ctx.set_font(&title_font.font());
     ctx.set_stroke_style(&JsValue::from(title_font.stroke_style));
@@ -294,9 +289,9 @@ pub fn title_and_key(
         render::constants::LEFT_MARGIN_INSET,
         render::constants::TOP_MARGIN_INSET,
     )
-        .unwrap();
+    .unwrap();
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Key spacing
     ctx.set_font(&key_font.font());
     ctx.set_stroke_style(&JsValue::from(key_font.stroke_style));
@@ -396,9 +391,9 @@ pub fn title_and_key(
  */
 pub fn axes(canvas: &web_sys::HtmlCanvasElement, chart_cfg: &ChartConfig, y_axis_inset: &f64) -> (ChartBox, f64) {
     const FN_NAME: &str = "axes";
-
-    let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, FN_NAME);
-    let trace = make_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, FN_NAME);
+    let trace_active = trace_flag_for(MOD_NAME);
+    let trace_boundary = make_boundary_trace_fn(trace_active, MOD_NAME, FN_NAME);
+    let trace = make_trace_fn(trace_active, MOD_NAME, FN_NAME);
 
     trace_boundary(TraceAction::Enter);
 
@@ -503,7 +498,6 @@ pub fn splines(
 ) -> Vec<PlotAbsPoint> {
     const FN_NAME: &str = "splines";
     let trace_active = trace_flag_for(MOD_NAME);
-
     let trace_boundary = make_boundary_trace_fn(trace_active, MOD_NAME, FN_NAME);
     let trace = make_trace_fn(trace_active, MOD_NAME, FN_NAME);
 
@@ -565,20 +559,18 @@ pub fn splines(
     abs_points
 }
 
-/***********************************************************************************************************************
- *
- * Private API
- *
- */
+//**********************************************************************************************************************
+// Private API
+//**********************************************************************************************************************
 
 /***********************************************************************************************************************
  * Draw a single axis
  */
 fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: Axis) -> f64 {
     const FN_NAME: &str = "draw_axis";
-
-    let trace_boundary = make_boundary_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, FN_NAME);
-    let trace = make_trace_fn(trace_flag_for(MOD_NAME), MOD_NAME, FN_NAME);
+    let trace_active = trace_flag_for(MOD_NAME);
+    let trace_boundary = make_boundary_trace_fn(trace_active, MOD_NAME, FN_NAME);
+    let trace = make_trace_fn(trace_active, MOD_NAME, FN_NAME);
 
     trace_boundary(TraceAction::Enter);
 
@@ -661,7 +653,7 @@ fn draw_axis(canvas: &web_sys::HtmlCanvasElement, axis_info: Axis) -> f64 {
                 y_axis_name_x_pos(tick_label_width, &axis_info.start_point.x),
                 mid_height + (axis_label_width / 2.0),
             )
-                .unwrap();
+            .unwrap();
             ctx.rotate(-QUARTER_TURN).unwrap();
         },
     }

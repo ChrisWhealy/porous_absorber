@@ -6,8 +6,10 @@
 use libm::{pow, sqrt};
 use wasm_bindgen::JsCast;
 
-use crate::chart::render::constants::{BOTTOM_MARGIN_INSET, RIGHT_MARGIN_INSET, X_AXIS_INSET};
-use crate::config::chart::PlotAbsPoint;
+use crate::{
+    chart::render::constants::{BOTTOM_MARGIN_INSET, RIGHT_MARGIN_INSET, X_AXIS_INSET},
+    config::chart::PlotAbsPoint,
+};
 
 pub fn get_2d_context(canvas: &web_sys::HtmlCanvasElement) -> web_sys::CanvasRenderingContext2d {
     canvas

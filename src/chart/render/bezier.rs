@@ -3,8 +3,10 @@
 *
 * (c) Chris Whealy 2020
 */
-use crate::chart::render::canvas_utils::distance;
-use crate::config::chart::{PlotAbsPoint, PlotPoint};
+use crate::{
+    chart::render::canvas_utils::distance,
+    config::chart::{PlotAbsPoint, PlotPoint},
+};
 
 /***********************************************************************************************************************
  * Generate two Bézier control points that lie between the three supplied plot points
