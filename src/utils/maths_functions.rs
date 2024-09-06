@@ -3,10 +3,12 @@
  *
  * (c) Chris Whealy 2020
  */
+extern crate wasm_bindgen;
+
 use libm::{fabs, pow, sqrt};
 use num::complex::Complex;
 
-use crate::{config::air::AirConfig, devices::porous_absorber::config::PorousLayerConfig};
+use crate::config::{air::AirConfig, porous_layer::PorousLayerConfig};
 
 // https://tauday.com/tau-manifesto/
 pub const TAU: f64 = 2.0 * std::f64::consts::PI;

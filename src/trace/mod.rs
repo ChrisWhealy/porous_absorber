@@ -8,8 +8,6 @@
 use std::fmt::Formatter;
 use wasm_bindgen::prelude::*;
 
-pub mod trace_flags;
-
 /***********************************************************************************************************************
  * Interface to browser console.log() function
  */

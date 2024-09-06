@@ -3,7 +3,8 @@
  *
  * (c) Chris Whealy 2020
  */
-use super::config::MicroperforatedPanelConfig;
+extern crate wasm_bindgen;
+
 use libm::{cos, sin, sqrt};
 use num::complex::Complex;
 
@@ -13,12 +14,14 @@ use crate::{
         air::{AirConfig, AIR_VISCOSITY},
         cavity::CavityConfig,
         chart::{PlotAbsPoint, SeriesData},
+        config_set::ConfigSet,
+        generic_device::{DeviceType, GenericDeviceInfo},
+        panel_microperforated::MicroperforatedPanelConfig,
+        trace_flags::trace_flag_for,
     },
-    devices::{ConfigSet, DeviceType, GenericDeviceInfo},
     trace::*,
     utils::maths_functions::*,
 };
-use crate::trace::trace_flags::trace_flag_for;
 
 pub const MOD_NAME: &str = "devices::microperforated_panel::calc_engine";
 

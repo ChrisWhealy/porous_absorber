@@ -3,6 +3,8 @@
  *
  * (c) Chris Whealy 2020
  */
+extern crate num_format;
+
 use serde_derive::{Deserialize, Serialize};
 use super::GenericError;
 use crate::config::{constants, ranges::NamedRange};
@@ -58,7 +60,7 @@ impl SlottedPanelConfig {
             WIDTH_RANGE.default,
             DEFAULT_POROSITY,
         )
-            .unwrap()
+        .unwrap()
     }
 
     pub fn new(

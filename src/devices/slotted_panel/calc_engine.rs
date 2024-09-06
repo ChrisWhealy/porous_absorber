@@ -3,17 +3,22 @@
  *
  * (c) Chris Whealy 2020
  */
+extern crate wasm_bindgen;
+
 use libm::{log, sin};
 use num::complex::Complex;
 
 use crate::{
     chart::{constants, render},
-    config::chart::{PlotAbsPoint, SeriesData},
-    devices::{ConfigSet, DeviceType, GenericDeviceInfo},
+    config::{
+        chart::{PlotAbsPoint, SeriesData},
+        config_set::ConfigSet,
+        generic_device::{DeviceType, GenericDeviceInfo},
+        trace_flags::trace_flag_for,
+    },
     trace::*,
     utils::maths_functions::*,
 };
-use crate::trace::trace_flags::trace_flag_for;
 
 pub const MOD_NAME: &str = "devices::slotted_panel::calc_engine";
 

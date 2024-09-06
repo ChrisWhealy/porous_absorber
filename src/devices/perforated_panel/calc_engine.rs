@@ -3,6 +3,8 @@
  *
  * (c) Chris Whealy 2020
  */
+extern crate wasm_bindgen;
+
 use libm::{pow, sqrt};
 use num::complex::Complex;
 
@@ -11,12 +13,13 @@ use crate::{
     config::{
         air::AIR_VISCOSITY,
         chart::{PlotAbsPoint, SeriesData},
+        config_set::ConfigSet,
+        generic_device::{DeviceType, GenericDeviceInfo},
+        trace_flags::trace_flag_for,
     },
-    devices::{ConfigSet, DeviceType, GenericDeviceInfo},
     trace::*,
     utils::maths_functions::*,
 };
-use crate::trace::trace_flags::trace_flag_for;
 
 pub const MOD_NAME: &str = "devices::perforated_panel::calc_engine";
 

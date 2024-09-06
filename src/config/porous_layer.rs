@@ -3,6 +3,8 @@
  *
  * (c) Chris Whealy 2020
  */
+extern crate num_format;
+
 use serde_derive::{Deserialize, Serialize};
 use super::GenericError;
 use crate::config::{constants, ranges::NamedRange};

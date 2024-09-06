@@ -4,19 +4,24 @@
 * (c) Chris Whealy 2020
 */
 pub mod calc_engine;
-pub mod config;
 
-use calc_engine::calculate_plot_points;
-use config::SlottedPanelConfig;
 use wasm_bindgen::JsValue;
+use calc_engine::calculate_plot_points;
 
 use crate::{
-    config::{air::AirConfig, cavity::CavityConfig, chart::ChartConfig, GenericError},
-    devices::{porous_absorber::config::PorousLayerConfig, ConfigSet, PanelConfigSet},
+    config::{
+        air::AirConfig,
+        cavity::CavityConfig,
+        chart::ChartConfig,
+        config_set::{ConfigSet, PanelConfigSet},
+        panel_slotted::SlottedPanelConfig,
+        porous_layer::PorousLayerConfig,
+        trace_flags::trace_flag_for,
+        GenericError,
+    },
     trace::*,
     SlottedPanelArgs,
 };
-use crate::trace::trace_flags::trace_flag_for;
 
 pub const MOD_NAME: &str = "devices::slotted_panel";
 

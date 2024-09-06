@@ -10,12 +10,14 @@ use crate::{
         render,
         render::{bezier, canvas_utils::*},
     },
-    config::chart::*,
-    devices::{DeviceType, GenericDeviceInfo},
+    config::{
+        chart::*,
+        generic_device::{DeviceType, GenericDeviceInfo},
+        trace_flags::trace_flag_for,
+    },
     trace::*,
     utils::maths_functions::TAU,
 };
-use crate::trace::trace_flags::trace_flag_for;
 
 pub const MOD_NAME: &str = "chart::render::draw";
 
