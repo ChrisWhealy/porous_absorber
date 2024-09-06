@@ -26,8 +26,7 @@ pub fn air_density(pressure: f64, temp: i16) -> f64 {
 }
 
 pub fn sound_velocity(temp: f64) -> f64 {
-    // ((GAMMA * ONE_ATM) / AIR_DENSITY_0).sqrt() = 331.4614688
-    (331.4614688 * (1.0 + (temp / KELVIN_OFFSET))).sqrt()
+    ((GAMMA * ONE_ATM) / AIR_DENSITY_0).sqrt() * (1.0 + (temp / KELVIN_OFFSET)).sqrt()
 }
 
 /***********************************************************************************************************************
