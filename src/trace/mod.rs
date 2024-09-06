@@ -38,21 +38,26 @@ impl std::fmt::Display for TraceAction {
 /*********************************************************************************************************************
  * Trace execution flow at function boundaries
  */
-pub fn make_boundary_trace_fn<'a>(is_active: bool, mod_name: &'a str, fn_name: &'a str) -> impl Fn(TraceAction) + 'a {
-    move |action: TraceAction| {
-        if is_active {
-            log(format!("{} {}.{}()", action, mod_name, fn_name));
-        }
+pub fn make_boundary_trace_fn<'a>(is_active: bool, mod_name: &'a str, fn_name: &'a str) -> Box<dyn Fn(TraceAction) + 'a> {
+    if is_active {
+        Box::new(
+            move |action: TraceAction| {
+                log(format!("{} {}.{}()", action, mod_name, fn_name));
+            })
+    } else {
+        Box::new(move |_| {})
     }
 }
 
 /*********************************************************************************************************************
  * Trace data during execution flow
  */
-pub fn make_trace_fn<'a>(is_active: bool, mod_name: &'a str, fn_name: &'a str) -> impl Fn(String) + 'a {
-    move |info| {
-        if is_active {
+pub fn make_trace_fn<'a>(is_active: bool, mod_name: &'a str, fn_name: &'a str) -> Box<dyn Fn(String) + 'a> {
+    if is_active {
+        Box::new(move |info| {
             log(format!("WASM      {}.{}() {}", mod_name, fn_name, info));
-        }
+        })
+    } else {
+        Box::new(move |_| {})
     }
 }
