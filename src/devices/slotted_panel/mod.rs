@@ -19,7 +19,7 @@ use crate::{
         config_set::{ConfigSet, PanelConfigSet},
         GenericError,
     },
-    devices::porous_absorber::PorousLayerConfig,
+    devices::{DeviceTypeArgs, porous_absorber::PorousLayerConfig},
     trace::{trace_flags::trace_flag_for, *},
 };
 
@@ -44,6 +44,8 @@ pub struct SlottedPanelArgs {
     pub air_temp: i16,
     pub air_pressure: f64,
 }
+
+impl DeviceTypeArgs for SlottedPanelArgs {}
 
 /***********************************************************************************************************************
  * Handle incoming arguments for calculating the absorption of a slotted panel absorption device

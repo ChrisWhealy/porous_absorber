@@ -9,37 +9,45 @@ mod devices;
 mod trace;
 mod utils;
 
+use std::fmt::Debug;
+use serde::Deserialize;
 use wasm_bindgen::prelude::*;
 
 use {
-    devices::{
-        microperforated_panel::MicroperforatedPanelArgs, perforated_panel::PerforatedPanelArgs,
-        porous_absorber::PorousAbsorberArgs, slotted_panel::SlottedPanelArgs,
-    },
+    devices::DeviceTypeArgs,
     trace::{make_boundary_trace_fn, make_trace_fn, trace_flags::trace_flag_for, TraceAction},
 };
 
 pub const MOD_NAME: &str = "lib";
 
 /***********************************************************************************************************************
- * Rigid backed porous absorber
+ * Invoke calculation for generic absorption device
  */
-#[wasm_bindgen]
-pub fn porous_absorber(wasm_arg_obj: JsValue) -> JsValue {
-    const FN_NAME: &str = "porous_absorber";
+fn handle_device<T>(wasm_arg_obj: JsValue, fn_name: &str, device_fn: Box<dyn Fn(T) -> JsValue>) -> JsValue
+where
+    T: DeviceTypeArgs +  for<'a> Deserialize<'a> + Debug,
+{
     let trace_active = trace_flag_for(MOD_NAME);
-    make_boundary_trace_fn(trace_active, MOD_NAME, FN_NAME)(TraceAction::EnterExit);
+    make_boundary_trace_fn(trace_active, MOD_NAME, fn_name)(TraceAction::EnterExit);
 
-    match serde_wasm_bindgen::from_value::<PorousAbsorberArgs>(wasm_arg_obj) {
+    match serde_wasm_bindgen::from_value::<T>(wasm_arg_obj) {
         Ok(arg_obj) => {
-            make_trace_fn(trace_active, MOD_NAME, FN_NAME)(format!("{:?}", arg_obj));
-            devices::porous_absorber::prepare(arg_obj)
+            make_trace_fn(trace_active, MOD_NAME, fn_name)(format!("{:?}", arg_obj));
+            device_fn(arg_obj)
         },
         Err(err) => {
             trace::error(err.to_string());
             JsValue::undefined()
         },
     }
+}
+
+/***********************************************************************************************************************
+ * Rigid backed porous absorber
+ */
+#[wasm_bindgen]
+pub fn porous_absorber(wasm_arg_obj: JsValue) -> JsValue {
+    handle_device(wasm_arg_obj, "porous_absorber", Box::new(devices::porous_absorber::prepare))
 }
 
 /***********************************************************************************************************************
@@ -47,20 +55,7 @@ pub fn porous_absorber(wasm_arg_obj: JsValue) -> JsValue {
  */
 #[wasm_bindgen]
 pub fn slotted_panel(wasm_arg_obj: JsValue) -> JsValue {
-    const FN_NAME: &str = "slotted_panel";
-    let trace_active = trace_flag_for(MOD_NAME);
-    make_boundary_trace_fn(trace_active, MOD_NAME, FN_NAME)(TraceAction::EnterExit);
-
-    match serde_wasm_bindgen::from_value::<SlottedPanelArgs>(wasm_arg_obj) {
-        Ok(arg_obj) => {
-            make_trace_fn(trace_active, MOD_NAME, FN_NAME)(format!("{:?}", arg_obj));
-            devices::slotted_panel::prepare(arg_obj)
-        },
-        Err(err) => {
-            trace::error(err.to_string());
-            JsValue::undefined()
-        },
-    }
+    handle_device(wasm_arg_obj, "slotted_panel", Box::new(devices::slotted_panel::prepare))
 }
 
 /***********************************************************************************************************************
@@ -68,20 +63,7 @@ pub fn slotted_panel(wasm_arg_obj: JsValue) -> JsValue {
  */
 #[wasm_bindgen]
 pub fn perforated_panel(wasm_arg_obj: JsValue) -> JsValue {
-    const FN_NAME: &str = "perforated_panel";
-    let trace_active = trace_flag_for(MOD_NAME);
-    make_boundary_trace_fn(trace_active, MOD_NAME, FN_NAME)(TraceAction::EnterExit);
-
-    match serde_wasm_bindgen::from_value::<PerforatedPanelArgs>(wasm_arg_obj) {
-        Ok(arg_obj) => {
-            make_trace_fn(trace_active, MOD_NAME, FN_NAME)(format!("{:?}", arg_obj));
-            devices::perforated_panel::prepare(arg_obj)
-        },
-        Err(err) => {
-            trace::error(err.to_string());
-            JsValue::undefined()
-        },
-    }
+    handle_device(wasm_arg_obj, "perforated_panel", Box::new(devices::perforated_panel::prepare))
 }
 
 /***********************************************************************************************************************
@@ -89,18 +71,5 @@ pub fn perforated_panel(wasm_arg_obj: JsValue) -> JsValue {
  */
 #[wasm_bindgen]
 pub fn microperforated_panel(wasm_arg_obj: JsValue) -> JsValue {
-    const FN_NAME: &str = "microperforated_panel";
-    let trace_active = trace_flag_for(MOD_NAME);
-    make_boundary_trace_fn(trace_active, MOD_NAME, FN_NAME)(TraceAction::EnterExit);
-
-    match serde_wasm_bindgen::from_value::<MicroperforatedPanelArgs>(wasm_arg_obj) {
-        Ok(arg_obj) => {
-            make_trace_fn(trace_active, MOD_NAME, FN_NAME)(format!("{:?}", arg_obj));
-            devices::microperforated_panel::prepare(arg_obj)
-        },
-        Err(err) => {
-            trace::error(err.to_string());
-            JsValue::undefined()
-        },
-    }
+    handle_device(wasm_arg_obj, "microperforated_panel", Box::new(devices::microperforated_panel::prepare))
 }
