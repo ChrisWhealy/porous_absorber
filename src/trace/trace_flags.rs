@@ -10,6 +10,9 @@ use crate::{
 
 type TraceConfig<'a> = (bool, &'a str);
 
+/***********************************************************************************************************************
+ * Switch runtime tracing on/off at a per-module level
+ */
 const TRACE_CONFIG: [TraceConfig; 11] = [
     (false, crate::MOD_NAME),
     (false, chart::render::MOD_NAME),
@@ -25,13 +28,11 @@ const TRACE_CONFIG: [TraceConfig; 11] = [
 ];
 
 pub fn trace_flag_for(mod_name: &str) -> bool {
-    let mut flag: bool = false;
-
-    for config in TRACE_CONFIG.iter() {
-        if config.1 == mod_name {
-            flag = config.0;
+    for tc in TRACE_CONFIG {
+        if tc.1 == mod_name {
+            return tc.0
         }
     }
 
-    flag
+    false
 }
