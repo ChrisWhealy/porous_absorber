@@ -1,8 +1,6 @@
 /***********************************************************************************************************************
  * Trace Utility - Trace crossing function boundary
  *
- * FYI: The rust-analyzer might flag the calls to the `log` function as unsafe; however, the code compiles fine
- *
  * (c) Chris Whealy 2020, 2024
  */
 use std::fmt::Formatter;
@@ -21,6 +19,7 @@ extern "C" {
     pub fn error(s: String);
 }
 
+#[allow(dead_code)]
 pub enum TraceAction {
     Enter,
     Exit,

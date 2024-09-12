@@ -28,9 +28,11 @@ where
     T: DeviceTypeArgs +  for<'a> Deserialize<'a> + Debug,
 {
     let trace_active = trace_flag_for(MOD_NAME);
-    make_boundary_trace_fn(trace_active, MOD_NAME, fn_name)(TraceAction::EnterExit);
+    let trace_boundary =  make_boundary_trace_fn(trace_active, MOD_NAME, fn_name);
 
-    match serde_wasm_bindgen::from_value::<T>(wasm_arg_obj) {
+    trace_boundary(TraceAction::Enter);
+
+    let result = match serde_wasm_bindgen::from_value::<T>(wasm_arg_obj) {
         Ok(arg_obj) => {
             make_trace_fn(trace_active, MOD_NAME, fn_name)(format!("{:?}", arg_obj));
             device_fn(arg_obj)
@@ -39,7 +41,10 @@ where
             trace::error(err.to_string());
             JsValue::undefined()
         },
-    }
+    };
+
+    trace_boundary(TraceAction::Exit);
+    result
 }
 
 /***********************************************************************************************************************
