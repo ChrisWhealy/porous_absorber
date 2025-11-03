@@ -3,82 +3,63 @@
  *
  * DOM access utility functions
  *
- * (c) Chris Whealy 2020
+ * (c) Chris Whealy 2019, 2025
  **********************************************************************************************************************/
 
-import {idiot} from "./utils.js"
-
-// *********************************************************************************************************************
-// Define trace functions
+import { idiot } from "./utils.js"
 import defineTrace from "./appConfig.js"
 
-const {traceInfo} = defineTrace("domAccess")
-
-// *********************************************************************************************************************
-//                                                 P R I V A T E   A P I
-// *********************************************************************************************************************
+const { traceInfo } = defineTrace("domAccess")
 
 // *********************************************************************************************************************
 // Partial function to fetch, then parse a DOM element value
-const getParsedElementValue =
-    parseFn =>
-        elementId => {
-            let el = $id(elementId)
-            return el
-                ? parseFn(el.value)
-                : traceInfo("getParsedElementValue")(`Element '${elementId}' not found`)
-        }
+const getParsedElementValue = parseFn =>
+  elementId =>
+    (el => el ? parseFn(el.value) : traceInfo("getParsedElementValue")(`Element '${elementId}' not found`))
+      ($id(elementId))
+
 
 // *********************************************************************************************************************
 // Write values to DOM elements
-const setDomElementProperty =
-    (elementId, propName, parsedVal) => {
-        let el = $id(elementId)
-        return el
-            ? el[propName] = parsedVal
-            : traceInfo("setDomElementProperty")(`DOM element '${elementId}' not found`)
-    }
+const setDomElementProperty = (elementId, propName, parsedVal) => {
+  let el = $id(elementId)
+  el ? el[propName] = parsedVal : traceInfo("setDomElementProperty")(`DOM element '${elementId}' not found`)
+}
 
-// *********************************************************************************************************************
-//                                                  P U B L I C   A P I
-// *********************************************************************************************************************
 
 // *********************************************************************************************************************
 // Fetch DOM elements by id, class name or name
 // Functions with "$" in the name cannot be defined using the fat arrow syntax
 function $id(elementId) {
-    return document.getElementById(elementId)
+  return document.getElementById(elementId)
 }
 
 function $class(className) {
-    return document.getElementsByClassName(className)
+  return document.getElementsByClassName(className)
 }
 
 function $name(elementName) {
-    return document.getElementsByName(elementName)
+  return document.getElementsByName(elementName)
 }
 
 // *********************************************************************************************************************
 // Getter functions for DOM elements of various data types
-const getFloat = getParsedElementValue(parseFloat)
 const getInt = getParsedElementValue(parseInt)
 const getText = getParsedElementValue(idiot)
+const getFloat = getParsedElementValue(parseFloat)
 
-// Inner HTML value needs to be coerced to a number
-const getInnerHTML = elementId => +$id(elementId).innerHTML
+const getInnerHTML = elementId => $id(elementId).innerHTML
 const getCheckbox = elementId => $id(elementId).checked
 
-const getRadio =
-    elementId => {
-        for (let rButton of $name(elementId)) {
-            if (rButton.checked) {
-                // The radio button string value must be coerced to a number
-                return +rButton.value
-            }
-        }
-
-        return 1
+const getRadio = elementId => {
+  for (var rButton of $name(elementId)) {
+    if (rButton.checked) {
+      return rButton.value
     }
+  }
+
+  return 1
+}
 
 // *********************************************************************************************************************
 // Setter functions for DOM element of various data types
@@ -87,35 +68,34 @@ const setInt = (elementId, val) => setDomElementProperty(elementId, "value", par
 const setFloat = (elementId, val) => setDomElementProperty(elementId, "value", parseFloat(val))
 const setCheckbox = (elementId, val) => setDomElementProperty(elementId, "checked", !!val)
 
-// Set radio button - the numeric argument value must be coerced to a string
+// Set radio button
 const setRadio = (elementId, val) => {
-    for (let rButton of $name(elementId)) {
-        rButton.checked = (rButton.value === val + "")
-    }
+  for (var rButton of $name(elementId)) {
+    rButton.checked = (rButton.value === val)
+  }
 }
 
 // *********************************************************************************************************************
 // Fetch air temperature and pressure config values from the DOM
-// *********************************************************************************************************************
 const fetchConfigFromDom = () => ({
-    "air_temp": $id("air_temp").value,
-    "air_pressure": $id("air_pressure").value
+  "air_temp": $id("air_temp").value,
+  "air_pressure": $id("air_pressure").value,
 })
 
 export {
-    $id,
-    $class,
-    $name,
-    getFloat,
-    getInt,
-    getText,
-    getInnerHTML,
-    getCheckbox,
-    getRadio,
-    setString,
-    setInt,
-    setFloat,
-    setCheckbox,
-    setRadio,
-    fetchConfigFromDom
+  $id,
+  $class,
+  $name,
+  getFloat,
+  getInt,
+  getText,
+  getInnerHTML,
+  getCheckbox,
+  getRadio,
+  setString,
+  setInt,
+  setFloat,
+  setCheckbox,
+  setRadio,
+  fetchConfigFromDom,
 }

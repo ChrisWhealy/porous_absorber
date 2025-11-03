@@ -9,22 +9,26 @@
 
           <tr>
             <td class="param_cell desc">Panel thickness (t<sub>p</sub>)</td>
-            <td class="param_cell"><input   id="panel_thickness_mm" type="range" min="0.5" max="10.0" step="0.01" value="1.0" oninput="updateScreenAndMouseHandler('microperforated_panel')"></td>
-            <td class="param_cell unit"     id="panel_thickness_mm_value"></td>
+            <td class="param_cell"><input id="panel_thickness_mm" type="range" min="0.5" max="10.0" step="0.01"
+                value="1.0" oninput="updateScreen('microperforated_panel')"></td>
+            <td class="param_cell unit" id="panel_thickness_mm_value"></td>
             <td class="param_cell alt_unit" id="panel_thickness_mm_alt_units"></td>
           </tr>
 
           <tr>
             <td class="param_cell desc">Holes centred every (D)</td>
-            <td class="param_cell"><input   id="repeat_distance_mm" type="range" min="0.5" max="10" step="0.01" value="4.0" oninput="limitMax(this, 'hole_radius_mm', 0.5, half); updateScreenAndMouseHandler('microperforated_panel')"></td>
-            <td class="param_cell unit"     id="repeat_distance_mm_value"></td>
+            <td class="param_cell"><input id="repeat_distance_mm" type="range" min="0.5" max="10" step="0.01"
+                value="4.0"
+                oninput="limitMax(this, 'hole_radius_mm', 0.5, half); updateScreen('microperforated_panel')"></td>
+            <td class="param_cell unit" id="repeat_distance_mm_value"></td>
             <td class="param_cell alt_unit" id="repeat_distance_mm_alt_units"></td>
           </tr>
 
           <tr>
             <td class="param_cell desc">Hole radius (a)</td>
-            <td class="param_cell"><input   id="hole_radius_mm" type="range" min="0.05" max="0.5" step="0.01" value="0.25" oninput="updateScreenAndMouseHandler('microperforated_panel')"></td>
-            <td class="param_cell unit"     id="hole_radius_mm_value"></td>
+            <td class="param_cell"><input id="hole_radius_mm" type="range" min="0.05" max="0.5" step="0.01" value="0.25"
+                oninput="updateScreen('microperforated_panel')"></td>
+            <td class="param_cell unit" id="hole_radius_mm_value"></td>
             <td class="param_cell alt_unit" id="hole_radius_mm_alt_units"></td>
           </tr>
 
@@ -43,19 +47,25 @@
 
           <tr>
             <td class="param_cell desc">Depth (d)</td>
-            <td class="param_cell"><input   id="air_gap_mm" type="range" min="1" max="200" step="1" value="50" oninput="updateScreenAndMouseHandler('microperforated_panel')"></td>
-            <td class="param_cell unit"     id="air_gap_mm_value"></td>
+            <td class="param_cell"><input id="air_gap_mm" type="range" min="1" max="200" step="1" value="50"
+                oninput="updateScreen('microperforated_panel')"></td>
+            <td class="param_cell unit" id="air_gap_mm_value"></td>
             <td class="param_cell alt_unit" id="air_gap_mm_alt_units"></td>
           </tr>
 
           <tr>
             <td class="param_cell desc">Angle of incidence (&phi;)</td>
-            <td class="param_cell"><input id="angle" type="range" min="0" max="89" step="1" value="0" oninput="updateScreenAndMouseHandler('microperforated_panel')"></td>
-            <td class="param_cell unit"   id="angle_value"></td>
+            <td class="param_cell"><input id="angle" type="range" min="0" max="89" step="1" value="0"
+                oninput="updateScreen('microperforated_panel')"></td>
+            <td class="param_cell unit" id="angle_value"></td>
           </tr>
 
-          <tr><td colspan="3" class="param_cell">&nbsp;</td></tr>
-          <tr><td colspan="3" class="param_cell">&nbsp;</td></tr>
+          <tr>
+            <td colspan="3" class="param_cell">&nbsp;</td>
+          </tr>
+          <tr>
+            <td colspan="3" class="param_cell">&nbsp;</td>
+          </tr>
         </table>
       </td>
 
@@ -66,33 +76,52 @@
           </tr>
 
           <tr>
-            <td class="param_cell desc">Show diagram</td>
-            <td class="param_cell"><input id="show_diagram" type="checkbox" oninput="updateScreenAndMouseHandler('microperforated_panel')"></td>
+            <td colspan="3" class="param_cell">
+              <table>
+                <tr>
+                  <td class="param_cell desc">Show diagram&nbsp;<input id="show_diagram" type="checkbox"
+                      oninput="updateScreenAndMouseHandler('microperforated_panel')">&nbsp;&nbsp;&nbsp;</td>
+                  <td class="param_cell desc">Smooth curve&nbsp;<input id="smooth_curve" type="checkbox"
+                      oninput="updateScreen('microperforated_panel')"></td>
+                </tr>
+              </table>
+            </td>
           </tr>
 
           <tr>
-            <td class="param_cell desc">Start graph at</td>
-            <td class="param_cell"><input   id="graph_start_freq" type="range" min="20" max="100" step="0.5" value="62.5" oninput="updateScreenAndMouseHandler('microperforated_panel')"></td>
-            <td class="param_cell unit"     id="graph_start_freq_value"></td>
+            <td class="param_cell desc">Start graph at&nbsp;<input id="graph_start_freq" type="range" min="20" max="100"
+                step="0.5" value="62.5" oninput="updateScreen('microperforated_panel')"></td>
+            <td class="param_cell unit" id="graph_start_freq_value"></td>
             <td class="param_cell alt_unit" id="graph_start_freq_alt_units"></td>
           </tr>
 
           <tr>
-            <td class="param_cell desc">Smooth curve</td>
-            <td class="param_cell"><input id="smooth_curve" type="checkbox" oninput="updateScreen('microperforated_panel')"></td>
-          </tr>
-
-          <tr>
-            <td class="param_cell desc">Subdivisions</td>
-            <td class="param_cell">
-              <input type="radio" id="subdivision1" name="subdivision" value="1" onchange="updateScreenAndMouseHandler('microperforated_panel')" checked>
-              <label for="subdivision1">Whole octaves</label><br>
-              <input type="radio" id="subdivision2" name="subdivision" value="2" onchange="updateScreenAndMouseHandler('microperforated_panel')">
-              <label for="subdivision2">Half octaves</label><br>
-              <input type="radio" id="subdivision3" name="subdivision" value="3" onchange="updateScreenAndMouseHandler('microperforated_panel')">
-              <label for="subdivision3">Third octaves</label><br>
-              <input type="radio" id="subdivision4" name="subdivision" value="6" onchange="updateScreenAndMouseHandler('microperforated_panel')">
-              <label for="subdivision4">Sixth octaves</label>
+            <td colspan="3">
+              <table>
+                <tr>
+                  <td class="param_cell descCentre">Octave<br>Subdivisions</td>
+                  <td class="param_cell">&nbsp;
+                    <input type="radio" id="subdivision1" name="subdivision" value="1"
+                      onchange="updateScreenAndMouseHandler('microperforated_panel')" checked>
+                    <label for="subdivision1">Whole</label>&nbsp;&nbsp;
+                  </td>
+                  <td>
+                    <input type="radio" id="subdivision2" name="subdivision" value="2"
+                      onchange="updateScreenAndMouseHandler('microperforated_panel')">
+                    <label for="subdivision2">1/2</label>&nbsp;&nbsp;
+                  </td>
+                  <td>
+                    <input type="radio" id="subdivision3" name="subdivision" value="3"
+                      onchange="updateScreenAndMouseHandler('microperforated_panel')">
+                    <label for="subdivision3">1/3</label>&nbsp;&nbsp;
+                  </td>
+                  <td>
+                    <input type="radio" id="subdivision4" name="subdivision" value="6"
+                      onchange="updateScreenAndMouseHandler('microperforated_panel')">
+                    <label for="subdivision4">1/6</label>
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
         </table>
@@ -100,5 +129,7 @@
     </tr>
   </table>
 
-  <p class="instruction">No porous absorber layer is needed in this device because absorption is achieved using the viscous boundary layer within the perforations.<br>For this device type to be effective, the perforation diameter must be sub-millimetre.</p>
+  <p class="instruction">No porous absorber layer is needed in this device because absorption is achieved using the
+    viscous boundary layer within the perforations.<br>For this device type to be effective, the perforation diameter
+    should not exceed 1 millimetre.</p>
 </div>

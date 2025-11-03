@@ -3,70 +3,59 @@
  *
  * Unit conversion functions
  *
- * (c) Chris Whealy 2020
+ * (c) Chris Whealy 2019, 2025
  **********************************************************************************************************************/
 
-import {$id} from "./domAccess.js"
-import {isNullOrUndef} from "./utils.js"
+import { $id } from "./domAccess.js"
+import { isNullOrUndef } from "./utils.js"
 import defineTrace from "./appConfig.js"
 
-const {traceFnBoundary, traceInfo} = defineTrace("unitConversion")
-
-// *********************************************************************************************************************
-//                                                 P R I V A T E   A P I
-// *********************************************************************************************************************
+const { traceFnBoundary, traceInfo } = defineTrace("unitConversion")
+const INCHES_PER_METRE = 39.3701
+const MILLIMETRES_PER_INCH = 25.4
 
 // *********************************************************************************************************************
 // Convert metric units to imperial
 const toImperial = (units, val) => {
-    let result = null
+  let result = null
 
-    switch (units) {
-        // Metres to feet and inches
-        case "m": {
-            let m_in_inches = val * 39.3701
-            let feet = Math.floor(m_in_inches / 12)
-            let inches = m_in_inches % 12
-            result = `(${feet} ft ${inches.toFixed(2)} in)`
-            break
-        }
+  switch (units) {
+    // Metres to feet and inches
+    case "m":
+      let m_as_inches = val * INCHES_PER_METRE
+      result = `(${Math.floor(m_as_inches / 12)} ft ${Number.parseFloat(m_as_inches % 12).toFixed(2)} in)`
+      break
 
-        // Millimetres to inches
-        case "mm": {
-            let inches = (val / 25.4).toFixed(3)
-            result = `(${inches} in)`
-            break
-        }
+    // Milliemetres to inches
+    case "mm":
+      result = `(${Number.parseFloat(val / MILLIMETRES_PER_INCH).toFixed(3)} in)`
+      break
 
-        // Degrees Centigrade to degrees Fahrenheit
-        case "°C": {
-            let fahrenheit = ((val * 9.0 / 5.0) + 32.0).toFixed(1)
-            result = `(${fahrenheit}°F)`
-            break
-        }
+    // Degrees Centigrade to degrees Fahrenheit
+    case "°C":
+      result = `(${Number.parseFloat((val * 9.0 / 5.0) + 32.0).toFixed(1)}°F)`
+      break
 
-        default:
-    }
+    default:
+  }
 
-    return result
+  return result
 }
 
 // *********************************************************************************************************************
 // Partial function to display a value in a DOM element after being formatted by the supplied function
-const showValueFn =
-    (field_suffix, fn) =>
-        (val, field_config) => {
-            let el = $id(`${field_config.id}${field_suffix}`)
+const showValueFn = (field_suffix, fn) =>
+  (val, field_config) => {
+    let el = $id(`${field_config.id}${field_suffix}`)
 
-            return isNullOrUndef(el)
-                ? traceInfo("showValue")(`DOM element ${field_config.id}${field_suffix} not found`)
-                : el.innerHTML =
-                    fn === "imperial"
-                        ? toImperial(field_config.units, val)
-                        : field_config.units === "each"
-                            ? `${val.toLocaleString()}`
-                            : `${val.toLocaleString()} ${field_config.units}`
-        }
+    isNullOrUndef(el)
+      ? traceInfo("showValue")(`DOM element ${field_config.id}${field_suffix} not found`)
+      : el.innerHTML = fn === "imperial"
+        ? toImperial(field_config.units, val)
+        : field_config.units === "each"
+          ? `${val.toLocaleString('en')}`
+          : `${val.toLocaleString('en')} ${field_config.units}`
+  }
 
 const showValue = traceFnBoundary("showValue", showValueFn)
 
@@ -77,46 +66,46 @@ const convertUnits = showValue("_alt_units", "imperial")
 
 // *********************************************************************************************************************
 // Display range slider value unit conversion if necessary
-const showAndConvertUnitsFn =
-    field_config => {
-        let displayValue
+const showAndConvertUnitsFn = field_config => {
+  let displayValue = null
 
-        switch (field_config.id) {
-            case "porosity":
-                displayValue = (
-                    Math.PI
-                    * (($id("hole_radius_mm").value / 1000) ** 2)
-                    / (($id("repeat_distance_mm").value / 1000) ** 2)
-                ).toFixed(6)
-                $id(field_config.id).innerHTML = displayValue
-                break
+  switch (field_config.id) {
+    case "porosity":
+      displayValue = (
+        Math.PI * (($id("hole_radius_mm").valueAsNumber / 1000) ** 2) / (($id("repeat_distance_mm").valueAsNumber / 1000) ** 2)
+      ).toFixed(6)
+      $id(field_config.id).innerHTML = displayValue
+      break
 
-            case "slotted_porosity":
-                let sw = $id("slot_width_mm").value / 1000
-                displayValue = (sw / (sw + ($id("slot_distance_mm").value / 1000))).toFixed(6)
-                $id(field_config.id).innerHTML = displayValue
-                break
+    case "slotted_porosity":
+      let sw = $id("slot_width_mm").value / 1000
+      displayValue = (sw / (sw + ($id("slot_distance_mm").valueAsNumber / 1000))).toFixed(6)
+      $id(field_config.id).innerHTML = displayValue
+      break
 
-            case "cavity_depth_mm":
-                displayValue = (1 * $id("air_gap_mm").value) + (1 * $id("absorber_thickness_mm").value)
-                break
+    case "lock_abs_dims":
+      if ($id("lock_abs_dims").checked) {
+        let air_gap = $id("air_gap_mm")
+        let abs_thickness = $id("absorber_thickness_mm")
 
-            default:
-                displayValue = field_config.getter(field_config.id)
-        }
+        displayValue = `${air_gap.valueAsNumber + abs_thickness.valueAsNumber} mm`
+      } else {
+        displayValue = ""
+      }
 
-        showUnits(displayValue, field_config)
-        convertUnits(displayValue, field_config)
-    }
+      break
 
-// *********************************************************************************************************************
-//                                                  P U B L I C   A P I
-// *********************************************************************************************************************
+    default:
+      displayValue = field_config.getter(field_config.id)
+  }
 
-// *********************************************************************************************************************
-// Wrap private API functions in boundary trace functionality then expose as public API
+  showUnits(displayValue, field_config)
+  convertUnits(displayValue, field_config)
+}
+
 const showAndConvertUnits = traceFnBoundary("showAndConvertUnits", showAndConvertUnitsFn)
 
 export {
-    showAndConvertUnits
+  showUnits,
+  showAndConvertUnits
 }
