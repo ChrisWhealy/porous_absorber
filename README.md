@@ -6,7 +6,6 @@ It calculates the acoustic absorption curve of a variety of absorption devices m
 
 The porous absorber is typically made from some material such as Rockwool or glass fibre insulation.
 You need to know the flow resistivity of this material in order to get the best results from this tool.
->>>>>>> f4866b5 (Update README)
 
 <a name="usage"></a>
 ## Usage
@@ -156,7 +155,6 @@ WASM <--- calc_engine::perforated_panel.calculate()
 ```
 
 <!--------------------------------------------------------------------------------------------------------------------->
->>>>>>> f4866b5 (Update README)
 <a name="to-do"></a>
 ## To Do
 
